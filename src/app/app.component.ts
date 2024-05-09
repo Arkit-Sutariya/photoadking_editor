@@ -303,33 +303,58 @@ export class AppComponent implements OnInit {
             });
 
             if (clonedObj.type === 'activeSelection') {
-              // active selection needs a special treatment
+              
               clonedObj.canvas = this.canvas;
-              clonedObj.forEachObject((obj) => {
+              clonedObj.forEachObject((obj,index) => {
                 obj.id = this.generateUniqueId();
-                obj.cornerSize= 15,
-                obj.cornerColor= '#00C3F9',
-                obj.cornerStyle= 'circle',
-                obj.transparentCorners= false,
-                obj.excludeFromExport= false,
-                obj.clipTo= null,
-                obj.element_type='basicShape'
+                obj.cornerSize = 15,
+                obj.cornerColor = '#00C3F9',
+                obj.cornerStyle = 'circle',
+                obj.transparentCorners = false,
+                obj.excludeFromExport = false,
+                obj.clipTo = null,
+                obj.element_type = activeObject._objects[index].element_type;
+
+                if(activeObject._objects[index].isCroped) {
+                  obj.cwidth = activeObject._objects[index].cwidth;
+                  obj.cheight = activeObject._objects[index].cheight;
+                  obj.cleft = activeObject._objects[index].cleft;
+                  obj.ctop = activeObject._objects[index].ctop;
+                  obj.isCroped = activeObject._objects[index].isCroped;
+                  obj._cropSource = activeObject._objects[index]._cropSource;
+                }
+                
                 this.canvas.add(obj);
                 this.canvasObjectList.push(obj.toJSON(['class','id','isLocked','element_type']));
               });
               clonedObj.setCoords();
             } 
             else {
+              
               clonedObj.element_type = activeObject.element_type;
               clonedObj.class = activeObject.class;
               clonedObj.isLocked = activeObject.isLocked;
-              clonedObj._objects.forEach((subObj, index) => {
-                if (activeObject._objects && activeObject._objects[index]) {
-                  subObj.set({
-                    id: activeObject._objects[index].id,
-                  });
-                }
-              });
+
+              if(activeObject.element_type == "shapeSticker") {
+
+                clonedObj._objects.forEach((subObj, index) => {
+                  if (activeObject._objects && activeObject._objects[index]) {
+                    subObj.set({
+                      id: activeObject._objects[index].id,
+                    });
+                  }
+                });
+              }
+
+              if(activeObject.isCroped) {
+                clonedObj.cwidth = activeObject.cwidth;
+                clonedObj.cheight = activeObject.cheight;
+                clonedObj.cleft = activeObject.left;
+                clonedObj.ctop = activeObject.top;
+                clonedObj.isCroped = activeObject.isCroped;
+                clonedObj._cropSource = activeObject._cropSource;
+              }
+
               this.canvas.add(clonedObj);
               this.canvasObjectList.push(clonedObj.toJSON(['class','id','isLocked','element_type']));
             }
@@ -645,7 +670,6 @@ export class AppComponent implements OnInit {
 
         if(activeObject.type == 'image') {
           const filters = activeObject.filters || [];
-          console.log(filters,"-- filters");
 
           filters.forEach(filter => {
             if (filter.type === 'Brightness') {
@@ -800,11 +824,9 @@ export class AppComponent implements OnInit {
         let activeObjectRight = activeObject.left + (activeObject.width * activeObject.scaleX);
         
         if(activeObject.clipPath) {
-          // console.log("if moving");
           if( activeObject.clipPath && this.whatLastLeft > activeObject.left && this.whatLastTop > activeObject.top && this.whatLastBottom < activeObjectBottom && this.whatLastRight < activeObjectRight ){
-            // console.log("if if moving");
+            
             this.layerSelected = activeObject;
-  
             this.selectedObjPos.left = Math.round(activeObject.left);
             this.selectedObjPos.top = Math.round(activeObject.top);
             this.elementWidth = Math.round(activeObject.width * activeObject.scaleX);
@@ -817,7 +839,7 @@ export class AppComponent implements OnInit {
             // this.getClippathtop = activeObject.top;
           }
           else {
-            // console.log("if else moving");
+            
             if( this.whatLastLeft < activeObject.left && this.whatLastTop > activeObject.top && this.whatLastBottom < activeObjectBottom && this.whatLastRight < activeObjectRight ) {
               activeObject.set({ left: this.whatLastLeft, top: activeObject.top });
             }
@@ -859,7 +881,7 @@ export class AppComponent implements OnInit {
         }
         else {
           this.layerSelected = activeObject;
-          // console.log("else moving");
+          
           this.selectedObjPos.left = Math.round(activeObject.left);
           this.selectedObjPos.top = Math.round(activeObject.top);
           this.elementWidth = Math.round(activeObject.width * activeObject.scaleX);
@@ -1010,7 +1032,6 @@ export class AppComponent implements OnInit {
             isCroped: true
           });
           this.canvas.renderAll();
-          console.log(this.canvas.getActiveObject(),"-- mouse down active object");
           this.isCropingEnable = false;
         }
       },
@@ -1056,8 +1077,6 @@ export class AppComponent implements OnInit {
         this.isReplaceMode = false;
         this.isCropingEnable = true;
         this.listener.crop();
-
-        console.log(this.canvas.getActiveObject(),"-- dblclick active object");
           
         /*************** crop image ************/
         /* if (e.target && e.target.type === 'image' && !this.isCropingEnable) {
@@ -1106,9 +1125,6 @@ export class AppComponent implements OnInit {
     this.canvas.off('mouse:down');
     this.canvas.off('selection:updated');
     this.canvas.off('mouse:up');
-
-    // console.log(this.cropEleScaleX,"-- this.cropEleScale --",this.newclipWidth,"-- this.newclipWidth --",this.oldclipWidth,"-- this.oldclipWidth --");
-    // console.log(((this.cropEleScaleX * this.newclipWidth)/ this.oldclipWidth),"-- scalex");
     
     var backgroundImg = new fabric.Image(image.getElement(), {
       left: this.getClippathleft - this.whatLeftDiff,
@@ -1668,7 +1684,7 @@ export class AppComponent implements OnInit {
         let rectBottom = rect.top + rect.height;
 
         if(obj.__corner == 'tl') {
-          // console.log(image.left,"-- image.left --", rect.left,"--  rect.left --",image.top,"-- image.top --",rect.top,"-- rect.top --");
+          
           if(image.left > rect.left) {
 
             activeObject.set({
@@ -1848,11 +1864,9 @@ export class AppComponent implements OnInit {
         }
 
         if(obj.__corner == 'bl') {
-          // console.log(image.left,"-- imgleft --",rect.left,"-- recleft --",imageBottom,"-- imageBottom --",rectBottom);
-          console.log(rect,"-- rect");
-          console.log(image,"-- image");
+          
           if(image.left > rect.left) {
-            console.log("left");
+            
             activeObject.set({
               left: image.left, 
               lockScalingY: true, 
@@ -1861,7 +1875,7 @@ export class AppComponent implements OnInit {
           }
 
           if(imageBottom < rectBottom) {
-            console.log("bottom");
+            
             activeObject.set({
               top: (image.top + (image.height * image.scaleY) - rect.height),
               lockScalingX: true, 
@@ -1870,7 +1884,7 @@ export class AppComponent implements OnInit {
           }
 
           if(image.left > rect.left && imageBottom < rectBottom) {
-            console.log("bottom left");
+            
             activeObject.set({
               left: image.left, 
               top: (image.top + (image.height * image.scaleY) - rect.height),
@@ -2020,7 +2034,6 @@ export class AppComponent implements OnInit {
   }
 
   saveJson() {
-    // console.log(this.canvas.getActiveObject());
     console.log(this.canvas.toJSON(['isCroped','cwidth','cheight','ctop','cleft'])['objects']);
   }
   
@@ -2584,6 +2597,14 @@ export class AppComponent implements OnInit {
           element_type: activeObject.element_type,
         }).setCoords();
         
+        if(activeObject.isCroped) {
+          cloned.cwidth = activeObject.cwidth;
+          cloned.cheight = activeObject.cheight;
+          cloned.cleft = activeObject.cleft;
+          cloned.ctop = activeObject.ctop;
+          cloned._cropSource = activeObject._cropSource;
+        }
+
         if(activeObject.element_type === 'shapeSticker') {
           cloned.class = activeObject.class,
           
@@ -2602,7 +2623,6 @@ export class AppComponent implements OnInit {
 
         this.canvasObjectList.push(cloned.toJSON(['class','id','isLocked','element_type']));
         this.canvas.add(cloned);
-        console.log(cloned,"-- cloned");
         this.canvas.discardActiveObject();
         this.layerSelected = cloned;
         this.canvas.setActiveObject(cloned);
@@ -2618,6 +2638,7 @@ export class AppComponent implements OnInit {
       this.canvasreveseobjectListe = [...this.canvasObjectList].reverse();
     }
     else if(activeObject && this.isGroup) {
+      
       activeObject.clone((cloned) => {
         this.canvas.discardActiveObject();
   
@@ -2662,8 +2683,18 @@ export class AppComponent implements OnInit {
               }
             });
             
-            obj.class = activeObject._objects[index].class,
-            obj.element_type = activeObject._objects[index].element_type,
+            obj.class = activeObject._objects[index].class;
+            obj.element_type = activeObject._objects[index].element_type;
+
+            if(activeObject._objects[index].isCroped) {
+              obj.cwidth = activeObject._objects[index].cwidth;
+              obj.cheight = activeObject._objects[index].cheight;
+              obj.cleft = activeObject._objects[index].cleft;
+              obj.ctop = activeObject._objects[index].ctop;
+              obj.isCroped = activeObject._objects[index].isCroped;
+              obj._cropSource = activeObject._objects[index]._cropSource;
+            }
+            
             this.canvas.add(obj);
             this.canvasObjectList.push(obj.toJSON(['class','id','element_type']));
             
@@ -3995,30 +4026,6 @@ export class AppComponent implements OnInit {
     else if (this.activeTabID === 5) {
       this.stock_photo_list = [
         {
-          "id": 8738483,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-roses-sea-ocean-8738483\/",
-          "type": "illustration",
-          "tags": "ai generated, woman, roses",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/04\/07\/45\/ai-generated-8738483_150.jpg",
-          "previewWidth": 85,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/ga0f394457b3fa7570e5f6139e662444cca0535383ba1f4c6e9e6bca54524ad3980049eb21c95322c4d2b4b2468a1b89e_640.jpg",
-          "webformatWidth": 362,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g843696a8e3d551d4ec0bf13633792e83e05921029afbe3ea9041822c6466f281cb961b738e20e333c7802efa96b8b49c0a84922b64631497c201bdf582bd5f09_1280.jpg",
-          "imageWidth": 2310,
-          "imageHeight": 4084,
-          "imageSize": 1990737,
-          "views": 490,
-          "downloads": 379,
-          "collections": 5,
-          "likes": 54,
-          "comments": 0,
-          "user_id": 10327513,
-          "user": "NickyPe",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-        },
-        {
           "id": 8736106,
           "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-daisy-flower-nature-8736106\/",
           "type": "illustration",
@@ -4445,6 +4452,7 @@ export class AppComponent implements OnInit {
   // Add SVG Element
   addSvgShape(svgName, stickerFrom: string = '') {
     var appended_url = svgName + '?v=' + new Date().getTime();
+    
     fabric.loadSVGFromURL(appended_url, (objects, options) => {
 
       let colorArray = objects.map(x => x.fill);

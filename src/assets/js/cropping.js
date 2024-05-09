@@ -1013,9 +1013,6 @@ var z = class {
 }
   , j = class {
     constructor(e, t) {
-        console.log(e,"--e");
-        console.log(t,"--t");
-
         this.container = e,
         this.listener = new z,
         this.sourceRenderer = new q,
@@ -1307,7 +1304,6 @@ var z = class {
     confirm() {
         let e = this.croppedData
           , t = this.sourceData;
-        // console.log(this.croppedData,"-- croppedData --",this.sourceData,"-- sourceData");
         e.flipX && (e.cropX = t.width - e.width - e.cropX),
         e.flipY && (e.cropY = t.height - e.height - e.cropY),
         this.listener.fire("confirm", C(A, e), C(N, t)),
@@ -1357,9 +1353,6 @@ var G = class {
         (t = this.canvas) == null || t.on("mouse:dblclick", this.crop),
         this.cropper.on("cropping", (r,i)=>{
             var o;
-            console.log(this.cropTarget,"-- cropTarget --",r);
-            console.log(i,"-- cropTarget --");
-
             this.cropTarget && (this.cropTarget.set({
                 ...r,
                 cropX: r.cropX,
@@ -1383,7 +1376,6 @@ var G = class {
             var r, i;
             (r = this.canvas) == null || r.discardActiveObject(),
             (i = this.canvas) == null || i.renderAll()
-            console.log(this.canvas);
         }
         ),
         this.cropper.on("end", ()=>{
