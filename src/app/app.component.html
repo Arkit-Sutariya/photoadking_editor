@@ -180,8 +180,8 @@
                   </ul>
             </div>
             
-            <div class="active-tab-content" style="overflow-y: scroll;">
-                  <div class="cat-wrapper" style="position: relative;" *ngIf="activeTabID === 2 || activeTabID === 5">
+            <div class="active-tab-content" style="overflow-y: scroll;" *ngIf="activeTabID === 2 || activeTabID === 5">
+                  <div class="cat-wrapper" style="position: relative;">
                         <div class="extra_div" style="position: sticky;top: 0px;background: #374168;z-index: 111;">
                               <div class="custom-search-control margin-bottom cat-search w-100">
                                     <button type="button" class="btn btn-outline-secondary"
@@ -306,6 +306,313 @@
                         </div>
                   </div>
             </div>
+            <div class="active-tab-content" [style.overflow-y]="!bgcolor && !gradient ? 'scroll' : 'initial'" *ngIf="activeTabID == 4">
+                  <div class="extra_div" style="position: sticky;top: 0px;background: #374168;z-index: 111;">
+                        <div class="mb-cust-8 sub-tab-container" id="color_list_cntainr" *ngIf="bg_sub_tab_shown == true">
+                              <div class="sub-tab-content" id="color_option_cntainr">
+                                    <ul class="sub-tab smooth-slop-tab">
+                                          <li class="sub-tab-item" (click)="activateBackgroundSubTab('color')" id="actv_clrtb"
+                                                [ngClass]="{'active-sub-menu blue-active': bgcolor}">Colors</li>
+                                          <li class="sub-tab-item" (click)="activateBackgroundSubTab('textures')" id="actv_txturetb"
+                                                [ngClass]="{'active-sub-menu blue-active': textures}">Collection</li>
+                                          <li class="sub-tab-item" (click)="activateBackgroundSubTab('images')" id="actv_bgtb"
+                                                [ngClass]="{'active-sub-menu blue-active': images}">Stock</li>
+                                          <li class="sub-tab-item" (click)="activateBackgroundSubTab('myPhotos')" id="actv_imgtb"
+                                                [ngClass]="{'active-sub-menu blue-active': bgMyPhotos}">My Photos</li>
+                                    </ul>
+                              </div>
+                        </div>
+                  </div>
+                  <div class="color-grad-container" *ngIf="bgcolor || gradient">
+                        <p class="color-head-text">Colors</p>
+                        <div class='cust-colors-left-container item-container color-container four-col margin-bottom bgColorPicker' id="clr_containr">
+                              <div class="item d-grid" [(colorPicker)]="props.canvasFill"
+                                    [cpPosition]="'left'" [cpWidth]="'228px'" [style.background]="props.canvasFill"
+                                    [cpAlphaChannel]="'always'" [cpOutputFormat]="'hex'"
+                                    (colorPickerChange)="setAllColor($event,'bgColor')" tabindex="-1" id="vd_clrpicker">
+                                    <img src="./assets/icons/gradient_edit.png">
+                                    <svg class="gradient-plus-icon" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                                          xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 267.8 267.8"
+                                          style="enable-background:new 0 0 267.8 267.8;" xml:space="preserve">
+                                          <style type="text/css">
+                                                .stgrad0 {
+                                                      fill: #374168;
+                                                }
+                                          </style>
+                                          <polygon class="stgrad0" points="267.8,148.9 267.8,118.9 150.9,118.9 148.9,118.9 148.9,116.9 148.9,0 118.9,0 118.9,116.9 
+                                        118.9,118.9 116.9,118.9 0,118.9 0,148.9 116.9,148.9 118.9,148.9 118.9,150.9 118.9,267.8 148.9,267.8 148.9,150.9 148.9,148.9 
+                                        150.9,148.9 " />
+                                    </svg>
+                              </div>
+                              <div class="item d-grid" tabindex="-1" id="vd_clrpicker" (click)="removeBackgroundColorGradient()">
+                                    <img src="./assets/icons/transperant.png">
+                              </div>
+                              <div class="item" *ngFor="let color of colors; let k= index"
+                                    (click)="props.canvasFill = color;setCanvasFill();" id="{{'clr_op'+k}}">
+                                    <div [style.background-color]="color" class="h-100 w-100"></div>
+                              </div>
+                        </div>
+                        <p class="color-head-text mt-3">Gradients</p>
+                        <div class='cust-colors-left-container item-container color-container four-col margin-bottom' id="grad_clr_cntainr">
+                              <div class="item" [matMenuTriggerFor]="gradientPopup" id="stgrd">
+                                    <img src="./assets/icons/gradient_edit.png">
+                                    <svg class="gradient-plus-icon" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                                          xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 267.8 267.8"
+                                          style="enable-background:new 0 0 267.8 267.8;" xml:space="preserve">
+                                          <style type="text/css">
+                                                .stgrad0 {
+                                                      fill: #374168;
+                                                }
+                                          </style>
+                                          <polygon class="stgrad0" points="267.8,148.9 267.8,118.9 150.9,118.9 148.9,118.9 148.9,116.9 148.9,0 118.9,0 118.9,116.9 
+                                                            118.9,118.9 116.9,118.9 0,118.9 0,148.9 116.9,148.9 118.9,148.9 118.9,150.9 118.9,267.8 148.9,267.8 148.9,150.9 148.9,148.9 
+                                                            150.9,148.9 " />
+                                    </svg>
+                              </div>
+                              <mat-menu #gradientPopup="matMenu" yPosition="above" xPosition="before" [overlapTrigger]="false" class="text-gradient-popup">
+                                    <div (click)="$event.stopPropagation();" id="cnvs_grd_menu">
+                                          <div class="d-flex" style="padding: 10px;">
+                                                <div class="custom-gradient-type-text-container d-flex flex-column">
+                                                      <span style="font-weight:500;color: #151515;font-size:14px;margin: 0 0 7px 6px !important;display:table-cell;vertical-align: top;">
+                                                            Style 
+                                                      </span>
+                                                      <span>
+                                                            <button mat-raised-button id="grd_linear" (click)="selectGradient('linear')"
+                                                                  matTooltip="Linear Gradient" matTooltipPosition="below" style="position: relative;">
+                                                                  <div class="overlay-check-small" *ngIf="gradientMode == 'linear'">
+                                                                        <svg class="overlay-image-sm-ic" xmlns="http://www.w3.org/2000/svg" version="1.0"
+                                                                              id="vd_txtgrad_lner_true" viewBox="0 0 1024.000000 1024.000000"
+                                                                              preserveAspectRatio="xMidYMid meet">
+                                                                              <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)"
+                                                                                    fill="#ffffff" stroke="none">
+                                                                                    <path
+                                                                                          d="M6331 5967 l-3065 -3182 -136 140 c-75 77 -620 642 -1210 1255 -591 613 -1079 1116 -1086 1118 -15 4 -816 -827 -812 -843 4 -16 3226 -3359 3241 -3363 12 -2 6950 7192 6955 7213 3 14 -795 845 -812 844 -6 0 -1390 -1432 -3075 -3182z" />
+                                                                              </g>
+                                                                        </svg>
+                                                                  </div>
+                                                                  <img src="./assets/icons/linear.png">
+                                                            </button>
+                                                            <button mat-raised-button id="grd_radial" (click)="selectGradient('radial')"
+                                                                  matTooltip="Radial Gradient" matTooltipPosition="below" style="position: relative;">
+                                                                  <div class="overlay-check-small" *ngIf="gradientMode == 'radial'">
+                                                                        <svg class="overlay-image-sm-ic" xmlns="http://www.w3.org/2000/svg" version="1.0"
+                                                                              id="vd_txtgrad_rdal_true" viewBox="0 0 1024.000000 1024.000000"
+                                                                              preserveAspectRatio="xMidYMid meet">
+                                                                              <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)"
+                                                                                    fill="#ffffff" stroke="none">
+                                                                                    <path
+                                                                                          d="M6331 5967 l-3065 -3182 -136 140 c-75 77 -620 642 -1210 1255 -591 613 -1079 1116 -1086 1118 -15 4 -816 -827 -812 -843 4 -16 3226 -3359 3241 -3363 12 -2 6950 7192 6955 7213 3 14 -795 845 -812 844 -6 0 -1390 -1432 -3075 -3182z" />
+                                                                              </g>
+                                                                        </svg>
+                                                                  </div>
+                                                                  <img src="./assets/icons/radial.png">
+                                                            </button>
+                                                      </span>
+                                                </div>
+                                                <div class="mb-2 direction-cust-con" style="width: 100%;display: table;">
+                                                      <span style="font-weight:500;color: #374168;font-size:14px;margin: auto 0px !important;display:table-cell;vertical-align: top;">Angle</span>
+                                                      <div class="pull-right direction-box custom-direction-box">
+                                                            <mat-radio-group *ngIf="isTextGradient && gradientMode == 'linear'" id="mt_rdo_grp"
+                                                                  [(ngModel)]="linearMode" (change)="changeGradient(linearMode)">
+                                                                  <mat-radio-button value="tl" id="vd_txtlner_tl" name="tl" class="overwrite-radio tl top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="tm" id="vd_txtlner_tm" name="tm" class="overwrite-radio tm top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="tr" id="vd_txtlner_tr" name="tr" class="overwrite-radio tr top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="ml" id="vd_txtlner_ml" name="ml" class="overwrite-radio ml top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="mr" id="vd_txtlner_mr" name="mr" class="overwrite-radio mr top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="bl" id="vd_txtlner_bl" name="bl" class="overwrite-radio bl">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="bm" id="vd_txtlner_bm" name="bm" class="overwrite-radio bm">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="br" id="vd_txtlner_br" name="br" class="overwrite-radio br">
+                                                                  </mat-radio-button>
+                                                            </mat-radio-group>
+                                          
+                                                            <mat-radio-group *ngIf="isTextGradient && gradientMode == 'radial'" id="mt_rdo_radial"
+                                                                  [(ngModel)]="radialMode" (change)="changeRadialGradient(radialMode)">
+                                                                  <mat-radio-button value="tl" id="vd_txtrad_tl" name="tl" class="overwrite-radio tl top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="tm" id="vd_txtrad_tm" name="tm" class="overwrite-radio tm top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="tr" id="vd_txtrad_tr" name="tr" class="overwrite-radio tr top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="ml" id="vd_txtrad_ml" name="ml" class="overwrite-radio ml top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="mm" id="vd_txtrad_mm" name="mm" class="overwrite-radio mm top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="mr" id="vd_txtrad_mr" name="mr" class="overwrite-radio mr top">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="bl" id="vd_txtrad_bl" name="bl" class="overwrite-radio bl">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="bm" id="vd_txtrad_bm" name="bm" class="overwrite-radio bm">
+                                                                  </mat-radio-button>
+                                                                  <mat-radio-button value="br" id="vd_txtrad_br" name="br" class="overwrite-radio br">
+                                                                  </mat-radio-button>
+                                                            </mat-radio-group>
+                                                      </div>
+                                                      <div class="clearfix"></div>
+                                                </div>
+                                          </div>
+                                          <div class="spread-saperator custom-saperator">
+                                                <div class="spread-over-border"></div>
+                                          </div>
+                                          <div class="global-scroll" id="txt_grd_scrl_container"
+                                                style="padding: 10px; max-height: 250px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: #0F1934 #E5E5E5;">
+                                                <div class="spread-text">Spread</div>
+                                                <div class="d-flex justify-content-between mb-2 txt-geadient-clr-picker h-44 position-relative"
+                                                      *ngFor="let clr of gradientArray; let i = index;">
+                                                      <div type="text" class="form-control color-input pull-right custom-picker" [cpPosition]="'bottom'"
+                                                            [cpWidth]="'198px'" [cpOutputFormat]="'hex'" [(colorPicker)]="clr.color" id="{{'grd_clr'+i}}"
+                                                            [style.background]="clr.color" (colorPickerChange)="changeGradientColor(clr.color,i)">
+                                                      </div>
+                                                      <div class="color-spread-conatiner">
+                                                            <div class="control-grouper mb-cust-5">
+                                                                  <div class="new-input-control cust-limit-width m-auto">
+                                                                        <button id="dec_txt_gred" name="dec_txt_gred" style="background: white !important;"
+                                                                              (touchstart)="timeoutStop();gradientDecreButton(0, 1, 'text', i);"
+                                                                              (touchend)="timeoutStop();"
+                                                                              (mousedown)="timeoutStop();gradientDecreButton(0, 1, 'text', i);"
+                                                                              (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();"
+                                                                              [disabled]="clr.offset <= 0">
+                                                                              <svg _ngcontent-c11="" xml:space="preserve"
+                                                                                    xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1"
+                                                                                    style="enable-background:new 0 0 100 20;" version="1.1" viewBox="0 0 100 20"
+                                                                                    x="0px" xmlns="http://www.w3.org/2000/svg" y="0px">
+                                                                                    <style _ngcontent-c11="" type="text/css">
+                                                                                          .st-minus2 {
+                                                                                                fill: #000;
+                                                                                          }
+                                                                                    </style>
+                                                                                    <rect _ngcontent-c11="" class="st-minus2" height="20" width="100"></rect>
+                                                                              </svg>
+                                                                        </button>
+                                                                        <input type="number" id="inpt_txt_gred" name="inpt_txt_gred"
+                                                                              style="background-color: white !important;" [(ngModel)]="clr.offset"
+                                                                              (change)="removeTrailZero($event)" (focus)="isInputFocus = true"
+                                                                              (blur)="isInputFocus = false" title="" min="0" max="100" step="1"
+                                                                              (keydown)="gradientInputIncreDecre($event, 0, 100, 1, 'text', i)">
+                                                                        <button id="inc_txt_gred" name="inc_txt_gred" style="background: white !important;"
+                                                                              (touchstart)="timeoutStop();gradientIncreButton(100, 1, 'text', i);"
+                                                                              (touchend)="timeoutStop();"
+                                                                              (mousedown)="timeoutStop();gradientIncreButton(100, 1, 'text', i);"
+                                                                              (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();"
+                                                                              [disabled]="clr.offset >= 100">
+                                                                              <svg _ngcontent-c11="" xml:space="preserve"
+                                                                                    xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1"
+                                                                                    style="enable-background:new 0 0 100 100;" version="1.1" viewBox="0 0 100 100"
+                                                                                    x="0px" xmlns="http://www.w3.org/2000/svg" y="0px">
+                                                                                    <style _ngcontent-c11="" type="text/css">
+                                                                                          .st-plus2 {
+                                                                                                fill-rule: evenodd;
+                                                                                                clip-rule: evenodd;
+                                                                                                fill: #000;
+                                                                                          }
+                                                                                    </style>
+                                                                                    <polygon _ngcontent-c11="" class="st-plus2"
+                                                                                          points="60,40 60,0 40,0 40,40 0,40 0,60 40,60 40,100 60,100 60,60 100,60 100,40 ">
+                                                                                    </polygon>
+                                                                              </svg>
+                                                                        </button>
+                                                                  </div>
+                                                            </div>
+                                                            <mat-slider min="1" max="100" step="1" value="clr.offset" style="width: 90%;" tickInterval="null"
+                                                                  id="{{'gradi_slider'+i}}" (input)="onSliderInput($event, clr)">
+                                                                  <input [value]="clr.offset" matSliderThumb>
+                                                            </mat-slider>
+                                                      </div>
+                                                      <button mat-raised-button class="custom-color-remove-container" id="rmv_txt_grad" name="rmv_txt_grad"
+                                                            (click)="removeGradientColor(i)" style="background-color: white;border: solid 1px #9A9A9A;">
+                                                            <svg xml:space="preserve" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1"
+                                                                  style="enable-background:new 0 0 100 20;" height="3" version="1.1" viewBox="0 0 100 20" x="0px"
+                                                                  xmlns="http://www.w3.org/2000/svg" y="0px">
+                                                                  <style _ngcontent-c11="" type="text/css">
+                                                                        .st-minus2 {
+                                                                              fill: #000;
+                                                                        }
+                                                                  </style>
+                                                                  <rect _ngcontent-c11="" class="st-minus2" height="20" width="100"></rect>
+                                                            </svg>
+                                                      </button>
+                                                </div>
+                                          </div>
+                                          <button class="color-add-container pull-right custom-add-button" id="ad_gradclr" name="add_txt_grad"
+                                                style="float: right;margin-top: 10px;margin-right: 15px;background-color: white !important;padding: 0px 0px 3px 10px !important;" (click)="addTextGradientColor()">
+                                                <svg style="width:12px; height:12px;margin-right: 10px;margin-top: -3px;" matTooltip="Add Color"
+                                                      matTooltipPosition="left" xmlns="http://www.w3.org/2000/svg" version="1.0"
+                                                      viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
+                                                      <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                            <path
+                                                                  d="M4550 7955 l0 -2265 -2265 0 -2265 0 0 -570 0 -570 2265 0 2265 0 0 -2265 0 -2265 570 0 570 0 0 2265 0 2265 2265 0 2265 0 0 570 0 570 -2265 0 -2265 0 0 2265 0 2265 -570 0 -570 0 0 -2265z" />
+                                                      </g>
+                                                </svg>
+                                          </button>
+                                          <!-- <div class="clearfix"></div> -->
+                                          <div class="spread-saperator custom-saperator" style="margin-top: 38px;">
+                                                <div class="spread-over-border"></div>
+                                          </div>
+                                          <span style="font-weight:500;color: #7D7D7D;font-size:14px;margin-bottom: 12px;padding: 15px;">Default Gradients</span>
+                                          <div class="textDefaultGradientItemWrap">
+                                                <div class="textDefaultGradientItem" *ngFor="let colorItem of textDefaultGradientCollection;let i = index"
+                                                      [ngStyle]="{'background': colorItem.CSSCOLOR}" id="{{'gradcollection' + i}}"
+                                                      (click)='initializeGradient("bgDefaultGradient",i)'>
+                                                </div>
+                                          </div>
+                                    </div>
+                              </mat-menu>
+                              <div class="item" *ngFor="let colorItem of gradientCollection;let i = index" id="{{'gradclr'+ i}}"
+                                    (click)="initializeGradient('bgStaticGradient',i)">
+                                    <div class="w-100 h-100" [ngStyle]="{'background': colorItem.CSSCOLOR}"></div>
+                              </div>
+                        </div>
+                  </div>
+                  <div class="catalog-wrapper mb-2" *ngIf="bg_sub_tab_shown==true && backgroundCatalog_list.length>0 && textures">
+                        <div class="catalog-list sub-tab-container" id="bgctlog_list_cntainr">
+                              <button mat-raised-button class="catalog-list-btn catalog-slide-btn mr-2" id="bg_scrl_lft"
+                                    *ngIf="backgroundCatalog_list.length>0" (click)="bgScrollLeft()">
+                                    <svg class="catalog-slide-btn-icon" viewBox="0 0 1024.000000 1024.000000"
+                                          xmlns="http://www.w3.org/2000/svg">
+                                          <g fill="#ffffff" stroke="none" transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+                                                <path
+                                                      d="M7161 10214 c-73 -15 -187 -67 -258 -116 -59 -39 -4510 -4476 -4566 -4550 -100 -131 -141 -272 -135 -458 4 -107 9 -138 35 -211 16 -48 51 -118 77 -157 35 -53 589 -611 2292 -2309 1235 -1231 2267 -2253 2293 -2271 217 -156 515 -181 749 -63 231 117 379 340 397 598 11 148 -26 293 -106 431 -26 43 -522 544 -2014 2034 l-1980 1978 1982 1977 c1741 1738 1987 1986 2022 2048 164 287 122 635 -104 867 -103 105 -244 183 -379 207 -80 15 -227 13 -305 -5z">
+                                                </path>
+                                          </g>
+                                    </svg>
+                              </button>
+                              <div class="sub-tab-content pb-2" id="bgtb_cntainr" #backgroundsTab>
+                                    <ul class="sub-tab">
+                                          <li *ngFor="let catalog_details of backgroundCatalog_list;let i= index" class="sub-tab-li"
+                                                id="{{'bgl'+i}}"
+                                                [ngClass]="bg_catalog_id == catalog_details.catalog_id ? 'active-sub-menu new-active' : ''"
+                                                (click)="backgroundCatalogChanged(catalog_details);setCategoryInCenter();">
+                                                {{catalog_details.name}}</li>
+                                    </ul>
+                              </div>
+                              <button mat-raised-button class="catalog-list-btn catalog-slide-btn ml-2" id="bg_scr_rght"
+                                    *ngIf="backgroundCatalog_list.length>0" (click)="bgScrollRight()">
+                                    <svg class="catalog-slide-btn-icon" preserveAspectRatio="xMidYMid meet" version="1.0"
+                                          viewBox="0 0 1024.000000 1024.000000" xmlns="http://www.w3.org/2000/svg">
+                                          <g fill="#ffffff" stroke="none" transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+                                                <path
+                                                      d="M2735 10210 c-134 -35 -223 -86 -323 -183 -78 -77 -142 -177 -179 -282 -26 -74 -28 -92 -28 -230 0 -131 3 -159 24 -220 28 -83 71 -164 117 -222 19 -23 915 -922 1992 -1997 l1957 -1956 -1973 -1972 c-1336 -1336 -1987 -1992 -2013 -2033 -82 -125 -113 -245 -107 -415 4 -103 10 -140 33 -209 70 -206 240 -375 450 -447 105 -36 285 -45 398 -20 91 21 193 69 272 129 33 25 1073 1058 2311 2294 2227 2224 2251 2249 2293 2329 58 114 81 212 81 344 0 169 -38 288 -135 425 -52 73 -4510 4518 -4578 4564 -65 45 -164 88 -240 106 -88 21 -264 19 -352 -5z">
+                                                </path>
+                                          </g>
+                                    </svg>
+                              </button>
+                        </div>
+                  </div>
+                  <div *ngIf="textures" class='item-container three-col margin-bottom texture-container' id="txtr_containr"
+                        [ngClass]="{'texture-search-container': (bg_sub_tab_shown!=true || backgroundCatalog_list.length<=0) && textures}" >
+
+                        <div class="item" *ngFor="let item of txturs_bg_list.content_list;let i = index" id="{{'txtr_bg_lst'+i}}">
+                              <img (click)="setCollectionBackground(item, txturs_bg_list)" [src]="item.thumbnail_img"
+                                id="{{'txtr_bg_img'+i}}" draggable="true" (dragend)="setCollectionBackground(item, txturs_bg_list)">
+                        </div>
+                  </div>
+            </div>
       </div>
 
       <div class="editor-container" [ngStyle]="{'width': canvas_container}" [ngClass]="{'isCropingEnable': isCropingEnable}">
@@ -320,7 +627,7 @@
             <ul class="nav nav-tabs" role="tablist" style="background: #0f1934;position: sticky;top: 0;">
                   <div class="d-flex w-100" style="padding: 10px;">
                         <li class="nav-item" id="editor_op">
-                              <a style="margin-right: 5px;" class="nav-link" (click)="activeTab('prop')" [ngClass]="[ IsPropActive ? 'active' : '']">
+                              <a style="margin-right: 5px;" class="nav-link" (click)="activeRhtTab('prop')" [ngClass]="[ IsPropActive ? 'active' : '']">
                                     <svg style="height: 23px; width: 23px;" xmlns="http://www.w3.org/2000/svg" version="1.0"
                                           viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
                                           <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="#ffffff"
@@ -333,7 +640,7 @@
                               </a>
                         </li>
                         <li class="nav-item" id="layer_op">
-                              <a style="margin-left: 5px;" class="nav-link" (click)="activeTab('layer')" [ngClass]="[ is_layer_active ? 'active' : '']">
+                              <a style="margin-left: 5px;" class="nav-link" (click)="activeRhtTab('layer')" [ngClass]="[ is_layer_active ? 'active' : '']">
                                     <svg style="height: 23px; width: 23px;" xmlns="http://www.w3.org/2000/svg" version="1.0"
                                           viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
                                           <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="#ffffff"
@@ -346,7 +653,7 @@
                               </a>
                         </li>
                         <li id="pages-btn" class="nav-item">
-                              <a style="margin-left: 5px;" class="nav-link" (click)="activeTab('page')" [ngClass]="[ is_page_active ? 'active' : '']">
+                              <a style="margin-left: 5px;" class="nav-link" (click)="activeRhtTab('page')" [ngClass]="[ is_page_active ? 'active' : '']">
                                     <svg class="pages-svg" id="Layer_1" data-name="Layer 1" style="height: 23px; width: 23px;" xmlns="http://www.w3.org/2000/svg"
                                           viewBox="0 0 1024 1024">
                                           <defs>
@@ -454,10 +761,10 @@
             </div>
 
             <div *ngIf="IsPropActive" class="position-container mb-0">
-                  <div *ngIf="selected && !isGroup">
+                  <div *ngIf="(selected && !isGroup) || isBgImg">
 
                         <mat-accordion>
-                              <mat-expansion-panel>
+                              <mat-expansion-panel *ngIf="!isBgImg">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title *ngIf="(isSvgEle || isRect || isCircle || isLine) && !isSvgSticker">
                                                 Element Setting
@@ -1583,10 +1890,35 @@
                                           </table>
                                     </div>
                               </mat-expansion-panel>
+
+                              <mat-expansion-panel class="custom-panel" *ngIf="isBgImg">
+                                    <mat-expansion-panel-header class="custom-expansion-header" name="color_panel">
+                                          <mat-panel-title>
+                                                Setting
+                                          </mat-panel-title>
+                                    </mat-expansion-panel-header>
+                                    <div class="single-control-container">
+                                          <table class="w-100pr">
+                                                <tr class="mb-2 mt-1">
+                                                      <td class="wc-84"><span class="d-block wc-84 mt-7">Scale Mode : </span></td>
+                                                      <td class="w-100">
+                                                            <mat-select style="width: 100% !important" [(ngModel)]="props.scaleMode"
+                                                                  (selectionChange)="changeScaleMode()"
+                                                                  class="overwrite-dropdown custom-drop-down-image mt-2" id="vd_scale">
+                                                                  <mat-option [value]="item.value" class="overwrite-dropdown-option" id="{{'itm'+it}}"
+                                                                        *ngFor="let item of scaleOption; let it = index">
+                                                                        <span>{{item.display_value}}</span>
+                                                                  </mat-option>
+                                                            </mat-select>
+                                                      </td>
+                                                </tr>
+                                          </table>
+                                    </div>
+                              </mat-expansion-panel>
                         </mat-accordion>
                   </div>
 
-                  <div class="pb-2 d-flex flex-wrap w-100" *ngIf="!selected">
+                  <div class="pb-2 d-flex flex-wrap w-100" *ngIf="!selected && !isBgImg">
                         <div class="w-100 mrgn-top">
                               <svg class="sdbar-logo" viewBox="0 0 403 64" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M41.4356 0.0820312H10.6931C4.78745 0.0820312 0 4.82092 0 10.6666V41.0974C0 46.9431 4.78745 51.682 10.6931 51.682H41.4356C47.3413 51.682 52.1287 46.9431 52.1287 41.0974V10.6666C52.1287 4.82092 47.3413 0.0820312 41.4356 0.0820312Z"

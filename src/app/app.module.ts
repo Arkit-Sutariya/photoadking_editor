@@ -10,6 +10,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatSelectModule } from "@angular/material/select";
+import { MatMenuModule } from '@angular/material/menu';
+import { MatRadioModule } from '@angular/material/radio';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule } from 'ngx-ui-loader';
 import { ReverseArrayPipe } from './reverse-array.pipe'; 
@@ -30,6 +32,8 @@ import { DataService } from 'src/app/services/data.service';
     MatSliderModule,
     MatCheckboxModule,
     MatSelectModule,
+    MatMenuModule,
+    MatRadioModule,
     ColorPickerModule,
     NgxUiLoaderModule,
     NgxUiLoaderHttpModule.forRoot({

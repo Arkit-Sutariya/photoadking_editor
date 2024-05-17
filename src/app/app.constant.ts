@@ -85,6 +85,7 @@ export const SHADOW_THEME = [{
 }];
 
 export const HOST = environment.host;
+export const transparentColor = '#ffffff00';
 
 export const StickerType = {
     Image: 0,
@@ -147,3 +148,960 @@ export const blendMode = [
     { label: 'Darken', value: 'darken' }
 ]
 
+export const COLORS = [
+    "#ff1616", "#ff42b6", "#cb6ce6", "#8c52ff", "#000000", "#555555", "#737373", "#a7a7a7", "#d9d9d9", "#ffffff", "#03989e", "#00c2cb", "#5ce1e6", "#38b6ff", "#5372ff", "#014bae", "#008037", "#7ed957", "#c9e265", "#ffde59", "#ffbd59", "#ff914d", "#5c2935", "#897254", "#a58478", "#f17daf", "#d31b6b", "#5c0b74"
+];
+
+export const INTRO_COLORS = [
+    "#0054BB", "#3583E3", "#9FCAFF", "#FF0000", "#FF5A5A", "#FB8A8A", "#FFBDBD", "#FF9600", "#FFAF3D", "#FFBE61", "#FFD190", "#FFDE00", "#FFEA5F", "#FFF38D", "#FFF8C1"
+]
+
+export const TEXT_DEFAULT_GRADIENT_COLORS = [
+    {
+        "ID": 1,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(270deg, #3533CD 0%, #000 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#3533CD",
+                "offset": 0
+            },
+            {
+                "color": "#000",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 2,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #F91362 0%, #35126A 100%",
+        "COLORARRAY": [
+            {
+                "color": "#F91362",
+                "offset": 0
+            },
+            {
+                "color": "#35126A",
+                "offset": 1
+            },
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 3,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #29F19C 0%, #02A1F9 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#29F19C",
+                "offset": 0
+            },
+            {
+                "color": "#02A1F9",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 4,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FF66C4 0%, #FFDE59 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FF66C4",
+                "offset": 0
+            },
+            {
+                "color": "#FFDE59",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 5,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #004AAD 0%, #CB6CE6 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#004AAD",
+                "offset": 0
+            },
+            {
+                "color": "#CB6CE6",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 6,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FF75C3 0%, #FFA647 20%, #FFE83F 40%, #9FFF5B 60%, #70E2FF 80%, #CD93FF 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FF75C3",
+                "offset": 0
+            },
+            {
+                "color": "#FFA647",
+                "offset": 0.2
+            },
+            {
+                "color": "#FFE83F",
+                "offset": 0.4
+            },
+            {
+                "color": "#9FFF5B",
+                "offset": 0.6
+            },
+            {
+                "color": "#70E2FF",
+                "offset": 0.8
+            },
+            {
+                "color": "#CD93FF",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 7,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #B2FEFA 0%, #0ED2F7 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#B2FEFA",
+                "offset": 0
+            },
+            {
+                "color": "#0ED2F7",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 8,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #F3EC78 0%, #AF4261 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#F3EC78",
+                "offset": 0
+            },
+            {
+                "color": "#AF4261",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 9,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #D4FC79 0%, #96E6A1 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#D4FC79",
+                "offset": 0
+            },
+            {
+                "color": "#96E6A1",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 10,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(244deg, #B0FAD3 16.17%, #93DA93 30.62%, #E5AC91 50%, #61BBDC 66.92%, #9CF3E8 83.83%)",
+        "COLORARRAY": [
+            {
+                "color": "#B0FAD3",
+                "offset": 0.16
+            },
+            {
+                "color": "#93DA93",
+                "offset": 0.31
+            },
+            {
+                "color": "#E5AC91",
+                "offset": 0.5
+            },
+            {
+                "color": "#61BBDC",
+                "offset": 0.67
+            },
+            {
+                "color": "#9CF3E8",
+                "offset": 0.84
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 11,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #4AC7FA 0%, #E649F5 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#4AC7FA",
+                "offset": 0
+            },
+            {
+                "color": "#E649F5",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 12,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #E100FF 0%, #7F00FF 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#E100FF",
+                "offset": 0
+            },
+            {
+                "color": "#7F00FF",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 13,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(270deg, #231557 0%, #44107A 28.6%, #FF1361 66.82%, #FFF800 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#231557",
+                "offset": 0
+            },
+            {
+                "color": "#44107A",
+                "offset": 0.28
+            },
+            {
+                "color": "#FF1361",
+                "offset": 0.67
+            },
+            {
+                "color": "#FFF800",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 14,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(270deg, #B12A5B 0%, #CF556C 25.38%, #FF8C7F 63.27%, #FF8177 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#B12A5B",
+                "offset": 0
+            },
+            {
+                "color": "#CF556C",
+                "offset": 0.25
+            },
+            {
+                "color": "#FF8C7F",
+                "offset": 0.63
+            },
+            {
+                "color": "#FF8177",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    }
+];
+
+export const GRADIENT_COLORS = [
+    {
+        "ID": 11,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #C31432 0%, #240B36 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#C31432",
+                "offset": 0
+            },
+            {
+                "color": "#240B36",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 12,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(180deg, #EE0979 0%, #FF6A00 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#EE0979",
+                "offset": 0
+            },
+            {
+                "color": "#FF6A00",
+                "offset": 1
+            }
+        ],
+        "COORDS": "tm"
+    },
+    {
+        "ID": 13,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(180deg, #ADD100 0%, #6D8208 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#ADD100",
+                "offset": 0
+            },
+            {
+                "color": "#6D8208",
+                "offset": 1
+            }
+        ],
+        "COORDS": "tm"
+    },
+    {
+        "ID": 14,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #EF0013 0%, #1A00E7 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#EF0013",
+                "offset": 0
+            },
+            {
+                "color": "#1A00E7",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 15,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #FFBD55 0%, #FF8E3D 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FFBD55",
+                "offset": 0
+            },
+            {
+                "color": "#FF8E3D",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 16,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #60EEFF 0%, #009CFF 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#60EEFF",
+                "offset": 0
+            },
+            {
+                "color": "#009CFF",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 17,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(180deg, #FF0F47 0%, #FFAB96 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FF0F47",
+                "offset": 0
+            },
+            {
+                "color": "#FFAB96",
+                "offset": 1
+            }
+        ],
+        "COORDS": "tm"
+    },
+    {
+        "ID": 18,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #29F19C 0%, #02A1F9 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#29F19C",
+                "offset": 0
+            },
+            {
+                "color": "#02A1F9",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 19,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #93F9B9 0%, #1D976C 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#93F9B9",
+                "offset": 0
+            },
+            {
+                "color": "#1D976C",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 20,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(180deg, #F988E7 0%, #9F56CB 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#F988E7",
+                "offset": 0
+            },
+            {
+                "color": "#9F56CB",
+                "offset": 1
+            }
+        ],
+        "COORDS": "tm"
+    },
+    {
+        "ID": 21,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #DD5E89 0%, #F7BB97 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#DD5E89",
+                "offset": 0
+            },
+            {
+                "color": "#F7BB97",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 22,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FF8E44 0%, #F91362 50.52%, #35126A 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FF8E44",
+                "offset": 0
+            },
+            {
+                "color": "#F91362",
+                "offset": 0.5
+            },
+            {
+                "color": "#35126A",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 23,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #EDA05B 0%, #C52519 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#EDA05B",
+                "offset": 0
+            },
+            {
+                "color": "#C52519",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 24,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FFFB7D 0%, #85FFBD 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FFFB7D",
+                "offset": 0
+            },
+            {
+                "color": "#85FFBD",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 25,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(76.74% 76.74% at 50% 50%, #EEF3F5 0%, #F93D5F 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#EEF3F5",
+                "offset": 0
+            },
+            {
+                "color": "#F93D5F",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 26,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(76.74% 76.74% at 50% 50%, #EAF8EB 0%, #8BFBF9 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#EAF8EB",
+                "offset": 0
+            },
+            {
+                "color": "#8BFBF9",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 27,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(76.74% 76.74% at 50% 50%, #FFF3BD 0%, #B4CDC3 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FFF3BD",
+                "offset": 0
+            },
+            {
+                "color": "#B4CDC3",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 28,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FCD1FF 0%, #D0FFD4 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FCD1FF",
+                "offset": 0
+            },
+            {
+                "color": "#D0FFD4",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 29,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(76.74% 76.74% at 50% 50%, #FFF7AE 0%, #FFB183 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FFF7AE",
+                "offset": 0
+            },
+            {
+                "color": "#FFB183",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 30,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #FFA1DF 0%, #FECFF1 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#FFA1DF",
+                "offset": 0
+            },
+            {
+                "color": "#FECFF1",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 31,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #CEBEFB 0%, #C3FDE4 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#CEBEFB",
+                "offset": 0
+            },
+            {
+                "color": "#C3FDE4",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 32,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(180deg, #C9FFBF 0%, #FFAFBD 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#C9FFBF",
+                "offset": 0
+            },
+            {
+                "color": "#FFAFBD",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 33,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(77.91% 77.91% at 50% 50%, #F5E7D3 0%, #FFFC54 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#F5E7D3",
+                "offset": 0
+            },
+            {
+                "color": "#FFFC54",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 34,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(77.91% 77.91% at 50% 50%, #F6F6F6 0%, #ABECD6 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#F6F6F6",
+                "offset": 0
+            },
+            {
+                "color": "#ABECD6",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 35,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(77.91% 77.91% at 50% 50%, #B9FDFF 0%, #ACBFFF 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#B9FDFF",
+                "offset": 0
+            },
+            {
+                "color": "#ACBFFF",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 1,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #606060 0%, #000000 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#606060",
+                "offset": 0
+            },
+            {
+                "color": "#000000",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 2,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #041476 0%, #031FC0 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#041476",
+                "offset": 0
+            },
+            {
+                "color": "#031FC0",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 3,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #8A021F 0%, #400007 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#8A021F",
+                "offset": 0
+            },
+            {
+                "color": "#400007",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 4,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #2C0D5D 0%, #8B0061 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#2C0D5D",
+                "offset": 0
+            },
+            {
+                "color": "#8B0061",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 5,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #747312 0%, #00174A 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#747312",
+                "offset": 0
+            },
+            {
+                "color": "#00174A",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 6,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #307BB6 0%, #032447 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#307BB6",
+                "offset": 0
+            },
+            {
+                "color": "#032447",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 7,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #191654 0%, #5D0088 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#191654",
+                "offset": 0
+            },
+            {
+                "color": "#5D0088",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    },
+    {
+        "ID": 8,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #5E4200 0%, #030039 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#5E4200",
+                "offset": 0
+            },
+            {
+                "color": "#030039",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 9,
+        "TYPE": "radial",
+        "CSSCOLOR": "radial-gradient(50% 50% at 50% 50%, #44A08D 0%, #093637 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#44A08D",
+                "offset": 0
+            },
+            {
+                "color": "#093637",
+                "offset": 1
+            }
+        ],
+        "COORDS": "mm"
+    },
+    {
+        "ID": 10,
+        "TYPE": "linear",
+        "CSSCOLOR": "linear-gradient(90deg, #0F2027 0%, #203A43 53.65%, #2C5364 100%)",
+        "COLORARRAY": [
+            {
+                "color": "#0F2027",
+                "offset": 0
+            },
+            {
+                "color": "#203A43",
+                "offset": 0.5
+            },
+            {
+                "color": "#2C5364",
+                "offset": 1
+            }
+        ],
+        "COORDS": "ml"
+    }
+];
+
+export const maxCanvasHeight = 3000;
+export const maxCanvasWidth = 3000;
+export const minCanvasHeight = 50;
+export const minCanvasWidth = 50;
+export const maxCanvasWidth_in = 14;
+export const maxCanvasHeight_in = 14;
+export const minCanvasWidth_in = 0.169;
+export const minCanvasHeight_in = 0.169;
+export const maxCanvasWidth_cm = 59.4;
+export const maxCanvasHeight_cm = 59.4;
+export const minCanvasWidth_cm = 0.42;
+export const minCanvasHeight_cm = 0.42;
+export const maxCanvasWidth_mm = 355.6;
+export const maxCanvasHeight_mm = 355.6;
+export const minCanvasWidth_mm = 4.24;
+export const minCanvasHeight_mm = 4.24;
+export const minFontSize = 8;
+export const maxFontSize = 240;
+export const add_image_tab_index = 2;
+export const add_elements_tab_index = 1;
+export const background_tab_index = 4;
+export const textart_tab_index = 4;
+export const video_textart_tab_index = 5;
+export const edit_qr_code_index = 7;
+export const maxVideoUploadDim = 2000;
+export const maxImgUploadDim = 5001;
+
+export const ERROR = Object.freeze({
+    OFFLINE: 'Unable to connect with server, please try again.',
+    SERVER_INTERNET_ERR: 'Unable to connect with server, please check your internet connection.',
+    NOT_ABLE_DOWNLOAD_NOW: 'Not able to Download now, please try again.',
+    IMAGE_INTERNET_ERR: 'Failed to load image, please check your internet connection.',
+    EMPTY_EMAIL: 'Please enter email',
+    INVALID_EMAIL: 'Please enter valid email',
+    EMPTY_PASSWORD: 'Please enter password',
+    INVALID_PASSWORD: 'Password length must be between 8 to 50 character',
+    EMPTY_FIRSTNAME: 'Please enter name',
+    INVALID_FIRSTNAME: 'Please enter valid name',
+    FB_ERROR: 'Unable to connect with facebook',
+    G_ERROR: 'Unable to connect with google',
+    SERVER_ERR: 'Unable to connect with server, please reload the page.',
+    CURR_PASSWORD: 'Please enter your old password',
+    NEW_PASSWORD: 'Please enter your new password',
+    RE_PASSWORD: 'Please re-enter your new password',
+    MISSMATCH_PASSWORD: "New password & repeat new password doesn't match.",
+    PASS_SERVER_ERR: "Unable to change password, please try again.",
+    LOGIN_ERR_UNKNOWN: "Unable to login, please try again.",
+    MAXFILESIZE: "Please upload image upto 5MB",
+    MAXFONTFILESIZE: "Please upload font file upto 2MB",
+    LOGGED_OUT_DIFF_TAB: "You have been logged out, please login again.",
+    CANVAS_BLANK: "Blank card can't be saved",
+    GO_PRO_ENABLE: "You must Go Pro to enable this feature",
+    // MAX_WIDTH_CANVAS_ERROR: "Please enter width between 50px-3000px",
+    MAX_WIDTH_CANVAS_ERROR: "Dimensions must be at least " + minCanvasWidth + " px and no more than " + maxCanvasWidth + " px.",
+    MAX_HEIGHT_CANVAS_ERROR: "Dimensions must be at least " + minCanvasHeight + " px and no more than " + maxCanvasHeight + " px.",
+    MAX_WIDTH_CANVAS_ERROR_CM: "Dimensions must be at least " + minCanvasWidth_cm + " cm and no more than " + maxCanvasWidth_cm + " cm.",
+    MAX_HEIGHT_CANVAS_ERROR_CM: "Dimensions must be at least " + minCanvasHeight_cm + " cm and no more than " + maxCanvasHeight_cm + " cm.",
+    MAX_WIDTH_CANVAS_ERROR_IN: "Dimensions must be at least " + minCanvasWidth_in + " in and no more than " + maxCanvasWidth_in + " in.",
+    MAX_HEIGHT_CANVAS_ERROR_IN: "Dimensions must be at least " + minCanvasHeight_in + " in and no more than " + maxCanvasHeight_in + " in.",
+    MAX_WIDTH_CANVAS_ERROR_MM: "Dimensions must be at least " + minCanvasWidth_mm + " mm and no more than " + maxCanvasWidth_mm + " mm.",
+    MAX_HEIGHT_CANVAS_ERROR_MM: "Dimensions must be at least " + minCanvasHeight_mm + " mm and no more than " + maxCanvasHeight_mm + " mm.",
+    FB_ID_ERROR: "No logged in accounts found, please do login.",
+    AGREE_FONT_UPLOAD: "Please accept if you own the licence for this font usage",
+    // OTHERCREDENTIALS: "Credentials doesn't match. You must use the credentials that you have used to login earlier.",
+    OTHERCREDENTIALS: "You have done the signup using your social account like Facebook or Gmail. Please try to login using Facebook or Gmail.",
+    MAX_SEARCH_LENGTH: "Search text length must be between 0 to 100 character",
+    SEARCH_TEXT_INVALID: "Please enter valid search text",
+    CARD_NOT_FOUND: "Requested template not found, Please try another template.",
+    TEXT_INTERNET_ERR: "Sorry, we're unable to load the font, please try again..",
+    IMG_STKR_INTERNET_ERR: 'Failed to load sticker image, please check your internet connection.',
+    IMG_FRAME_INTERNET_ERR: 'Failed to load frame image, please check your internet connection.',
+    STKR_INTERNET_ERR: 'Failed to load stickers, please check your internet connection.',
+    FAILED_TO_GEN_TEMPL: "Failed to generate Template, please try again!",
+    FAILED_TO_GEN_VID: "Failed to generate video, please try again!",
+    FAILED_TO_LOAD_VID: "Failed to load video, please try to adding a new video.",
+    FAILED_TO_LOAD_AUD: "Failed to load audio, please try to adding a new audio.",
+    USER_AUDIO_DELETED: "Uploaded audio is deleted",
+    FAILED_TO_LOAD_IMG: "JSON images not found on the server, please upload JSON images first.",
+    RNDR_SAVE_JSON: "Please render & save template JSON data.",
+    MAXFILEVIDSIZE: "Please upload video file upto 5MB",
+    MAXFILEVIDDIM: "Please upload video file upto 2000*2000 dimension",
+    MAXFILEAUDSIZE: "Please upload audio file upto 5MB",
+    DURATION_ERR: "Duration must be greater than 2 seconds",
+    INVALID_START_INPUT: "Invalid input for start time, please enter a valid input.",
+    INVALID_END_INPUT: "Invalid input for end time, please enter a valid input.",
+    RENAME_TEXT_EMPTY: "Please enter new name",
+    FOLDER_NAME_TEXT_EMPTY: 'Please enter folder name',
+    EMPTY_FEEDBACK_DESCRIPTION: 'Please enter description',
+    INVALID_IMAGE: 'Croped image is too small.',
+    EMPTY_VIDEO: 'Please add any video first and try again.',
+    EMPTY_INTRO: 'Please add any template first and try again.',
+    LONG_VIDEO: 'Video duration must be less than 1 minute',
+    INVALID_CAPTCHA: 'There was a problem verifying the CAPTCHA',
+    EMPTY_FULL_NAME: 'Please enter your full name',
+    EMPTY_ADDRESS: 'Please enter your address',
+    EMPTY_COUNTRY: 'Please select your country',
+    EMPTY_STATE: 'Please enter your state',
+    EMPTY_CITY: 'Please enter your city',
+    EMPTY_ZIP: 'Please enter your zip code',
+    PAYMENT_AUTHENTICATION_FAILED: "Failed To Authentication. Please try again",
+    UNABLE_TO_PROCESS_CARD: "Unable to process your card. Please try again",
+    TRY_TO_LOGIN: "Payment was successfully. Please try to login again",
+    ADD_STOCK_IMAGE: "Please remove any other stock image to add this image",
+    ADD_3D_IMAGE: "Please remove any stock image or 3D object to add this object",
+    ERASE_IMAGE: "Please remove any stock image or 3D object to erase image",
+    SHARE_CANVAS_BLANK: "Blank card can't be share."
+});

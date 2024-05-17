@@ -79,7 +79,6 @@ svg {
       margin: auto;
 }
 
-
 .single-control-container {
       display: table;
       padding-top: 5px;
@@ -152,6 +151,11 @@ svg {
       left: 0 !important;
 }
 
+::ng-deep .bgColorPicker .color-picker {
+      top: 125px !important;
+      left: 100px !important;
+}
+
 ::ng-deep .mat-expansion-panel-header {
       height: 30px !important;
       background-color: #29314E !important;
@@ -191,6 +195,12 @@ svg {
       display: flex !important;
       max-width: 100% !important;
       max-height: 100% !important;
+}
+
+::ng-deep #cdk-overlay-0 {
+      width: 276px !important;
+      bottom: 400px !important;
+      left: 100px !important;
 }
 
 ::ng-deep .overwrite-dropdown-option {
