@@ -356,6 +356,13 @@ label {
       left: 100px !important; */
 }
 
+::ng-deep #cdk-overlay-0.cdk-overlay-pane:has(> div#mat-menu-panel-0) {
+      width: auto !important;
+      height: fit-content !important;
+      top: 0px !important;
+      left: 100px !important;
+}
+
 ::ng-deep .overwrite-dropdown-option {
       height: 40px !important;
       color: #fff !important;
