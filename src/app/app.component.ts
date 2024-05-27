@@ -3824,7 +3824,7 @@ export class AppComponent implements OnInit {
         this.selectedObjPos.left = Math.round(activeObject.left);
         this.selectedObjPos.top = Math.round(activeObject.top);
         this.activeBorderRadius = (activeObject.rx) ? activeObject.rx : 0;
-        this.isReplaceShow = (activeObject._objects) ? false : false;
+        this.isReplaceShow = (activeObject._objects) ? false : true;//false;
         this.layerSelected = activeObject;
         
         this.changeToolTipPosition(activeObject);
@@ -4035,7 +4035,7 @@ export class AppComponent implements OnInit {
         this.selectedObjPos.left = Math.round(activeObject.left);
         this.selectedObjPos.top = Math.round(activeObject.top);
         this.activeBorderRadius = (activeObject.rx) ? activeObject.rx : 0;
-        this.isReplaceShow = (activeObject._objects) ? false : false;
+        this.isReplaceShow = (activeObject._objects) ? false : true;//false;
         this.layerSelected = activeObject;
         this.changeToolTipPosition(activeObject);
 
@@ -4294,7 +4294,7 @@ export class AppComponent implements OnInit {
           this.selectedObjPos.top = Math.round(activeObject.top);
           this.elementWidth = Math.round(activeObject.width * activeObject.scaleX);
           this.elementHeight = (activeObject.type === 'line') ? activeObject.strokeWidth : Math.round(activeObject.height * activeObject.scaleY);
-          this.isReplaceShow = (activeObject._objects) ? false : false;
+          this.isReplaceShow = (activeObject._objects) ? false : true;
           
           this.getClippathwidth = activeObject.width * activeObject.scaleX;
           this.getClippathheight = activeObject.height * activeObject.scaleY;
@@ -4327,7 +4327,7 @@ export class AppComponent implements OnInit {
           this.whatEleWidth = activeObject.width;
           this.selectedObjPos.left = Math.round(activeObject.left);
           this.selectedObjPos.top = Math.round(activeObject.top);
-          this.isReplaceShow = (activeObject._objects) ? false : false;
+          this.isReplaceShow = (activeObject._objects) ? false : true;//false;
           
           if(!activeObject.clipPath) {
             this.getClippathwidth = activeObject.width * activeObject.scaleX;
@@ -4363,7 +4363,7 @@ export class AppComponent implements OnInit {
       },
       'selection:cleared': (e) => {
         
-        this.isReplaceShow = (this.isGroup) ? false : false;
+        this.isReplaceShow = (this.isGroup) ? false : true;
         if (!this.isReplaceSame) {
           this.isReplaceMode = false;
         }
@@ -4411,7 +4411,7 @@ export class AppComponent implements OnInit {
           //     // this.setRotationDefStyle();
           //     break;
           // }
-          this.isReplaceShow = (this.isReplaceShow) ? false : false;
+          this.isReplaceShow = (this.isReplaceShow) ? false : true;
         }
       },
       'object:selected': (e) => {
@@ -4465,7 +4465,8 @@ export class AppComponent implements OnInit {
           // this.canvas.backgroundColor = (this.whatLastBg) ? this.whatLastBg : '#ffffff';
           this.canvas.renderAll();
           this.isCropingEnable = false;
-          this.activeTabID = 5;
+          this.isReplaceShow = true;
+          // this.activeTabID = 5;
         }
       },
       'mouse:up': (e) => {
@@ -4509,8 +4510,8 @@ export class AppComponent implements OnInit {
         this.isReplaceMode = false;
         
         if(e.target.type === 'image' && !this.isCropingEnable) {
-          this.activeTabID = 0;
           this.isCropingEnable = true;
+          /* // this.activeTabID = 0;
 
           const activeObject = this.canvas.getActiveObject();
           // console.log(activeObject,"-- activeObject");
@@ -4678,8 +4679,10 @@ export class AppComponent implements OnInit {
             
             }
           }
-          // console.log(this.cropSource,"-- cropSource dblclick");
-          this.listener.crop(this.cropSource);
+          // console.log(this.cropSource,"-- cropSource dblclick"); */
+          
+          // this.listener.crop(this.cropSource);
+          this.listener.crop();
         }
 
         /*************** crop image ************/

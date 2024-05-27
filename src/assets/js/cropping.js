@@ -794,38 +794,37 @@ function ue(s) {
     l = r[_[n]],
     h = e.subtract(l).rotate(-a),
     c = new g(o[n]).subtract(l).rotate(-a),
-    p, m, d, f;
-    // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0,
-    // m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0,
-    // d = ee(p, 16, Math.abs(c.x)),
-    // f = ee(m, 16, Math.abs(c.y));
+    p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0,
+    m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0,
+    d = ee(p, 16, Math.abs(c.x)),
+    f = ee(m, 16, Math.abs(c.y));
 
-    if (t.croppingType) {
-        // For aspectRatio
-        // let aspectRatio = Math.abs(c.y) / Math.abs(c.x)
-        // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
-        // m = p * aspectRatio
-        // d = ee(p, 16, Math.abs(c.x))
-        // f = ee(m, 16, Math.abs(c.y))
+    // if (t.croppingType) {
+    //     // For aspectRatio
+    //     // let aspectRatio = Math.abs(c.y) / Math.abs(c.x)
+    //     // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
+    //     // m = p * aspectRatio
+    //     // d = ee(p, 16, Math.abs(c.x))
+    //     // f = ee(m, 16, Math.abs(c.y))
 
-        let aspectRatio = t.width / t.height;
-        p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
-        m = p * aspectRatio
-        d = ee(p, 16, Math.abs(c.x));
-        f = d / aspectRatio;
-    } 
-    else {
-        // For freeform scaling
-        // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
-        // m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0
-        // d = ee(p, 16, Math.abs(c.x))
-        // f = ee(m, 16, Math.abs(c.y))
+    //     let aspectRatio = t.width / t.height;
+    //     p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
+    //     m = p * aspectRatio
+    //     d = ee(p, 16, Math.abs(c.x));
+    //     f = d / aspectRatio;
+    // } 
+    // else {
+    //     // For freeform scaling
+    //     // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
+    //     // m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0
+    //     // d = ee(p, 16, Math.abs(c.x))
+    //     // f = ee(m, 16, Math.abs(c.y))
 
-        p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
-        m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0;
-        d = ee(p, 16, Math.abs(c.x));
-        f = ee(m, 16, Math.abs(c.y));
-    }
+    //     p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
+    //     m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0;
+    //     d = ee(p, 16, Math.abs(c.x));
+    //     f = ee(m, 16, Math.abs(c.y));
+    // }
 
     const Y = {
         tl: ()=>({
@@ -1355,8 +1354,7 @@ function ve(s) {
 }
 var G = class {
     constructor(e, t) {
-        this.crop = (cropSource)=>{
-            // console.log(cropSource,"-- cropSource");
+        this.crop = ()=>{
             var r;
             let i = (r = this.canvas) == null ? void 0 : r.getActiveObject();
             if (!i || !this.cropper || !ve(i))
@@ -1364,61 +1362,11 @@ var G = class {
             this.cropTarget = i;
             let o = i.toObject();
 
-            if(i._cropSource.type){ 
-                if(cropSource.croppingType) {
-                    o.cropX = cropSource.cropX;
-                    o.cropY = cropSource.cropY;
-                    o.height = cropSource.height;
-                    o.left = cropSource.left;
-                    o.scaleX = cropSource.scaleX;
-                    o.scaleY = cropSource.scaleY;
-                    o.top = cropSource.top;
-                    o.width = cropSource.width;
-                }
-                /* else if(cropSource.croppingType == '16:9') {
-                    o.cropX = cropSource.cropX;
-                    o.cropY = cropSource.cropY;
-                    o.height = cropSource.height;
-                    o.left = cropSource.left;
-                    o.scaleX = cropSource.scaleX;
-                    o.scaleY = cropSource.scaleY;
-                    o.top = cropSource.top;
-                    o.width = cropSource.width;
-                }
-                else if(cropSource.croppingType == '9:16') {
-                    o.cropX = cropSource.cropX;
-                    o.cropY = cropSource.cropY;
-                    o.height = cropSource.height;
-                    o.left = cropSource.left;
-                    o.scaleX = cropSource.scaleX;
-                    o.scaleY = cropSource.scaleY;
-                    o.top = cropSource.top;
-                    o.width = cropSource.width;
-                }
-                else if(cropSource.croppingType == '5:4') {
-                    o.cropX = cropSource.cropX;
-                    o.cropY = cropSource.cropY;
-                    o.height = cropSource.height;
-                    o.left = cropSource.left;
-                    o.scaleX = cropSource.scaleX;
-                    o.scaleY = cropSource.scaleY;
-                    o.top = cropSource.top;
-                    o.width = cropSource.width;
-                    console.log(o,"-- o");
-                } */
-
-                /* // this.cropper.croppedData.height =  cropSource.height;
-                // this.cropper.croppedData.width =  cropSource.width;
-                // this.cropper.croppedData.croppingType = cropSource.croppingType; */
-            
-            }
-
             this.cropper.crop({
                 src: i.getSrc(),
                 cropData: o,
                 sourceData: i._cropSource || o,
             })
-            this.cropper.croppedData.croppingType = cropSource.croppingType;
         }
         ,
         this.canvas = e,
