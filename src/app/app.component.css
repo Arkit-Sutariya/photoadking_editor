@@ -86,6 +86,159 @@ svg {
       width: 100%;
 }
 
+/********** Tools CSS ************/
+.tool-options-item .item {
+      background: none !important;
+      border-radius: 0px !important;
+}
+.tool-options-item .tool-qrcode div {
+      background: #3BA4C8;
+      padding: 18px;
+}
+
+.tool-options-item .tool-item-image {
+      border-radius: 5px;
+}
+
+.height-90 {
+      height: 90px;
+}
+
+.tool-options-item .item p {
+      text-align: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 8px;
+      margin-bottom: 9px;
+}
+
+.height-20 {
+      height: 20px;
+}
+
+.item img {
+      margin: auto;
+      max-height: inherit;
+      max-width: 100%;
+      -webkit-user-drag: initial;
+}
+
+.tool-options-item .tool-barcode div {
+      background: #D04F74;
+      padding: 22.4px 18px 23px 18px;
+}
+
+.tool-options-item .tool-chart div {
+      background: #69B264;
+      padding: 18px;
+}
+
+.tool-code-preview {
+      margin-top: 15px;
+      height: calc(100vh - 135px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0px 8px;
+}
+
+.tool-code-preview p {
+      color: #fff;
+      margin-left: 7px;
+      font-size: 15px;
+}
+
+.code-preview {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 0px;
+}
+
+#qrcanvas {
+      height: 111px !important;
+      width: 111px !important;
+}
+
+.tool-tab-style {
+      padding-left: 5px;
+      padding-right: 5px;
+      margin-top: 22px;
+}
+
+.qr-content {
+      margin-left: 5px;
+      margin-right: 5px;
+}
+
+.tool-form-group label {
+      color: #fff;
+      font-size: 14px;
+}
+
+label {
+      display: inline-block;
+      margin-bottom: .5rem;
+}
+
+.tool-select-box {
+      position: relative;
+}
+
+.tool-select-box .select-option div {
+      border-radius: 0px !important;
+      border: none !important;
+}
+
+.tool-select-box .select-main img, .select-option img, .select-option svg {
+      vertical-align: top;
+      margin-top: 4px;
+      margin-right: 9px;
+      width: 18px;
+}
+
+.tool-select-box .tool-drop-down-icon {
+      position: absolute;
+      top: 13px;
+      right: 13px;
+      width: 14px;
+}
+
+/**************** Cropping CSS *****************/
+.crop_div_parent {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+}
+
+.crop_parent_svg {
+      width: 110px;
+      height: 110px;
+      background-color: #c3c8db;
+      border-radius: 10px;
+      margin-bottom: 25px;
+}
+
+.crop_svg_ele {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+}
+
+.crop_txt{
+      color: white;
+      font-size: 12px;
+      display: flex;
+      justify-content: center;
+      margin: 5px 0px 0px 0px;
+}
+
+.active-crop-border {
+      border: 3px solid #0069ff;
+      border-radius: 8px;
+}
+/*********************************/
+
 ::ng-deep .mat-mdc-checkbox {
       position: absolute !important;
       top: 0 !important;
@@ -199,8 +352,8 @@ svg {
 
 ::ng-deep #cdk-overlay-0 {
       width: 276px !important;
-      bottom: 400px !important;
-      left: 100px !important;
+      /* bottom: 400px !important;
+      left: 100px !important; */
 }
 
 ::ng-deep .overwrite-dropdown-option {

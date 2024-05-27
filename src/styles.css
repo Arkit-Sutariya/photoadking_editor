@@ -2029,7 +2029,6 @@ ul {
 
 .new-input-control input {
       background-color: #0f1934;
-      color: black;
       width: 42px;
       border: none;
       height: 27px;
@@ -2063,13 +2062,6 @@ ul {
 
 .overwrite-slider.three-long-slider {
       width: 190px !important;
-}
-
-.overwrite-slider {
-      height: 20px !important;
-      width: 150px !important;
-      padding: 0px !important;
-      cursor: pointer !important;
 }
 
 .overwrite-slider-intro .mat-slider-wrapper,
@@ -2174,21 +2166,16 @@ ul {
       max-width: 10px !important;
 }
 
-/* Add this CSS to your styles.css or in your component's styles */
 .mat-radio-button {
       border-radius: 0 !important;
-      /* Remove border-radius to make it square */
       width: 10px !important;
-      /* Set the width to 10px */
       height: 10px !important;
       padding: 0;
       margin: 0;
 }
 
-/* Optional: Add some padding to make it visually appealing */
 .mat-radio-button-label {
       padding: 8px !important;
-      /* Adjust padding as needed */
 }
 
 .mdc-radio__outer-circle {
@@ -2203,7 +2190,6 @@ ul {
 .mdc-radio__outer-circle,
 .mdc-radio__inner-circle {
       border-radius: 0 !important;
-      /* Remove border-radius for inner and outer circles */
 }
 
 .mat-mdc-radio-touch-target {
@@ -2271,6 +2257,145 @@ ul {
 
 .cust-colors-left-container .item div, .download-info-container {
       border-radius: 5px;
+}
+
+/************ Tools CSS *************/
+.tool-option-text {
+      color: #fff;
+      font-weight: 600;
+      margin-left: 15px;
+      margin-bottom: 8px;
+}
+.tool-options-item {
+      max-height: unset !important;
+}
+
+.item-container {
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 0 8px;
+}
+
+.sticker-item-container {
+      max-height: calc(100% - 160px);
+}
+
+.item-container.three-col .item {
+      width: calc(33% - 10px);
+}
+
+.item {
+      background-color: #283256;
+      border-radius: 5px;
+      display: -ms-grid;
+      display: grid;
+      position: relative;
+      display: -moz-grid;
+}
+
+.item,
+.item-audio {
+      overflow: hidden;
+      transition: .3s;
+      margin: 5px;
+      min-height: 35px;
+      cursor: pointer;
+}
+
+.ml-auto,
+.mx-auto {
+      margin-left: auto !important;
+}
+
+.mr-auto,
+.mx-auto {
+      margin-right: auto !important;
+}
+
+.ml-auto,
+.mx-auto {
+      margin-left: auto !important;
+}
+
+.mr-auto,
+.mx-auto {
+      margin-right: auto !important;
+}
+
+.tool-option-text {
+      color: #fff;
+      font-weight: 600;
+      margin-left: 15px;
+      margin-bottom: 8px;
+}
+
+.ml-1,
+.mx-1 {
+      margin-left: .25rem !important;
+}
+
+.ml-1,
+.mx-1 {
+      margin-left: .25rem !important;
+}
+
+.tool-back-icon {
+      vertical-align: baseline;
+      margin-right: 8px;
+      cursor: pointer;
+}
+
+.tool-back-icon svg {
+      width: 16px;
+}
+
+.mb-0, .my-0 {
+      margin-bottom: 0 !important;
+}
+
+.mb-0, .my-0 {
+      margin-bottom: 0 !important;
+}
+
+.sub-tab-container {
+      width: 100%;
+      display: flex;
+}
+
+.sub-tab-content {
+      width: 100%;
+      overflow: auto;
+      scrollbar-color: white #0009;
+      scroll-behavior: smooth;
+}
+
+.smooth-slop-tab {
+      border-radius: 5px;
+      padding-bottom: 5px;
+}
+  
+.sub-tab {
+      padding: 0;
+      margin: 0 !important;
+      display: flex;
+}
+
+.form-control {
+      display: block;
+      width: 100%;
+      height: calc(1.5em + .75rem + 2px);
+      padding: .375rem .75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #495057;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #ced4da;
+      border-radius: .25rem;
+      transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
 @media only screen and (max-width: 1340px) {

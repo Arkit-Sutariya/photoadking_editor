@@ -789,16 +789,45 @@ s.mt = "mb",
 s.mb = "mt",
 s))(_ || {});
 function ue(s) {
-    let {pointer: e, croppedData: t, croppedControlCoords: r, sourceData: i, sourceControlCoords: o, corner: n} = s
-      , a = t.angle
-      , l = r[_[n]]
-      , h = e.subtract(l).rotate(-a)
-      , c = new g(o[n]).subtract(l).rotate(-a)
-      , p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
-      , m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0
-      , d = ee(p, 16, Math.abs(c.x))
-      , f = ee(m, 16, Math.abs(c.y))
-      , Y = {
+    let {pointer: e, croppedData: t, croppedControlCoords: r, sourceData: i, sourceControlCoords: o, corner: n} = s,
+    a = t.angle,
+    l = r[_[n]],
+    h = e.subtract(l).rotate(-a),
+    c = new g(o[n]).subtract(l).rotate(-a),
+    p, m, d, f;
+    // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0,
+    // m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0,
+    // d = ee(p, 16, Math.abs(c.x)),
+    // f = ee(m, 16, Math.abs(c.y));
+
+    if (t.croppingType) {
+        // For aspectRatio
+        // let aspectRatio = Math.abs(c.y) / Math.abs(c.x)
+        // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
+        // m = p * aspectRatio
+        // d = ee(p, 16, Math.abs(c.x))
+        // f = ee(m, 16, Math.abs(c.y))
+
+        let aspectRatio = t.width / t.height;
+        p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
+        m = p * aspectRatio
+        d = ee(p, 16, Math.abs(c.x));
+        f = d / aspectRatio;
+    } 
+    else {
+        // For freeform scaling
+        // p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0
+        // m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0
+        // d = ee(p, 16, Math.abs(c.x))
+        // f = ee(m, 16, Math.abs(c.y))
+
+        p = Math.sign(h.x) === Math.sign(c.x) ? Math.abs(h.x) : 0;
+        m = Math.sign(h.y) === Math.sign(c.y) ? Math.abs(h.y) : 0;
+        d = ee(p, 16, Math.abs(c.x));
+        f = ee(m, 16, Math.abs(c.y));
+    }
+
+    const Y = {
         tl: ()=>({
             x: -d,
             y: -f
@@ -832,19 +861,20 @@ function ue(s) {
             y: 0
         })
     }
-      , u = new g(Y[n]()).rotate(a).add(l)
-      , w = u.subtract(o.tl).rotate(-a);
+    const u = new g(Y[n]()).rotate(a).add(l),
+        w = u.subtract(o.tl).rotate(-a);
+    
     return {
-        croppedData: {
-            ...t,
-            left: u.x,
-            top: u.y,
-            width: d / t.scaleX,
-            height: f / t.scaleY,
-            cropX: w.x / t.scaleX,
-            cropY: w.y / t.scaleY
-        },
-        sourceData: i
+    croppedData: {
+        ...t,
+        left: u.x,
+        top: u.y,
+        width: d / t.scaleX,
+        height: f / t.scaleY,
+        cropX: w.x / t.scaleX,
+        cropY: w.y / t.scaleY
+    },
+    sourceData: i
     }
 }
 var ge = s=>{
@@ -1119,7 +1149,7 @@ var z = class {
                 });
                 d = M.croppedData,
                 f = M.sourceData
-            } else if (n === S.Cropping && a)
+            } else if (n === S.Cropping && a) {
                 d = ue({
                     pointer: m,
                     croppedData: l,
@@ -1128,7 +1158,7 @@ var z = class {
                     sourceControlCoords: p,
                     corner: a
                 }).croppedData;
-            else if (n === S.Scaling && a) {
+            } else if (n === S.Scaling && a) {
                 let X = be({
                     pointer: m,
                     croppedData: l,
@@ -1253,6 +1283,7 @@ var z = class {
         });
         this.sourceData.left = d.x,
         this.sourceData.top = d.y
+        // console.log(this.croppedData,"-- croppedData --",this.sourceData,"-- sourceData --");
     }
     async setCoords() {
         this.croppedControlCoords = te(this.croppedData),
@@ -1324,18 +1355,70 @@ function ve(s) {
 }
 var G = class {
     constructor(e, t) {
-        this.crop = ()=>{
+        this.crop = (cropSource)=>{
+            // console.log(cropSource,"-- cropSource");
             var r;
             let i = (r = this.canvas) == null ? void 0 : r.getActiveObject();
             if (!i || !this.cropper || !ve(i))
                 return;
             this.cropTarget = i;
             let o = i.toObject();
+
+            if(i._cropSource.type){ 
+                if(cropSource.croppingType) {
+                    o.cropX = cropSource.cropX;
+                    o.cropY = cropSource.cropY;
+                    o.height = cropSource.height;
+                    o.left = cropSource.left;
+                    o.scaleX = cropSource.scaleX;
+                    o.scaleY = cropSource.scaleY;
+                    o.top = cropSource.top;
+                    o.width = cropSource.width;
+                }
+                /* else if(cropSource.croppingType == '16:9') {
+                    o.cropX = cropSource.cropX;
+                    o.cropY = cropSource.cropY;
+                    o.height = cropSource.height;
+                    o.left = cropSource.left;
+                    o.scaleX = cropSource.scaleX;
+                    o.scaleY = cropSource.scaleY;
+                    o.top = cropSource.top;
+                    o.width = cropSource.width;
+                }
+                else if(cropSource.croppingType == '9:16') {
+                    o.cropX = cropSource.cropX;
+                    o.cropY = cropSource.cropY;
+                    o.height = cropSource.height;
+                    o.left = cropSource.left;
+                    o.scaleX = cropSource.scaleX;
+                    o.scaleY = cropSource.scaleY;
+                    o.top = cropSource.top;
+                    o.width = cropSource.width;
+                }
+                else if(cropSource.croppingType == '5:4') {
+                    o.cropX = cropSource.cropX;
+                    o.cropY = cropSource.cropY;
+                    o.height = cropSource.height;
+                    o.left = cropSource.left;
+                    o.scaleX = cropSource.scaleX;
+                    o.scaleY = cropSource.scaleY;
+                    o.top = cropSource.top;
+                    o.width = cropSource.width;
+                    console.log(o,"-- o");
+                } */
+
+                /* // this.cropper.croppedData.height =  cropSource.height;
+                // this.cropper.croppedData.width =  cropSource.width;
+                // this.cropper.croppedData.croppingType = cropSource.croppingType; */
+            
+            }
+
             this.cropper.crop({
                 src: i.getSrc(),
                 cropData: o,
-                sourceData: i._cropSource || o
+                sourceData: i._cropSource || o,
             })
+            this.cropper.croppedData.croppingType = cropSource.croppingType;
         }
         ,
         this.canvas = e,

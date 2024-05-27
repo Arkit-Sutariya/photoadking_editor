@@ -16,6 +16,7 @@ var custom_attributes: any[] = CUSTOM_ATTRIBUTES;
 })
 export class AppComponent implements OnInit {
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('croppingArea', { static: true }) croppingAreaRef!: ElementRef;
   @ViewChild('stickerTab', { read: ElementRef }) public stickerTab!: ElementRef<any>;
   @ViewChild('backgroundsTab', { read: ElementRef }) public backgroundsTab!: ElementRef<any>;
 
@@ -63,6 +64,7 @@ export class AppComponent implements OnInit {
   whatEleWidth:number = 0;
   whatEleHeight:number = 0;
   whatEleScale:number = 1;
+  isBasicShapes: boolean = true;
   isCircle:boolean = false;
   isRect:boolean = false;
   isLine:boolean = false;
@@ -222,11 +224,19 @@ export class AppComponent implements OnInit {
   public oldclipHeight: any;
   listener!: FabricCropListener;
   isCropping: boolean = false;
+  // croppingType: string = '';
+  // croppingType: string = '1:1';
+  // croppingType: string = '16:9';
+  // croppingType: string = '9:16';
+  // croppingType: string = '5:4';
+  croppingType: string = '4:5';
+  cropSource: any;
   activeObjectonCanvas!: fabric.Object;
   bgCropImage: fabric.Object;
   snapAngles: number[] = [0, 45, 90, 135, 180, 225, 270, 315, 360];
   snapThreshold: number = 5;
 
+  // Background Variable
   bg_sub_tab_shown: any = true;
   txturs_bg_pg_count: number = 1;
   bgcolor: any = true;
@@ -288,9 +298,3329 @@ export class AppComponent implements OnInit {
   gradientCollection: any = GRADIENT_COLORS;
   whatLastBg: any;
 
+  // Tools Variable
+  active_tool: any = "default";
+  active_qr_tab: any = "content";
+  QrCode: any;
+  qr_data_object: any = [
+    {
+      "select_name": "URL",
+      "image_path": "./assets/icons/url-icon.svg",
+      "qr_data": ""
+    },
+    {
+      "select_name": "Phone",
+      "image_path": "./assets/icons/phone-icon.svg",
+      "qr_data": ""
+    },
+    {
+      "select_name": "Contact",
+      "image_path": "./assets/icons/contact-icon.svg",
+      "qr_data": {
+        "name": "",
+        "firstname": "",
+        "organization": "",
+        "email": "",
+        "phone": "",
+        "address": "",
+        "website": ""
+      }
+    },
+    {
+      "select_name": "Free Text",
+      "image_path": "./assets/icons/text-icon.svg",
+      "qr_data": ""
+    },
+    {
+      "select_name": "SMS",
+      "image_path": "./assets/icons/sms-icon.svg",
+      "qr_data": {
+        "number": "",
+        "message": ""
+      }
+    },
+    {
+      "select_name": "Email",
+      "image_path": "./assets/icons/email-icon.svg",
+      "qr_data": {
+        "email": "",
+        "subject": "",
+        "body": ""
+      }
+    },
+    {
+      "select_name": "Wifi",
+      "image_path": "./assets/icons/wifi-icon.svg",
+      "qr_data": {
+        "security": "none",
+        "networkName": "",
+        "password": ""
+      }
+    },
+  ];
+  active_qr_theme: any = {
+    "background_color": "#ffffff",
+    "foreground_color": "#000000"
+  }
+  active_qr_data: any = this.qr_data_object[0];
+  edit_qr_id: any;
+  edit_qr_status: any = false;
+  qr_code_error: any = false;
+  qr_field_error: any = "";
+  qr_field_error_types: any = {
+    "email_error": "",
+    "phone_error": "",
+    "url_error": ""
+  }
+  qr_theme_object: any = [
+    {
+      "background_color": "#ffffff",
+      "foreground_color": "#000000"
+    },
+    {
+      "background_color": "#adf0d1",
+      "foreground_color": "#00203f"
+    },
+    {
+      "background_color": "#f9dca4",
+      "foreground_color": "#4a2b19"
+    },
+    {
+      "background_color": "#ffc6d1",
+      "foreground_color": "#3f343a"
+    },
+    {
+      "background_color": "#f4f24e",
+      "foreground_color": "#421d56"
+    },
+    {
+      "background_color": "#fdfdfb",
+      "foreground_color": "#82ae57"
+    },
+    {
+      "background_color": "#fff6ca",
+      "foreground_color": "#a00fcf"
+    },
+    {
+      "background_color": "#befc5f",
+      "foreground_color": "#3d3938"
+    },
+    {
+      "background_color": "#ffff03",
+      "foreground_color": "#019b8e"
+    }
+  ];
+  barcode_data_object: any = [
+    {
+      "format": "CODE128",
+      "image_path": "./assets/images/code128.svg",
+    },
+    {
+      "format": "UPC",
+      "image_path": "./assets/images/UPC.svg",
+    },
+    {
+      "format": "EAN8",
+      "image_path": "./assets/images/EAN8.svg",
+    },
+    {
+      "format": "CODE39",
+      "image_path": "./assets/images/CODE39.svg",
+    },
+    {
+      "format": "ITF14",
+      "image_path": "./assets/images/ITF14.svg",
+    },
+    {
+      "format": "codabar",
+      "image_path": "./assets/images/CODABAR.svg",
+    }
+  ];
+  active_barcode_data: any = {
+    "format": "CODE128",
+    "image_path": "./assets/images/code128.svg"
+  };
+  barcode_option: any = {
+    "display_value": true,
+    "code_color": "#000000",
+    "vertical_align": "bottom",
+    "horizontal_align": "center",
+    "font_margin": 2,
+    "font_size": 20
+  }
+  JsBarcode: any;
+  barcode_value: any = "";
+  barcode_error: any = "";
+  edit_barcode_status: any = false;
+  edit_barcode_id: any = false;
+  active_barcode_tab: any = "content";
+  chart_workspace = false;
+  active_chart_tab: any = "data";
+  chart_type_select_object: any = [
+    {
+      "chart_type": "column",
+      "name": "Bar Chart",
+      "image_path": "./assets/icons/bar-chart-icon.svg",
+    },
+    {
+      "chart_type": "bar",
+      "name": "Raw Chart",
+      "image_path": "./assets/icons/raw-chart-icon.svg",
+    },
+    {
+      "chart_type": "line",
+      "name": "Line Chart",
+      "image_path": "./assets/icons/line-chart-icon.svg",
+    },
+    {
+      "chart_type": "area",
+      "name": "Area Chart",
+      "image_path": "./assets/icons/area-chart-icon.svg",
+    },
+    {
+      "chart_type": "pie",
+      "name": "Pie Chart",
+      "image_path": "./assets/icons/pie-chart-icon.svg",
+    },
+    {
+      "chart_type": "doughnut",
+      "name": "Doughnut Chart",
+      "image_path": "./assets/icons/donut-chart-icon.svg",
+    },
+    {
+      "chart_type": "semi-doughnut",
+      "name": "Half Doughnut Chart",
+      "image_path": "./assets/icons/half-pie.svg",
+    },
+    {
+      "chart_type": "cylinder",
+      "name": "3D Cylinder Chart",
+      "image_path": "./assets/icons/cylinder-chart-icon.svg",
+    },
+    {
+      "chart_type": "3d-doughnut",
+      "name": "3D Doughnut Chart",
+      "image_path": "./assets/icons/donut-3d-chart-icon.svg",
+    },
+  ]
+  active_select_chart_type: any = {
+    "chart_type": "column",
+    "name": "Bar Chart",
+    "image_path": "./assets/icons/bar-chart-icon.svg",
+  };
+  Chart: any;
+  single_chart_data_set: any = [
+    {
+      "item_name": "item1",
+      "data_set": ['10', '', '', '', '']
+    },
+    {
+      "item_name": "item2",
+      "data_set": ['20', '', '', '', '']
+    },
+    {
+      "item_name": "item3",
+      "data_set": ['30', '', '', '', '']
+    },
+    {
+      "item_name": "item4",
+      "data_set": ['40', '', '', '', '']
+    },
+    {
+      "item_name": "",
+      "data_set": ['', '', '', '', '']
+    }
+  ];
+  multi_chart_data_set: any = [
+    {
+      "item_name": "item1",
+      "data_set": ['0', '5', '5', '', '']
+    },
+    {
+      "item_name": "item2",
+      "data_set": ['8', '8', '4', '', '']
+    },
+    {
+      "item_name": "item3",
+      "data_set": ['15', '10', '5', '', '']
+    },
+    {
+      "item_name": "item4",
+      "data_set": ['18', '14', '8', '', '']
+    },
+    {
+      "item_name": "item5",
+      "data_set": ['22', '20', '8', '', '']
+    },
+    {
+      "item_name": "",
+      "data_set": ['', '', '', '', '']
+    }
+  ];
+  chart_data_set: any;
+  tmp_data_set: any;
+  column_display_string = ["B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL", "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW", "AX", "AY", "AZ"];
+  barcode_font_sizes: any = [];
+  barcode_font_margins: any = [];
+  chart_type: any = "bar";
+  chart_color: any = [];
+  chart_theme_object: any = [
+    {
+      "theme_color": ['#6fb572', '#369936', '#076d07', '#034403', '#326d32', '#057d7e', '#21b7b8', '#25e5e6', '#9ffeff', '#daffff']
+    },
+    {
+      "theme_color": ['#ede7a4', '#d8cc5d', '#968806', '#6b5b00', '#7f7844', '#81a103', '#b7d930', '#d3ff24', '#e9ff92', '#f1fcc7']
+    },
+    {
+      "theme_color": ['#eab19b', '#c6674a', '#a82f0b', '#7f1800', '#844f42', '#8c005c', '#c40f86', '#f228ad', '#fc5cc5', '#fc93d8']
+    },
+    {
+      "theme_color": ['#f27e73', '#8fb5d6', '#acdea0', '#caabd3', '#999b84', '#fafcc2', '#21b7b8', '#e5d35f', '#aaf7f7', '#c0cfd0']
+    },
+    {
+      "theme_color": ['#08172b', '#034c4e', '#839783', '#b3b398', '#eaeac7', '#a6f2e8', '#58baad', '#069683', '#356a63', '#12453e']
+    },
+    {
+      "theme_color": ['#583d72', '#9f5f80', '#ffba93', '#ff8e71', '#fedf62', '#d7fe62', '#86fc73', '#6dffe9', '#6598ff', '#f77e9e']
+    },
+    {
+      "theme_color": ['#6c6f39', '#f0b24f', '#bc5b06', '#89231a', '#5b0c05', '#cb3b3b', '#ff9f68', '#e0c45c', '#fff98c', '#f6f4ca']
+    },
+    {
+      "theme_color": ['#8982a9', '#7563a5', '#502997', '#402578', '#24085f', '#5f0854', '#a11790', '#ea4ed7', '#fb90ee', '#f2c4ec']
+    },
+    {
+      "theme_color": ['#97bdf6', '#68a0f2', '#1365e2', '#0f51b3', '#01758e', '#069aba', '#1cc0e4', '#73e3fb', '#c2f3fe', '#eafbff']
+    },
+    {
+      "theme_color": ['#c6b39f', '#b6a87c', '#9e7f5f', '#3a291c', '#220f00', '#6c280e', '#a24927', '#d66f47', '#ffa37f', '#feccb8']
+    },
+    {
+      "theme_color": ['#1b049b', '#c301b4', '#fc507a', '#fdd234', '#ff9234', '#d23060', '#27d9c0', '#d7e019', '#ba5f8e', '#8d0fd8']
+    },
+    {
+      "theme_color": ['#d2d3c9', '#0e918c', '#f6830f', '#bb2205', '#e8b90c', '#554a4a', '#8644a7', '#66a37d', '#c8baba', '#f287b3']
+    },
+    {
+      "theme_color": ['#f5b900', '#ee8100', '#a63856', '#871d40', '#220f00', '#330724', '#374045', '#e29814', '#ead869', '#feccb8']
+    },
+    {
+      "theme_color": ['#f53e5e', '#f59691', '#f0c6a4', '#bec2a0', '#7caa95', '#00a7a0', '#a1d6b0', '#f5efcd', '#d1b992', '#bc3e61']
+    },
+    {
+      "theme_color": ['#e9deb2', '#de522e', '#38413f', '#5cb793', '#eeffa2', '#dbfa3f', '#ff9351', '#de3c6a', '#263586', '#87b7f2']
+    },
+    {
+      "theme_color": ['#000000', '#122138', '#01434c', '#5b2e00', '#383f00', '#193f00', '#0a2564', '#3f037d', '#52111f', '#db3e01']
+    },
+    {
+      "theme_color": ['#2d3848', '#f43b4b', '#57c7da', '#e5ded6', '#e9ec68', '#f27551', '#8ba89f', '#8ddbf6', '#f66e8c', '#aba8b6']
+    },
+    {
+      "theme_color": ['#faf6f2', '#e7dbc2', '#e2d3f3', '#ae95c0', '#9f59a0', '#6f498c', '#5d3b78', '#901d7a', '#6c205e', '#4c1041']
+    },
+    {
+      "theme_color": ['#e8c3af', '#e9877e', '#f15a55', '#f01b07', '#ee0824', '#d00412', '#c4002f', '#900123', '#5c0519', '#34020d']
+    },
+    {
+      "theme_color": ['#3b3c38', '#e4c500', '#4d7dc2', '#c94cbe', '#c6723b', '#c96e7b', '#fbc17b', '#395a87', '#c6704b', '#50c0e9']
+    },
+    {
+      "theme_color": ['#2c307a', '#15499f', '#e2d3f3', '#0c4e42', '#336a33', '#827830', '#f58020', '#d8570a', '#3e2622', '#202020']
+    }
+  ];
+  chart_type_data_object: any = [
+    {
+      "chart_type": "column",
+      "valid_chart_type": "column",
+      "type_name": "Bar Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/bar-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/bar-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/bar-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "stackedbar",
+      "valid_chart_type": "column",
+      "type_name": "Stacked Bar Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/bar_step-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/bar_step-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/bar_step-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "bar",
+      "valid_chart_type": "bar",
+      "type_name": "Raw Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/raw-bar-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/raw-bar-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/raw-bar-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "stackedrow",
+      "valid_chart_type": "bar",
+      "type_name": "Stacked Raw Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/raw-bar-step-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/raw-bar-step-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/raw-bar-step-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "line",
+      "valid_chart_type": "line",
+      "type_name": "Line Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/S_line-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/S_line-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/S_line-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "stackedline",
+      "valid_chart_type": "line",
+      "type_name": "Stacked Line Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/M_line-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/M_line-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/M_line-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "area",
+      "valid_chart_type": "area",
+      "type_name": "Stacked Area Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/area-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/area-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/area-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "pie",
+      "valid_chart_type": "pie",
+      "type_name": "Pie Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/pie-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/pie-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/pie-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "doughnut",
+      "valid_chart_type": "doughnut",
+      "type_name": "Doughnut Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/donut-1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/donut-2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/donut-3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "semi-doughnut",
+      "valid_chart_type": "semi-doughnut",
+      "type_name": "Half Doughnut Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/half_donut_1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/half_donut_2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/half_donut_3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "cylinder",
+      "valid_chart_type": "cylinder",
+      "type_name": "3D Cylinder Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/cylinder_1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/cylinder_2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/cylinder_3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "3d-doughnut",
+      "valid_chart_type": "3d-doughnut",
+      "type_name": "3D Doughnut Chart",
+      "type_object": [
+        {
+          "image_path": "./assets/images/doughnut_3d_1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/doughnut_3d_2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/doughnut_3d_3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    },
+    {
+      "chart_type": "solidgauge",
+      "valid_chart_type": "solidgauge",
+      "type_name": "Guage Chart",
+      "is_new": true,
+      "type_object": [
+        {
+          "image_path": "./assets/images/solidgauge_1.svg",
+          "color_array": this.chart_theme_object[0]
+        },
+        {
+          "image_path": "./assets/images/solidgauge_2.svg",
+          "color_array": this.chart_theme_object[1]
+        },
+        {
+          "image_path": "./assets/images/solidgauge_3.svg",
+          "color_array": this.chart_theme_object[2]
+        }
+      ]
+    }
+  ];
+  chart_template_json = [
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 1,
+      "is_new_chart": true,
+      "chart_type": {
+        "type": 'gauge',
+        "is_new": true
+      },
+      "chart_data_set": [
+        {
+          item_name: "React",
+          data_set: ["24640", "", "", "", ""]
+        },
+        {
+          item_name: "Angular",
+          data_set: ["19032", "", "", "", ""]
+        },
+        {
+          item_name: "jQuery",
+          data_set: ["14272", "", "", "", ""]
+        },
+        {
+          item_name: "Vue",
+          data_set: ["2816", "", "", "", ""]
+        },
+        {
+          item_name: "Ember",
+          data_set: ["2397", "", "", "", ""]
+        },
+        {
+          item_name: "",
+          data_set: ["", "", "", "", ""]
+        }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "is_new_chart": true,
+        "title_setting": {
+          "show_title": true,
+          "solid_guage_title_name": "Speed",
+          "guage_title_name": "Speedometer",
+          "wordcloud_title_name": "What is wordcloud?",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 18,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          }
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 14,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_ticks": true,
+          "tick_color": "#ffffff",
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 12,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "solidgauge_settings": {
+          "percent_value": true,
+          "range_settings": {
+            "min_value": 0,
+            "max_value": 200,
+            "steps": 1,
+            "value": 120,
+            "prefix": "",
+            "suffix": "km/h",
+            "color_stops": [
+              {
+                "value": 40,
+                "color": "#6fb572"
+              },
+              {
+                "value": 80,
+                "color": "#369936"
+              },
+              {
+                "value": 120,
+                "color": "#076d07"
+              },
+              {
+                "value": 160,
+                "color": "#034403"
+              }
+            ],
+            "last_stop_color": "#326d32"
+          },
+          "axis_setting": {
+            "show_label": true,
+            "color": "#000000"
+          }
+        },
+        "gauge_settings": {
+          "percent_value": true,
+          "range_settings": {
+            "min_value": 0,
+            "max_value": 200,
+            "steps": 1,
+            "value": 120,
+            "prefix": "",
+            "suffix": "km/h",
+            "color_stops": [
+              {
+                "value": 40,
+                "color": "#6fb572"
+              },
+              {
+                "value": 80,
+                "color": "#369936"
+              },
+              {
+                "value": 120,
+                "color": "#076d07"
+              },
+              {
+                "value": 160,
+                "color": "#034403"
+              }
+            ],
+            "last_stop_color": "#326d32"
+          }
+        },
+        "wordcloud_setting": {
+          "text": ""
+        }
+      },
+      "image_path": "./assets/chart_templates/gauge_chart.jpg"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 11,
+      "is_new_chart": true,
+      "chart_type": {
+        "type": 'wordcloud',
+        "is_new": true
+      },
+      "chart_data_set": [
+        {
+          item_name: "React",
+          data_set: ["24640", "", "", "", ""]
+        },
+        {
+          item_name: "Angular",
+          data_set: ["19032", "", "", "", ""]
+        },
+        {
+          item_name: "jQuery",
+          data_set: ["14272", "", "", "", ""]
+        },
+        {
+          item_name: "Vue",
+          data_set: ["2816", "", "", "", ""]
+        },
+        {
+          item_name: "Ember",
+          data_set: ["2397", "", "", "", ""]
+        },
+        {
+          item_name: "",
+          data_set: ["", "", "", "", ""]
+        }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "is_new_chart": true,
+        "title_setting": {
+          "show_title": false,
+          "solid_guage_title_name": "Speed",
+          "guage_title_name": "Speedometer",
+          "wordcloud_title_name": "What is wordcloud?",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "25",
+          "font_color": "#c732e4",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          }
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "30px",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_ticks": true,
+          "tick_color": "#ffffff",
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "solidgauge_settings": {
+          "percent_value": true,
+          "range_settings": {
+            "min_value": 0,
+            "max_value": 200,
+            "steps": 1,
+            "value": 120,
+            "prefix": "",
+            "suffix": "km/h",
+            "color_stops": [
+              {
+                "value": 40,
+                "color": "#1b049b"
+              },
+              {
+                "value": 80,
+                "color": "#c301b4"
+              },
+              {
+                "value": 120,
+                "color": "#fc507a"
+              },
+              {
+                "value": 160,
+                "color": "#fdd234"
+              }
+            ],
+            "last_stop_color": "#ff9234"
+          },
+          "axis_setting": {
+            "show_label": true,
+            "color": "#000000"
+          }
+        },
+        "gauge_settings": {
+          "percent_value": true,
+          "range_settings": {
+            "min_value": 0,
+            "max_value": 200,
+            "steps": 1,
+            "value": 120,
+            "prefix": "",
+            "suffix": "km/h",
+            "color_stops": [
+              {
+                "value": 40,
+                "color": "#1b049b"
+              },
+              {
+                "value": 80,
+                "color": "#c301b4"
+              },
+              {
+                "value": 120,
+                "color": "#fc507a"
+              },
+              {
+                "value": 160,
+                "color": "#fdd234"
+              }
+            ],
+            "last_stop_color": "#ff9234"
+          }
+        },
+        "wordcloud_setting": {
+          "text": "Bachelor of Science\ntelemetry\ncommunication\ntech-savvy\ndigerati\ninformation technology\ntelematics\naerospace\nelectrotechnology\nmodern\ntelepresence\nappropriate technology\ncomputer graphics\nedtech\nsophisticated\nsci-tech\nM.S.\nVoice over Internet Protocol\nCDT\nchemical engineering\nleading edge\ntelehealth\nseat-of-the-pants\nmetallurgy\ncomputery\nagrotechnology\nintermediate technology\n4G\nCMOS\nlow tech\ntechnic\nearly adopter\ntechnical college\ncyberbabe\ntechnically\nfuturology\nsolid-state\ndigital native\nbioengineering\nPET scanner\nthird-generation\nground control\nCTO\nprimitive\nsunrise\nTMT\nplatform\ntechno\nimagineer\ndeskill\ngadgetry\nSilicon Valley\nDSL\ncybernetics\norphan\nlate adopter\nwearable\nlow technology\ntechnostress\naugmented reality\nmaglev\ncontactless\nupgrade\nm-\ngeeky\npostindustrial\ntechnophobia\nLuddite\nradio\n3G\nup-to-date\ntechnocomplex\nmodernize\ntechnoculture\nthe digerati\nlead\nSilicon Alley\nmegatechnics\nclimate engineering"
+        }
+      },
+      "image_path": "./assets/chart_templates/wordcloud.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 6,
+      "chart_data_set": [
+        {
+          item_name: "React",
+          data_set: ["24640", "", "", "", ""]
+        },
+        {
+          item_name: "Angular",
+          data_set: ["19032", "", "", "", ""]
+        },
+        {
+          item_name: "jQuery",
+          data_set: ["14272", "", "", "", ""]
+        },
+        {
+          item_name: "Vue",
+          data_set: ["2816", "", "", "", ""]
+        },
+        {
+          item_name: "Ember",
+          data_set: ["2397", "", "", "", ""]
+        },
+        {
+          item_name: "",
+          data_set: ["", "", "", "", ""]
+        }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Dec 2018 Job Board Postings Per Framework",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "24",
+          "font_color": "#191919",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/bar_chart_6.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 14,
+      "chart_data_set": [
+        { item_name: "2007", data_set: ["130", "", "", "", ""] },
+        { item_name: "2008", data_set: ["131", "", "", "", ""] },
+        { item_name: "2010", data_set: ["145", "", "", "", ""] },
+        { item_name: "2011", data_set: ["197", "", "", "", ""] },
+        { item_name: "2012", data_set: ["197", "", "", "", ""] },
+        { item_name: "2013", data_set: ["200", "", "", "", ""] },
+        { item_name: "2014", data_set: ["372", "", "", "", ""] },
+        { item_name: "2015", data_set: ["551", "", "", "", ""] },
+        { item_name: "2016", data_set: ["594", "", "", "", ""] },
+        { item_name: "2017", data_set: ["282", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "PATENT APPLICATION FOR MACHINE LEARNING(2007 - 2017)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "24",
+          "font_color": "#191919",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "",
+          "font_color": "#ffffff",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+
+      "image_path": "./assets/chart_templates/bar_chart_1_5.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 9,
+      "chart_data_set": [
+        { item_name: "Rust", data_set: ["73.8", "79.1", "73.1", "78.9", "83.5", ""] },
+        { item_name: "Kotlin", data_set: ["0", "0", "0", "75.1", "72.6", ""] },
+        { item_name: "Python", data_set: ["66.6", "62.5", "62.7", "68.0", "73.1", ""] },
+        { item_name: "Go", data_set: ["72.5", "68.7", "63.3", "65.6", "67.9", ""] },
+        { item_name: "Swift", data_set: ["77.6", "72.1", "63.9", "65.1", "69.2", ""] },
+        { item_name: "", data_set: ["", "", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["2015", "2016", "2017", "2018", "2019", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "LOVED AND WANTED LANGUAGES (2015 - 19)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#ffffff",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_bar_9.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 0,
+      "active_theme_index": 7,
+      "chart_data_set": [
+        { item_name: "Singapore", data_set: ["4.6", "4.92", "", "", ""] },
+        { item_name: "Malaysia", data_set: ["25", "25.28", "", "", ""] },
+        { item_name: "Thailend", data_set: ["51", "57", "", "", ""] },
+        { item_name: "Vietnam", data_set: ["62", "64", "", "", ""] },
+        { item_name: "Indonesia", data_set: ["150", "150", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["Internal Users", "Social Media Users", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Digital Population, In millions, by Country, South East Asia, January 2019",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#ffffff",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_bar_1_7.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 1,
+      "active_theme_index": 17,
+      "chart_data_set": [
+        { item_name: "JavaScript", data_set: ["40", "", "", "", ""] },
+        { item_name: "SQL", data_set: ["33", "", "", "", ""] },
+        { item_name: "Java", data_set: ["31", "", "", "", ""] },
+        { item_name: "HTML/CSS", data_set: ["20", "", "", "", ""] },
+        { item_name: ".Net/C#", data_set: ["12", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "THE TOP 5 LANGUAGES TESTED ON DEVSKILLER(%)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#ffffff",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/raw_chart_17.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 1,
+      "active_theme_index": 21,
+      "chart_data_set": [
+        { item_name: "2015", data_set: ["15.41", "", "", "", ""] },
+        { item_name: "2016", data_set: ["17.68", "", "", "", ""] },
+        { item_name: "2017", data_set: ["20.35", "", "", "", ""] },
+        { item_name: "2018", data_set: ["23.14", "", "", "", ""] },
+        { item_name: "2019", data_set: ["26.66", "", "", "", ""] },
+        { item_name: "2020", data_set: ["30.73", "", "", "", ""] },
+        { item_name: "2021", data_set: ["35.82", "", "", "", ""] },
+        { item_name: "2022", data_set: ["42.62", "", "", "", ""] },
+        { item_name: "2023", data_set: ["51.11", "", "", "", ""] },
+        { item_name: "2024", data_set: ["62.12", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "IOT Connected Devices installed base worldwide from 2015 - 25 (in billions)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/raw_chart_1_21.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 1,
+      "active_theme_index": 12,
+      "chart_data_set": [
+        { item_name: "MongoDB", data_set: ["20.8", "18.6", "17.8", "19.4", "", ""] },
+        { item_name: "SQL Server", data_set: ["4.6", "4.2", "3.3", "3.7", "", ""] },
+        { item_name: "My SQL", data_set: ["8.5", "7.5", "8.2", "9.0", "", ""] },
+        { item_name: "SQLite", data_set: ["7.2", "3.3", "7.2", "7.7", "", ""] },
+        { item_name: "Oracle", data_set: ["3.8", "2.3", "3.4", "4.2", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", "", ""] },
+      ],
+      "chart_legend_label": ["2017", "2018", "2019", "2020", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "MOST WANTED DATABASES(2017- 20)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_raw_chart_12.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 1,
+      "active_theme_index": 21,
+      "chart_data_set": [
+        { item_name: "Voice Assistent", data_set: ["65", "74", "", "", ""] },
+        { item_name: "Natural Language Processing", data_set: ["37", "56", "", "", ""] },
+        { item_name: "Text Recognition", data_set: ["45", "55", "", "", ""] },
+        { item_name: "Computer Vision", data_set: ["38", "46", "", "", ""] },
+        { item_name: "Drons", data_set: ["48", "46", "", "", ""] },
+        { item_name: "Gaming Console", data_set: ["28", "35", "", "", ""] },
+        { item_name: "Ride Hailing Apps", data_set: ["21", "31", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["General Population", "Tech Executives", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Do People Know Where AI Is Used?",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#ffffff",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_raw_char_1_21.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 2,
+      "active_theme_index": 13,
+      "chart_data_set": [
+        { item_name: "2016", data_set: ["88498", "", "", "", ""] },
+        { item_name: "2017", data_set: ["122613", "", "", "", ""] },
+        { item_name: "2018", data_set: ["192568", "", "", "", ""] },
+        { item_name: "2019", data_set: ["252870", "", "", "", ""] },
+        { item_name: "2020", data_set: ["220011", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "NPM TRENDS FOR ANGULAR(2016 - 20)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/line_chart_13.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 2,
+      "active_theme_index": 11,
+      "chart_data_set": [
+        { item_name: "2016", data_set: ["88498", "283190", "", "", ""] },
+        { item_name: "2017", data_set: ["122613", "522045", "", "", ""] },
+        { item_name: "2018", data_set: ["192568", "1215580", "", "", ""] },
+        { item_name: "2019", data_set: ["252870", "2364403", "", "", ""] },
+        { item_name: "2020", data_set: ["423695", "5944193", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": ["Angular", "React", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "NPM TRENDS BETWEEN ANGULAR & REACT",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_line_chart_1_11.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 3,
+      "active_theme_index": 3,
+      "chart_data_set": [
+        { item_name: "2016", data_set: ["283190", "", "", "", ""] },
+        { item_name: "2017", data_set: ["522045", "", "", "", ""] },
+        { item_name: "2018", data_set: ["1215580", "", "", "", ""] },
+        { item_name: "2019", data_set: ["2364403", "", "", "", ""] },
+        { item_name: "2020", data_set: ["3258303", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "NPM TRENDS FOR REACT(2016 - 20)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/area_chart_3.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 3,
+      "active_theme_index": 20,
+      "chart_data_set": [
+        { item_name: "2014", data_set: ["2.28", "0.63", "0.9", "", ""] },
+        { item_name: "2015", data_set: ["3.02", "0.82", "1.07", "", ""] },
+        { item_name: "2016", data_set: ["3.96", "1.1", "1.32", "", ""] },
+        { item_name: "2017", data_set: ["5.24", "1.5", "1.64", "", ""] },
+        { item_name: "2018", data_set: ["7.04", "0.82", "2.03", "", ""] },
+        { item_name: "2020", data_set: ["12.84", "4.18", "3.17", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] }
+      ],
+      "chart_legend_label": ["Consumer", "Business: Cross Industry", "Business: Vertical Specific", "", ""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "IOT Units Installed Base By Category 2014 to 2020(in billions of units)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/stacked_area_chart_20.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 4,
+      "active_theme_index": 17,
+      "chart_data_set": [
+        { item_name: "2016", data_set: ["368902", "", "", "", ""] },
+        { item_name: "2017", data_set: ["491327", "", "", "", ""] },
+        { item_name: "2018", data_set: ["1168541", "", "", "", ""] },
+        { item_name: "2019", data_set: ["1200381", "", "", "", ""] },
+        { item_name: "2020", data_set: ["1513712", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "NPM TRENDS FOR JQUERY(2016 - 20)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/pie_chart_2.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 4,
+      "active_theme_index": 12,
+      "chart_data_set": [
+        { item_name: "Homepage/Newsfeed", data_set: ["27", "", "", "", ""] },
+        { item_name: "Profiles", data_set: ["21", "", "", "", ""] },
+        { item_name: "Photos", data_set: ["17", "", "", "", ""] },
+        { item_name: "Apps & Tools", data_set: ["10", "", "", "", ""] },
+        { item_name: "All Other", data_set: ["25", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "U.S. Share of Time Spent on Facebook.com by Content Section(2011)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/pie_chart_1_12.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 5,
+      "active_theme_index": 10,
+      "chart_data_set": [
+        { item_name: "2017", data_set: ["1135", "", "", "", ""] },
+        { item_name: "2018", data_set: ["1071", "", "", "", ""] },
+        { item_name: "2019", data_set: ["1411", "", "", "", ""] },
+        { item_name: "2020", data_set: ["2748", "", "", "", ""] },
+        { item_name: "2021", data_set: ["4704", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "NPM TRENDS FOR NODEJS(2017 - 21)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/doughnut_chart_10.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 5,
+      "active_theme_index": 13,
+      "chart_data_set": [
+        { item_name: "Facebook", data_set: ["38", "", "", "", ""] },
+        { item_name: "Twitter", data_set: ["25", "", "", "", ""] },
+        { item_name: "LinkedIn", data_set: ["15", "", "", "", ""] },
+        { item_name: "Google+", data_set: ["14", "", "", "", ""] },
+        { item_name: "Pinterest", data_set: ["8", "", "", "", ""] },
+        { item_name: "", data_set: ["", "", "", "", ""] },
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Favourite Social Media Channel In 2013",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 22,
+          "font_color": "#080808",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'bold',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": '1',
+          "slice_value": 'none',
+          'doughnut_circle_size': 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "14",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": 'normal',
+            "italic": 'none',
+            "underline": 'none'
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 15,
+          "beta_value": 15,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/doughnut_chart_1_4.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 6,
+      "active_theme_index": 15,
+      "chart_data_set": [
+        {
+          "item_name": "0-24",
+          "data_set": [
+            "14",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "25-34",
+          "data_set": [
+            "18",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "35-44",
+          "data_set": [
+            "22",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "45 +",
+          "data_set": [
+            "46",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "",
+          "data_set": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "",
+          "data_set": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        }
+      ],
+      "chart_legend_label": [""],
+      "chart_settings": {
+        "is_new_chart": false,
+        "title_setting": {
+          "show_title": true,
+          "title_name": "User of Facebook that fall into various age groups",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 25,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top"
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 14,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "square"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 14,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": "%"
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "value",
+          "connector_thick": "1",
+          "slice_value": "none",
+          "doughnut_circle_size": 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 45,
+          "beta_value": 0,
+          "depth_value": 50
+        }
+      },
+      "image_path": "./assets/chart_templates/semi_doughnut_chart.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 7,
+      "active_theme_index": 11,
+      "chart_data_set": [
+        {
+          "item_name": "2017",
+          "data_set": [
+            "24.12",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2018",
+          "data_set": [
+            "24.6",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2019",
+          "data_set": [
+            "25",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2020",
+          "data_set": [
+            "25.35",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2021",
+          "data_set": [
+            "27.88",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2022",
+          "data_set": [
+            "29.23",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2023",
+          "data_set": [
+            "30.29",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2024",
+          "data_set": [
+            "31.22",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "2025",
+          "data_set": [
+            "32.07",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "",
+          "data_set": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        }
+      ],
+      "chart_legend_label": ["item1", "", "", "", ""],
+      "chart_settings": {
+        "is_new_chart": false,
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Number of social network user in Canada from 2017 to 2025 (in millions)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 23,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top"
+        },
+        "legend_setting": {
+          "show_legend": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 13,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": "1",
+          "slice_value": "none",
+          "doughnut_circle_size": 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 13,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": false,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 13,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": true,
+          "alpha_value": 21,
+          "beta_value": 15,
+          "depth_value": 53,
+          "enabled_threed": true
+        }
+      },
+      "image_path": "./assets/chart_templates/cylinder.png"
+    },
+    {
+      "chart_type_index": 0,
+      "active_chart_type_index": 8,
+      "active_theme_index": 1,
+      "chart_color": ['#FE0000', '#FF00FE', '#FFFF01', '#4867AA', '#326d32', '#057d7e', '#21b7b8', '#25e5e6', '#9ffeff', '#daffff'],
+      "chart_data_set": [
+        {
+          "item_name": "YouTube",
+          "data_set": [
+            "30.7",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "Instagram",
+          "data_set": [
+            "26.0",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "SnapChat",
+          "data_set": [
+            "24.9",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "Facebook",
+          "data_set": [
+            "18.4",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "",
+          "data_set": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "item_name": "",
+          "data_set": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        }
+      ],
+      "chart_legend_label": [],
+      "chart_settings": {
+        "is_new_chart": false,
+        "title_setting": {
+          "show_title": true,
+          "title_name": "Social Media usage among teens (ages 13-17)",
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 23,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "bold",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "top"
+        },
+        "legend_setting": {
+          "show_legend": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 13,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "horizontal_align": "center",
+          "vertical_align": "bottom",
+          "symbol_type": "circle"
+        },
+        "label_setting": {
+          "show_label": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": 14,
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "pie_label_setting": {
+          "format_value": "percent",
+          "connector_thick": 4,
+          "slice_value": "none",
+          "doughnut_circle_size": 50
+        },
+        "X_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "Y_AXIS_setting": {
+          "show_label": true,
+          "show_grid_lines": true,
+          "font_family": "Roboto-Regular",
+          "font_path": "",
+          "font_size": "13",
+          "font_color": "#000000",
+          "font_style": {
+            "bold": "normal",
+            "italic": "none",
+            "underline": "none"
+          },
+          "label_position": "center",
+          "label_values": {
+            "prefix": "",
+            "suffix": ""
+          }
+        },
+        "threed_chart_settings": {
+          "enable_threed": false,
+          "alpha_value": 45,
+          "beta_value": 0,
+          "depth_value": 50,
+          "enabled_threed": true
+        }
+      },
+      "image_path": "./assets/chart_templates/doughnut_threed.png"
+    },
+  ];
+  select_chart_type: any;
+  multiCell: any;
+  myChart: any;
+  reeditChartId: any = null;
+  emptyChartData = false;
+  edit_chart_status = false;
+  active_theme_index: any;
+  chart_settings: any = {
+    "title_setting": {
+      "show_title": true,
+      "title_name": "My Chart",
+      "font_family": "Roboto-Regular",
+      "font_path": "",
+      "font_size": 25,
+      "font_color": "#000000",
+      "font_style": "normal",
+      "title_position": "top"
+    },
+    "legend_setting": {
+      "show_legend": true,
+      "font_family": "Roboto-Regular",
+      "font_path": "",
+      "font_size": 16,
+      "font_color": "#000000",
+      "font_style": "normal",
+      "legend_align": "center",
+      "legend_position": "top"
+    },
+    "label_setting": {
+      "show_label": true,
+      "font_family": "Roboto-Regular",
+      "font_path": "",
+      "font_size": 20,
+      "font_color": "#000000",
+      "font_style": "normal",
+      "label_position": "center"
+    },
+  };
+  last_chart_setting: any = "title";
+  //This variable is use for check data is imported in chart or not.
+  import_data_chart_status: any = false;
+  clone_chart_object: any;
+  XLSX: any;
+  render_chart_object: any = [];
+  render_chart_index: any = 0;
+  //In this variable we store the json object which come when page come for reedit and used in chart for set chart object position.
+  render_compare_data: any;
+  /*this variable is use for identify the chart is already in edit mode or not.*/
+  target_chart_flag: any = false;
+  /* this variable is use for store legend labels for chart */
+  legend_label: any = [];
+  //This variable is use for identify if user make changes in chart table
+  edit_cell_status: any = false;
+  //This variable is use for store the table chart color
+  chart_table_color: any = [];
+  //this variable is use for check all tool objects are loaded or not
+  tool_render_items: any = 0;
+
   ngOnDestroy() {
     document.removeEventListener("keydown", this.processKeys, false);
-    document.removeEventListener('mousedown', this.handleGlobalMouseDown);
+    // document.removeEventListener('mousedown', this.handleGlobalMouseDown);
   }
 
   constructor(private sanitizer: DomSanitizer, private dataService: DataService, public utils: UtilsService) {
@@ -459,12 +3789,12 @@ export class AppComponent implements OnInit {
 
     document.addEventListener("keydown", this.processKeys, false);
   }
-
+  
   ngOnInit(): void {
     this.canvas = new fabric.Canvas('canvas');
     // this.listener = new FabricCropListener(this.canvas);
     let hoveredObject: any;
-    localStorage.setItem('ut','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjM4ODgsImlzcyI6Imh0dHBzOi8vdGVzdC5waG90b2Fka2luZy5jb20vYXBpL3B1YmxpYy9hcGkvZG9Mb2dpbkZvclVzZXIiLCJpYXQiOjE3MTU3NzA1MTYsImV4cCI6MTcxNjM3NTMxNiwibmJmIjoxNzE1NzcwNTE2LCJqdGkiOiJhNEtKU3NYbUh2RmJvSmNFIn0.PRONN0KGZcf-d9ROy5wESO1Q2c66mn7lXgkAmnInKSQ')
+    localStorage.setItem('ut','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQ2OCwiaXNzIjoiaHR0cHM6Ly90ZXN0LnBob3RvYWRraW5nLmNvbS9hcGkvcHVibGljL2FwaS9kb0xvZ2luRm9yVXNlciIsImlhdCI6MTcxNjc4MzU2OSwiZXhwIjoxNzE3Mzg4MzY5LCJuYmYiOjE3MTY3ODM1NjksImp0aSI6Imx2bW9UR0NXalJxc2t4YWIifQ.4cevSiek_Af7W9XhYcQpcSJH1Erai--zpz7P09Ckg48')
     
     this.canvas.on({
       'selection:created': (e) => {
@@ -535,7 +3865,7 @@ export class AppComponent implements OnInit {
           const filters = activeObject.filters || [];
           
           filters.forEach(filter => {
-            
+
             if (filter.type === 'Brightness') {
               this.props.brightness = (filter.brightness * 100).toFixed(0);
             } 
@@ -734,7 +4064,6 @@ export class AppComponent implements OnInit {
 
         if(activeObject.type == 'image') {
           const filters = activeObject.filters || [];
-
           filters.forEach(filter => {
             if (filter.type === 'Brightness') {
               this.props.brightness = (filter.brightness * 100).toFixed(0);
@@ -978,51 +4307,57 @@ export class AppComponent implements OnInit {
       },
       'object:scaling': (e) => {
         const activeObject = this.canvas.getActiveObject();
-        // this.cropEleScale = (activeObject.isCroped) ? activeObject.scaleX : 1;
-        this.currentImg = activeObject;
-        /************** Working code ******************/
-        this.layerSelected = activeObject;
-        var newWidth = Math.round(activeObject.width * activeObject.scaleX);
-        var newHeight = (activeObject.type === 'line') ? activeObject.strokeWidth : Math.round(activeObject.height * activeObject.scaleY);
-        
-        this.elementWidth = newWidth;
-        this.elementHeight = newHeight;
-
-        this.whatEleScale = this.utils.getObjectMaxSize(activeObject.height, activeObject.width, this.zoomHeightRef, this.zoomWidthRef);
-        this.whatEleHeight = activeObject.height;
-        this.whatEleWidth = activeObject.width;
-        this.selectedObjPos.left = Math.round(activeObject.left);
-        this.selectedObjPos.top = Math.round(activeObject.top);
-        this.isReplaceShow = (activeObject._objects) ? false : false;
-        
-        if(!activeObject.clipPath) {
-          this.getClippathwidth = activeObject.width * activeObject.scaleX;
-          this.getClippathheight = activeObject.height * activeObject.scaleY;
-          this.getClippathleft = activeObject.left;
-          this.getClippathtop = activeObject.top;
-          // this.cropEleScale = activeObject.scaleX;
-          this.newclipWidth = activeObject.width * activeObject.scaleX;
-          this.newclipHeight = activeObject.height * activeObject.scaleY;
+        if(activeObject.type === 'activeSelection') {
+          this.selectedObjPos.left = Math.round(activeObject.left);
+          this.selectedObjPos.top = Math.round(activeObject.top);
         }
-
-        if(activeObject.type !== 'circle' && activeObject.element_type !== 'shapeSticker' && activeObject.element_type !== 'svgSticker' && activeObject.element_type !== 'stockphotos') {
-
-          activeObject.set({
-            noScaleCache: false,
-            statefullCache: true
-          })
+        else if(activeObject.type != 'activeSelection') {
+          // this.cropEleScale = (activeObject.isCroped) ? activeObject.scaleX : 1;
+          this.currentImg = activeObject;
+          /************** Working code ******************/
+          this.layerSelected = activeObject;
+          var newWidth = Math.round(activeObject.width * activeObject.scaleX);
+          var newHeight = (activeObject.type === 'line') ? activeObject.strokeWidth : Math.round(activeObject.height * activeObject.scaleY);
           
-          activeObject.width = newWidth;
-          if(activeObject.type === 'line') {
-
-            activeObject.strokeWidth = activeObject.strokeWidth;
+          this.elementWidth = newWidth;
+          this.elementHeight = newHeight;
+  
+          this.whatEleScale = this.utils.getObjectMaxSize(activeObject.height, activeObject.width, this.zoomHeightRef, this.zoomWidthRef);
+          this.whatEleHeight = activeObject.height;
+          this.whatEleWidth = activeObject.width;
+          this.selectedObjPos.left = Math.round(activeObject.left);
+          this.selectedObjPos.top = Math.round(activeObject.top);
+          this.isReplaceShow = (activeObject._objects) ? false : false;
+          
+          if(!activeObject.clipPath) {
+            this.getClippathwidth = activeObject.width * activeObject.scaleX;
+            this.getClippathheight = activeObject.height * activeObject.scaleY;
+            this.getClippathleft = activeObject.left;
+            this.getClippathtop = activeObject.top;
+            // this.cropEleScale = activeObject.scaleX;
+            this.newclipWidth = activeObject.width * activeObject.scaleX;
+            this.newclipHeight = activeObject.height * activeObject.scaleY;
           }
-          else {
-            activeObject.height = newHeight;
+  
+          if(activeObject.type !== 'circle' && activeObject.element_type !== 'shapeSticker' && activeObject.element_type !== 'svgSticker' && activeObject.element_type !== 'stockphotos') {
+  
+            activeObject.set({
+              noScaleCache: false,
+              statefullCache: true
+            })
+            
+            activeObject.width = newWidth;
+            if(activeObject.type === 'line') {
+  
+              activeObject.strokeWidth = activeObject.strokeWidth;
+            }
+            else {
+              activeObject.height = newHeight;
+            }
+            activeObject.scaleX = 1;
+            activeObject.scaleY = 1;
+            this.canvas.renderAll();
           }
-          activeObject.scaleX = 1;
-          activeObject.scaleY = 1;
-          this.canvas.renderAll();
         }
         
       },
@@ -1128,8 +4463,9 @@ export class AppComponent implements OnInit {
           });
 
           // this.canvas.backgroundColor = (this.whatLastBg) ? this.whatLastBg : '#ffffff';
-          // this.canvas.renderAll();
-          // this.isCropingEnable = false;
+          this.canvas.renderAll();
+          this.isCropingEnable = false;
+          this.activeTabID = 5;
         }
       },
       'mouse:up': (e) => {
@@ -1169,41 +4505,181 @@ export class AppComponent implements OnInit {
 
           this.listener = new FabricCropListener(this.canvas);
         }
-        
         this.isReplaceShow = false;
         this.isReplaceMode = false;
         
-        if(this.canvas.getActiveObject() && e.target.type === 'image') {
+        if(e.target.type === 'image' && !this.isCropingEnable) {
+          this.activeTabID = 0;
           this.isCropingEnable = true;
 
-          // const activeObject = this.canvas.getActiveObject();
-          // const cropData = activeObject.toObject();
-          // const sourceData = activeObject._cropSource || cropData;
-          // const freeModeScaling = true;
+          const activeObject = this.canvas.getActiveObject();
+          // console.log(activeObject,"-- activeObject");
+          this.activeObjectonCanvas = activeObject;
+          const cropData = activeObject.toObject();
+          const sourceData = activeObject._cropSource || cropData;
+          // let freeModeScaling;
+          // freeModeScaling = "9:16";
+          // freeModeScaling = "16:9";
+          // freeModeScaling= "1:1";
+          // freeModeScaling = "";
+
           // this.listener.crop({
           //   src: activeObject.getSrc(),
           //   cropData,
           //   sourceData,
-          //   freeModeScaling,
+          // freeModeScaling,
           // });
-          // let cropSource = {left:activeObject.left,top:activeObject.top,height:0,width: 0,freeModeScaling: freeModeScaling}
-          // if(!activeObject._cropSource){
-          //   if(activeObject.height > activeObject.width) {
-          //     cropSource.height = activeObject.width//activeObject.height
-          //     cropSource.width = activeObject.width//(activeObject.height * 4)/5
-          //   }
-          //   else if(activeObject.width > activeObject.height) {
-          //     cropSource.height = activeObject.height//(activeObject.width * 5)/4
-          //     cropSource.width = activeObject.height//activeObject.width
-          //   }
-          // }
-          // activeObject._cropSource = sourceData; //{left: activeObject.left, top: activeObject.top, height: activeObject.height * }
-          // console.log(cropSource,"--cropSource");
           
-          this.listener.crop();
-          // this.whatLastBg = this.canvas.backgroundColor;
-          // this.canvas.backgroundColor = '#969ca33d';
-          // this.canvas.renderAll();
+          this.cropSource = {left:activeObject.left, top:activeObject.top, height:0, width: 0, croppingType: this.croppingType, cropX: 0, cropY: 0, scaleX: 1, scaleY: 1}
+          if(!activeObject._cropSource){
+            // if(activeObject.height > activeObject.width) {
+            //   this.cropSource.height = activeObject.width//activeObject.height
+            //   this.cropSource.width = activeObject.width//(activeObject.height * 4)/5
+            // }
+            // else if(activeObject.width > activeObject.height) {
+            //   this.cropSource.height = activeObject.height//(activeObject.width * 5)/4
+            //   this.cropSource.width = activeObject.height//activeObject.width
+            // }
+          }
+          activeObject._cropSource = sourceData; //{left: activeObject.left, top: activeObject.top, height: activeObject.height * }
+          
+          if(!activeObject.isCroped) {
+            switch(this.croppingType) {
+              case "9:16" :
+                if(activeObject.height > activeObject.width) {
+                  this.cropSource.cropX = 100
+                  this.cropSource.cropY = 0; 
+                  this.cropSource.top = activeObject.top;
+                  this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height;
+                  this.cropSource.width = activeObject.width - 200;
+                }
+                else if(activeObject.width > activeObject.height) {
+                  this.cropSource.cropX = 400
+                  this.cropSource.cropY = 0; 
+                  this.cropSource.top = activeObject.top;
+                  this.cropSource.left = activeObject.left + (400 * activeObject.scaleX);
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height;
+                  this.cropSource.width = activeObject.width - 800;
+                }
+                break;
+              
+              case "1:1" :
+                if(activeObject.height > activeObject.width) {
+                  this.cropSource.cropX = 0; //(activeObject.width - activeObject.height) / 2;
+                  this.cropSource.cropY = (activeObject.height - activeObject.width) / 2;
+                  this.cropSource.top = ((activeObject.height - activeObject.width) / 2) * activeObject.scaleY + activeObject.top;
+                  this.cropSource.left = activeObject.left; //((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.width
+                  this.cropSource.width = activeObject.width
+                }
+                else if(activeObject.width > activeObject.height) {
+                  this.cropSource.cropX = (activeObject.width - activeObject.height) / 2;
+                  this.cropSource.cropY = 0;
+                  this.cropSource.top = activeObject.top;
+                  this.cropSource.left = ((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height;
+                  this.cropSource.width = activeObject.height;
+                }
+                break;
+
+              case "16:9" :
+                if(activeObject.height > activeObject.width) {
+                  // this.cropSource.cropX = 0
+                  // this.cropSource.cropY = (activeObject.height - 700) / 2; 
+                  // this.cropSource.top = ((activeObject.height - (activeObject.height - 700)) / 2) * activeObject.scaleY + activeObject.top - 19;
+                  // this.cropSource.left = activeObject.left;
+                  // this.cropSource.scaleX = activeObject.scaleX;
+                  // this.cropSource.scaleY = activeObject.scaleY;
+                  // this.cropSource.height = activeObject.height - 700;
+                  // this.cropSource.width = activeObject.width;
+                  this.cropSource.cropX = 0
+                  this.cropSource.cropY = 400; 
+                  this.cropSource.top = activeObject.top + (400 * activeObject.scaleY);
+                  this.cropSource.left = activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height - 800;
+                  this.cropSource.width = activeObject.width;
+                }
+                else if(activeObject.width > activeObject.height) {
+                  // this.cropSource.cropX = 0;
+                  // this.cropSource.cropY = ((activeObject.height - 200) / 2 )* activeObject.scaleY;
+                  // this.cropSource.top = activeObject.top + 19//+ ((activeObject.height * activeObject.scaleY) / 2); //((activeObject.height - (activeObject.width - 500)) / 2) * activeObject.scaleX + activeObject.top;
+                  // this.cropSource.left = activeObject.left;
+                  // this.cropSource.scaleX = activeObject.scaleX;
+                  // this.cropSource.scaleY = activeObject.scaleY;
+                  // this.cropSource.height = activeObject.height - 200;
+                  // this.cropSource.width = activeObject.width;
+                  this.cropSource.cropX = 0;
+                  this.cropSource.cropY = 100;
+                  this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+                  this.cropSource.left = activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height - 200;
+                  this.cropSource.width = activeObject.width;
+                }
+                break;
+        
+              case "5:4" :
+                if(activeObject.height > activeObject.width) {
+                  this.cropSource.cropX = 0;
+                  this.cropSource.cropY = 250; 
+                  this.cropSource.top = activeObject.top + (250 * activeObject.scaleY);
+                  this.cropSource.left = activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height - 500;
+                  this.cropSource.width = activeObject.width;
+                }
+                else if(activeObject.width > activeObject.height) {
+                  this.cropSource.cropX = 100
+                  this.cropSource.cropY = 0; 
+                  this.cropSource.top = activeObject.top;
+                  this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height;
+                  this.cropSource.width = activeObject.width - 200;
+                }
+                break;
+            
+              case "4:5" :
+                if(activeObject.height > activeObject.width) {
+                  this.cropSource.cropX = 0;
+                  this.cropSource.cropY = 100; 
+                  this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+                  this.cropSource.left = activeObject.left;
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height - 200;
+                  this.cropSource.width = activeObject.width;
+                }
+                else if(activeObject.width > activeObject.height) {
+                  this.cropSource.cropX = 250
+                  this.cropSource.cropY = 0; 
+                  this.cropSource.top = activeObject.top;
+                  this.cropSource.left = activeObject.left + (250 * activeObject.scaleX);
+                  this.cropSource.scaleX = activeObject.scaleX;
+                  this.cropSource.scaleY = activeObject.scaleY;
+                  this.cropSource.height = activeObject.height;
+                  this.cropSource.width = activeObject.width - 500;
+                }
+                break;
+            
+            }
+          }
+          // console.log(this.cropSource,"-- cropSource dblclick");
+          this.listener.crop(this.cropSource);
         }
 
         /*************** crop image ************/
@@ -1233,7 +4709,150 @@ export class AppComponent implements OnInit {
       }
     });
 
-    document.addEventListener('mousedown', this.handleGlobalMouseDown);
+    // document.addEventListener('mousedown', this.handleGlobalMouseDown);
+  }
+
+  changeCropStyle(type) {
+    const activeObject = this.activeObjectonCanvas;
+    this.croppingType = type;
+    this.cropSource.croppingType = type;
+    
+    // if(!activeObject.isCroped) {
+      switch(this.croppingType) {
+        case "9:16" :
+          if(activeObject.height > activeObject.width) {
+            this.cropSource.cropX = 100
+            this.cropSource.cropY = 0; 
+            this.cropSource.top = activeObject.top;
+            this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height;
+            this.cropSource.width = activeObject.width - 200;
+          }
+          else if(activeObject.width > activeObject.height) {
+            this.cropSource.cropX = 400
+            this.cropSource.cropY = 0; 
+            this.cropSource.top = activeObject.top;
+            this.cropSource.left = activeObject.left + (400 * activeObject.scaleX);
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height;
+            this.cropSource.width = activeObject.width - 800;
+          }
+          break;
+        
+        case "1:1" :
+          if(activeObject.height > activeObject.width) {
+            this.cropSource.cropX = 0; //(activeObject.width - activeObject.height) / 2;
+            this.cropSource.cropY = (activeObject.height - activeObject.width) / 2;
+            this.cropSource.top = ((activeObject.height - activeObject.width) / 2) * activeObject.scaleY + activeObject.top;
+            this.cropSource.left = activeObject.left; //((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.width
+            this.cropSource.width = activeObject.width
+          }
+          else if(activeObject.width > activeObject.height) {
+            this.cropSource.cropX = (activeObject.width - activeObject.height) / 2;
+            this.cropSource.cropY = 0;
+            this.cropSource.top = activeObject.top;
+            this.cropSource.left = ((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height;
+            this.cropSource.width = activeObject.height;
+          }
+          break;
+
+        case "16:9" :
+          if(activeObject.height > activeObject.width) {
+            // this.cropSource.cropX = 0
+            // this.cropSource.cropY = (activeObject.height - 700) / 2; 
+            // this.cropSource.top = ((activeObject.height - (activeObject.height - 700)) / 2) * activeObject.scaleY + activeObject.top - 19;
+            // this.cropSource.left = activeObject.left;
+            // this.cropSource.scaleX = activeObject.scaleX;
+            // this.cropSource.scaleY = activeObject.scaleY;
+            // this.cropSource.height = activeObject.height - 700;
+            // this.cropSource.width = activeObject.width;
+            this.cropSource.cropX = 0
+            this.cropSource.cropY = 400; 
+            this.cropSource.top = activeObject.top + (400 * activeObject.scaleY);
+            this.cropSource.left = activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height - 800;
+            this.cropSource.width = activeObject.width;
+          }
+          else if(activeObject.width > activeObject.height) {
+            // this.cropSource.cropX = 0;
+            // this.cropSource.cropY = ((activeObject.height - 200) / 2 )* activeObject.scaleY;
+            // this.cropSource.top = activeObject.top + 19//+ ((activeObject.height * activeObject.scaleY) / 2); //((activeObject.height - (activeObject.width - 500)) / 2) * activeObject.scaleX + activeObject.top;
+            // this.cropSource.left = activeObject.left;
+            // this.cropSource.scaleX = activeObject.scaleX;
+            // this.cropSource.scaleY = activeObject.scaleY;
+            // this.cropSource.height = activeObject.height - 200;
+            // this.cropSource.width = activeObject.width;
+            this.cropSource.cropX = 0;
+            this.cropSource.cropY = 100;
+            this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+            this.cropSource.left = activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height - 200;
+            this.cropSource.width = activeObject.width;
+          }
+          break;
+  
+        case "5:4" :
+          if(activeObject.height > activeObject.width) {
+            this.cropSource.cropX = 0;
+            this.cropSource.cropY = 250; 
+            this.cropSource.top = activeObject.top + (250 * activeObject.scaleY);
+            this.cropSource.left = activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height - 500;
+            this.cropSource.width = activeObject.width;
+          }
+          else if(activeObject.width > activeObject.height) {
+            this.cropSource.cropX = 100
+            this.cropSource.cropY = 0; 
+            this.cropSource.top = activeObject.top;
+            this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height;
+            this.cropSource.width = activeObject.width - 200;
+          }
+          break;
+      
+        case "4:5" :
+          if(activeObject.height > activeObject.width) {
+            this.cropSource.cropX = 0;
+            this.cropSource.cropY = 100; 
+            this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+            this.cropSource.left = activeObject.left;
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height - 200;
+            this.cropSource.width = activeObject.width;
+          }
+          else if(activeObject.width > activeObject.height) {
+            this.cropSource.cropX = 250
+            this.cropSource.cropY = 0; 
+            this.cropSource.top = activeObject.top;
+            this.cropSource.left = activeObject.left + (250 * activeObject.scaleX);
+            this.cropSource.scaleX = activeObject.scaleX;
+            this.cropSource.scaleY = activeObject.scaleY;
+            this.cropSource.height = activeObject.height;
+            this.cropSource.width = activeObject.width - 500;
+          }
+          break;
+      
+      }
+    // }
+    this.listener.crop(this.cropSource);
   }
 
   getClosestAngle(angle: number): number {
@@ -1277,6 +4896,13 @@ export class AppComponent implements OnInit {
       const canvasDomElement = this.canvas.nativeElement;
       this.listener.confirm();
     }
+
+    /* const canvasDomElement = this.canvas.nativeElement;
+    const targetElement = event.target as HTMLElement;
+    
+    if (!this.croppingAreaRef.nativeElement.contains(targetElement)) {
+      this.listener.confirm();
+    } */
   }
 
   /********** Image cropping without library ***********/
@@ -2189,6 +5815,16 @@ export class AppComponent implements OnInit {
         this.stockPhotos = false;
         break;
 
+      case 'bgStockPhotos':
+        if (!this.bgStockPhotos) {
+          this.bg_stock_photo_search_query = "";
+          this.stock_photo_search_query = "";
+          this.getBGStockPhotos(this.bg_stock_photo_search_query);
+        }
+        this.bgStockPhotos = true;
+        this.bgMyPhotos = false;
+        this.bgSetting = false;
+        break;
     }
   }
 
@@ -2314,13 +5950,13 @@ export class AppComponent implements OnInit {
             lockScalingFlip: true,
             isLocked: false,
             visible: true,
-            stroke: 'red',
+            stroke: '#0F1934',
             strokeDashArray: shape.strokeDashArray,
             clipTo: null,
             excludeFromExport: false,
             // strokeLineJoin: "round",
             // strokeMiterLimit: 8,
-            strokeWidth: 20,
+            strokeWidth: shape.strokeWidth,
             // touchCornerSize: 50,
             transparentCorners: false,
             // strokeUniform: false,
@@ -4115,6 +7751,7 @@ export class AppComponent implements OnInit {
 
   // For SVG Element
   activateStickerSubTab(key, isOpenReplace: boolean = false) {
+    this.isBasicShapes = false;
     switch (key) {
       case 'shapes':
         this.shape = true;
@@ -4171,6 +7808,8 @@ export class AppComponent implements OnInit {
     }
     
     if(this.activeTabID === 2) {
+      this.isBasicShapes = true;
+      this.isBgImg = false;
       this.dataService.postData("getNormalCatalogsBySubCategoryId", payLoad, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("ut")
@@ -4191,366 +7830,487 @@ export class AppComponent implements OnInit {
       this.isBasicTabActive = true
     }
     else if(this.activeTabID === 5) {
+      this.isBgImg = false;
       this.stock_photo_list = [
         {
-          "id": 8747397,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-teddy-bear-adventure-8747397\/",
-          "type": "illustration",
-          "tags": "ai generated, teddy bear, adventure",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/08\/05\/00\/ai-generated-8747397_150.jpg",
+          "id": 8777094,
+          "pageURL": "https:\/\/pixabay.com\/photos\/bird-wild-bird-ornithology-fauna-8777094\/",
+          "type": "photo",
+          "tags": "bird, wild bird, ornithology",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/06\/40\/bird-8777094_150.jpg",
           "previewWidth": 150,
-          "previewHeight": 84,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g0b4b79c05e5c2b7d998e166a2acc9db32c2c3cd28a8cdcc38d2854288cdb25d3801c90ad264058bd2517c706dafb47e7_640.jpg",
+          "previewHeight": 105,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g98865bae8f58be0f4a5325585944050adcd9fff5b72bcf513f64ad7362b0d9aaec1e5ad049f7e4e310a6b760c7f142ed_640.jpg",
           "webformatWidth": 640,
-          "webformatHeight": 360,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gc93698f193c590e5fff10654b54f88054c5e46b2390ef06d20106ce2ee64161dbe75b3f3c566db0129b3033d393d163e2c779e295cfd4519f192693d4105c5f2_1280.jpg",
-          "imageWidth": 3584,
-          "imageHeight": 2016,
-          "imageSize": 1345830,
-          "views": 353,
-          "downloads": 293,
-          "collections": 2,
-          "likes": 49,
+          "webformatHeight": 449,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g17faff4f1adfdd1c5137445978756d12fd335812cf86ee519a2e46862c41a0d139193b0f3407f0c37538dd7d16f6a044b38ec5dbcce8723c291bedc3fca0fa10_1280.jpg",
+          "imageWidth": 4291,
+          "imageHeight": 3011,
+          "imageSize": 2357861,
+          "views": 264,
+          "downloads": 244,
+          "collections": 0,
+          "likes": 35,
+          "comments": 0,
+          "user_id": 17561499,
+          "user": "Beto_MdP",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/02\/04\/00-22-52-402_250x250.jpg"
+        },
+        {
+          "id": 8775434,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-swan-wings-bird-8775434\/",
+          "type": "illustration",
+          "tags": "ai generated, swan, wings",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/20\/14\/32\/ai-generated-8775434_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 85,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g329c4e60134294d78a07060d21b69160cd9b3929ffd41e3929f15ba45658dbb80918a9818559b1cd160b75766b056173_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 362,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g1133ca803dbc6149e9813e1cd5787f508f48642c79fd4bb9f3d47c9a03f9a9a5d0acf7926fac9c0a7052b54a08f6273b9f96ff4c0c23eef2ade9fc3385b5a85f_1280.jpg",
+          "imageWidth": 4084,
+          "imageHeight": 2310,
+          "imageSize": 1781281,
+          "views": 1146,
+          "downloads": 937,
+          "collections": 6,
+          "likes": 71,
           "comments": 0,
           "user_id": 10327513,
           "user": "NickyPe",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
         },
         {
-          "id": 8745937,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-man-hoodie-male-8745937\/",
-          "type": "illustration",
-          "tags": "ai generated, man, hoodie",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/07\/14\/07\/ai-generated-8745937_150.jpg",
+          "id": 8768698,
+          "pageURL": "https:\/\/pixabay.com\/photos\/flowers-field-nature-clouds-meadow-8768698\/",
+          "type": "photo",
+          "tags": "flowers, field, flower background",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/17\/17\/30\/flowers-8768698_150.jpg",
           "previewWidth": 100,
           "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/ga60a99ec6bf6734f3e2676cb4a162e44fc6a6428a25b0466dffdb463a03f4431082e1b70f772143f0489943b3a470a86_640.jpg",
+          "webformatURL": "https:\/\/pixabay.com\/get\/gde544a8cc965ab1a4eac395872e4b2cce8f2fb42a58797c5729c2fab26e7a0d62776c2c4c8182fc615ec72294baffc8e_640.jpg",
           "webformatWidth": 427,
           "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g0ae08df285c3542debdc0acc9e7be2b5232852f5da135400a038e0449066c516527538a73dc76e674df56e12dc029731e98f2a52cef042f7d39fa24338629de9_1280.jpg",
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g9e4f639399afe9052c8335d87ab76b8b6be77306eb94d82b7c09f042284cad6204013263e5dcf22f1ad6c247037ec53e896a32783ef4f42fc0b67d5dfcba36ec_1280.jpg",
+          "imageWidth": 3712,
+          "imageHeight": 5568,
+          "imageSize": 6548304,
+          "views": 3873,
+          "downloads": 3484,
+          "collections": 6,
+          "likes": 90,
+          "comments": 22,
+          "user_id": 3764790,
+          "user": "ELG21",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/04\/07\/18-24-56-559_250x250.jpg"
+        },
+        {
+          "id": 8775262,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-orange-tulip-flower-8775262\/",
+          "type": "illustration",
+          "tags": "ai generated, orange, tulip",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/20\/13\/37\/ai-generated-8775262_150.jpg",
+          "previewWidth": 100,
+          "previewHeight": 150,
+          "webformatURL": "https:\/\/pixabay.com\/get\/ga386ae5d6e48e3895ae2f663d0431eff8aa2bd1ef4f51c7af606ed823691d690fd918fbbd4d62f9c956d308e83a88e9f_640.jpg",
+          "webformatWidth": 427,
+          "webformatHeight": 640,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g152e1b41db26ed83a53e9b2b346298b02f83c19003c9dc0dfc8571fb3f5c112643aae6ce85574a35be7c728c63d136b12e74df98d6d7fe37954b9c9944680499_1280.jpg",
           "imageWidth": 3344,
           "imageHeight": 5016,
-          "imageSize": 2179227,
-          "views": 655,
-          "downloads": 525,
-          "collections": 1,
-          "likes": 56,
+          "imageSize": 1891529,
+          "views": 397,
+          "downloads": 339,
+          "collections": 2,
+          "likes": 57,
           "comments": 0,
           "user_id": 7673058,
           "user": "Ray_Shrewsberry",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
         },
         {
-          "id": 8748382,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/letter-writing-vintage-paper-text-8748382\/",
+          "id": 8777097,
+          "pageURL": "https:\/\/pixabay.com\/photos\/mockingbird-bird-ornithology-fauna-8777097\/",
+          "type": "photo",
+          "tags": "mockingbird, bird, ornithology",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/06\/40\/mockingbird-8777097_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 110,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gd15606dd698d2209bcd90a6849d946a4a3d894283ed609fa02d9358caf09c8d0d5d14fe5f4e49e0f4bca0c9a7cc7b566_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 470,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g52f7297fd713189c5ee26dd6b4516c9eeff29cc647099161528b28dddf11001a9ab20fe749846a9380f6a1a89cf507c203b7010f1f4bb7ba5e29700b9e039d5e_1280.jpg",
+          "imageWidth": 3363,
+          "imageHeight": 2468,
+          "imageSize": 2133694,
+          "views": 257,
+          "downloads": 243,
+          "collections": 0,
+          "likes": 33,
+          "comments": 0,
+          "user_id": 17561499,
+          "user": "Beto_MdP",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/02\/04\/00-22-52-402_250x250.jpg"
+        },
+        {
+          "id": 8776464,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/board-frame-whiteboard-business-8776464\/",
           "type": "illustration",
-          "tags": "letter, writing, vintage",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/08\/13\/58\/letter-8748382_150.png",
-          "previewWidth": 108,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/ga7cd4b01e9a879e8a793b9b3940f8c69d03740768021ee8d2f7eff928a85d86f8e02c7faff484d8d325266a7546a17a6_640.png",
-          "webformatWidth": 459,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gb7a8559d0514c105ebe5bfab09cbdedfcc718269c3f29108ae7ff0289ccb16a7e10df535b1dd7e7de725bbc179736102218268f1e0bf39747ad015a814b78c96_1280.png",
-          "imageWidth": 2445,
-          "imageHeight": 3406,
-          "imageSize": 2019389,
-          "views": 553,
-          "downloads": 480,
-          "collections": 9,
-          "likes": 41,
-          "comments": 9,
+          "tags": "board, frame, whiteboard",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/20\/22\/52\/board-8776464_150.png",
+          "previewWidth": 150,
+          "previewHeight": 96,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gc1d55680a56d0b7874bf14b74ac6b8e31b7dfce376eafa93eae1ceaaac1c2121f031a0160256ea7e60282c041cec9510_640.png",
+          "webformatWidth": 640,
+          "webformatHeight": 411,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/gea9b8aae379668064e91a2e7f44cf8635621cc502d330f470604ad69ded8a96c86dcc280e51a93b965f49a33508617fb82c73b2eda00517a024d6b5a5106ec86_1280.png",
+          "imageWidth": 3921,
+          "imageHeight": 2519,
+          "imageSize": 124292,
+          "views": 215,
+          "downloads": 194,
+          "collections": 10,
+          "likes": 34,
+          "comments": 4,
           "user_id": 17475707,
           "user": "flutie8211",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
         },
         {
-          "id": 8743490,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/marigold-flower-nature-bloom-8743490\/",
-          "type": "illustration",
-          "tags": "marigold, flower, nature",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/06\/15\/15\/marigold-8743490_150.jpg",
-          "previewWidth": 100,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g68afe2d27643e933ed1101ef86e13763ad7201b0597e74c4b8c28b9388e9abb2ddeecc202c9f70995ad60bf6e31a3505_640.jpg",
-          "webformatWidth": 427,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g99ab2f7c59a694184e75445dce0a744e19e1a4f2c0a842708a90390d0eedc1a701228227b579b57c019e82443d25b497adb78c709f9b3deb8404f26f07297c1b_1280.jpg",
-          "imageWidth": 3344,
-          "imageHeight": 5016,
-          "imageSize": 1946250,
-          "views": 1037,
-          "downloads": 945,
-          "collections": 2,
-          "likes": 69,
-          "comments": 0,
-          "user_id": 7673058,
-          "user": "Ray_Shrewsberry",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
-        },
-        {
-          "id": 8747393,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-teddy-bear-adventure-8747393\/",
-          "type": "illustration",
-          "tags": "ai generated, teddy bear, adventure",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/08\/04\/58\/ai-generated-8747393_150.jpg",
+          "id": 8780402,
+          "pageURL": "https:\/\/pixabay.com\/photos\/goosander-gosling-chicks-goose-8780402\/",
+          "type": "photo",
+          "tags": "goosander, gosling, chicks",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/11\/03\/goosander-8780402_150.jpg",
           "previewWidth": 150,
           "previewHeight": 84,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g0ab514f9130abaccf837a8419281f3e60e6a32ad31ca3d66023384a343345ff0d53bc50ad032510c1174f3f219566cb8_640.jpg",
+          "webformatURL": "https:\/\/pixabay.com\/get\/g58aaf176d5e1df3bdfbf2411b8bbf0f508483f6af32f42725697135db34955e75f35ff7223868fa304ae5a4b49c3b03e_640.jpg",
           "webformatWidth": 640,
           "webformatHeight": 360,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gb5a6cdd3b74763c2e6968c2d7e167c36ab351bedc8ba515aa53869b76b33a10bd2f5503a6a7040b45822e0851653b9ff5eb3f7ad223a62844ba17716c8afb0a6_1280.jpg",
-          "imageWidth": 3584,
-          "imageHeight": 2016,
-          "imageSize": 2144436,
-          "views": 278,
-          "downloads": 217,
-          "collections": 1,
-          "likes": 47,
-          "comments": 0,
-          "user_id": 10327513,
-          "user": "NickyPe",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g537641bea09d17f89a4b57b657cf7ba73d9dc712cfe9cabaa7e70e0155f9aa001e7204191bc8ff998377e12f27d98feb27e1b0c42622155024b66c4cb2deb154_1280.jpg",
+          "imageWidth": 4482,
+          "imageHeight": 2521,
+          "imageSize": 2187058,
+          "views": 35,
+          "downloads": 25,
+          "collections": 4,
+          "likes": 37,
+          "comments": 11,
+          "user_id": 1425977,
+          "user": "ChiemSeherin",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
         },
         {
-          "id": 8754070,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/back-to-school-education-welcome-8754070\/",
-          "type": "illustration",
-          "tags": "back to school, education, welcome",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/11\/06\/37\/back-to-school-8754070_150.jpg",
+          "id": 8780896,
+          "pageURL": "https:\/\/pixabay.com\/photos\/frog-lily-pad-pond-water-wildlife-8780896\/",
+          "type": "photo",
+          "tags": "frog, free background, lily pad",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/15\/13\/frog-8780896_150.jpg",
           "previewWidth": 150,
-          "previewHeight": 85,
-          "webformatURL": "https:\/\/pixabay.com\/get\/gdc41a8b536322a4240d296608f77738973a48d288b7f407097b30f2cd428e8b91803cea6f176bd7367f4ad7b8778f7d6_640.jpg",
+          "previewHeight": 97,
+          "webformatURL": "https:\/\/pixabay.com\/get\/ge158f8171b31bb6b7e363621db355d16ca2c287fdd7cc52ce8b65c347f1d517147afecafd363c0b59f13476f94936d0a_640.jpg",
           "webformatWidth": 640,
-          "webformatHeight": 362,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g84bfd826cfc28cc50bc29074413d466c8f40d6dc2252ddc473a01dc5f2adca9a67598c22c952886ea87751fb3db106f59eb4fd751254c7ad28ebe54b7a55f66f_1280.jpg",
-          "imageWidth": 4084,
-          "imageHeight": 2310,
-          "imageSize": 1193919,
-          "views": 118,
-          "downloads": 69,
+          "webformatHeight": 415,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g65b87552300ca3b2db2d18ee86cadb30a817e95b123457199a8beea9fe2f8b1e93dfe14e9507c93b5dd0e0e263f78c60ad9122892140a923c39f9713ff255599_1280.jpg",
+          "imageWidth": 3240,
+          "imageHeight": 2100,
+          "imageSize": 1275682,
+          "views": 1,
+          "downloads": 2,
           "collections": 2,
-          "likes": 26,
-          "comments": 2,
-          "user_id": 9301,
-          "user": "geralt",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/08\/25\/06-52-36-900_250x250.jpg"
+          "likes": 37,
+          "comments": 17,
+          "user_id": 9214707,
+          "user": "Mollyroselee",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/16\/20-11-29-225_250x250.jpg"
         },
         {
-          "id": 8741777,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-flower-poppy-bloom-8741777\/",
-          "type": "illustration",
-          "tags": "ai generated, flower, poppy",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/05\/19\/03\/ai-generated-8741777_150.jpg",
-          "previewWidth": 100,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g1507dcd14d9689e11cdb35dd67985139d4dd07b3bdb064d702ce6b86d2ddacd9d39b5ec30b82e73f55c1db678dc86fa8_640.jpg",
-          "webformatWidth": 427,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g17069025ac094b32346fd8ca562d91dca3eb096b231568290bf3b669a0ff5392f0eb7f96c909134814fefaaf93bf99b7480f11491e92ff34b5e66c32b473ad03_1280.jpg",
-          "imageWidth": 3344,
-          "imageHeight": 5016,
-          "imageSize": 1697645,
-          "views": 1755,
-          "downloads": 1512,
-          "collections": 7,
-          "likes": 78,
-          "comments": 0,
-          "user_id": 7673058,
-          "user": "Ray_Shrewsberry",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+          "id": 8780413,
+          "pageURL": "https:\/\/pixabay.com\/photos\/birds-waterfowl-lake-wildlife-8780413\/",
+          "type": "photo",
+          "tags": "birds, waterfowl, lake",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/11\/06\/birds-8780413_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 100,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gcdb2b440a53efa912a1590f400a6153b3c099e0905509a41ef4ee0f041049126eb77c38f92d61d53b3302e156ee510ef_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 427,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/ga86e838e5bb2eddf2c20ed3a1180071d22f6a3171962c79d9dbab0a6408885e9704c1236e6a1bbf371796f2d05aa02c5617e782313960d1ca93add1f5551d165_1280.jpg",
+          "imageWidth": 4676,
+          "imageHeight": 3119,
+          "imageSize": 4122670,
+          "views": 39,
+          "downloads": 25,
+          "collections": 2,
+          "likes": 38,
+          "comments": 10,
+          "user_id": 1425977,
+          "user": "ChiemSeherin",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
         },
         {
-          "id": 8741769,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-flower-hibiscus-petals-8741769\/",
-          "type": "illustration",
-          "tags": "ai generated, flower, hibiscus",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/05\/18\/55\/ai-generated-8741769_150.jpg",
-          "previewWidth": 100,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/gfa40ada00ec94007f79856c6c86949a7b17a360801f08e588e72bd2e3eaa839c06d10626f2f896dc90653841ffebf61f_640.jpg",
-          "webformatWidth": 427,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gec17a9d0dd3145811151890d4fcef665ebf0d1e586e6b05d86021fb1a0468b88cbdf1abc23afbc6baba72ccd0ac9628021cbd04b73d2ef1c35556a20a4688aaf_1280.jpg",
-          "imageWidth": 3344,
-          "imageHeight": 5016,
-          "imageSize": 2219910,
-          "views": 2215,
-          "downloads": 1807,
-          "collections": 8,
-          "likes": 77,
-          "comments": 0,
-          "user_id": 7673058,
-          "user": "Ray_Shrewsberry",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+          "id": 8763079,
+          "pageURL": "https:\/\/pixabay.com\/photos\/bird-hummingbird-blue-nature-8763079\/",
+          "type": "photo",
+          "tags": "bird, hummingbird, blue",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/15\/08\/23\/bird-8763079_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 100,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gdfa6e5fd8efdd4b782b2eb9f529bda785340eab5fc805c502bdcfc5044f187f50ec2d48ab4ae9cf5d302ce70c47bada8_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 427,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g769b309cd5cd6e41b4c6b4007351844ef559e8523dd473d8af1e1b5f2856afc5c63c34cd05cf0779f15d3eab17fb99068d5d9ffc0c617c32388a7931d9383b21_1280.jpg",
+          "imageWidth": 4898,
+          "imageHeight": 3265,
+          "imageSize": 2161833,
+          "views": 3401,
+          "downloads": 2492,
+          "collections": 47,
+          "likes": 87,
+          "comments": 21,
+          "user_id": 6205857,
+          "user": "balouriarajesh",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2019\/02\/12\/08-21-35-410_250x250.jpg"
         },
         {
-          "id": 8747423,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-eye-computer-science-8747423\/",
+          "id": 8776644,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/exoplanet-planet-kosmos-erde-8776644\/",
           "type": "illustration",
-          "tags": "ai generated, eye, computer",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/08\/05\/21\/ai-generated-8747423_150.jpg",
-          "previewWidth": 85,
-          "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/gc2c383275d37b01d836d4152c96c54ac3a0577bb531ecf5577a46127442ca6d4c3068353c8d2752fd80c8230ee46276d_640.jpg",
-          "webformatWidth": 362,
-          "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g1e1759c902ddd50f7bd937bb5cef10a131695edb49a5680dfb56af6453b131832d4f355c7a33d2b03964e1eee9f33aafad8e1841be0e48a14c77703a6a2366dc_1280.jpg",
-          "imageWidth": 2310,
-          "imageHeight": 4084,
-          "imageSize": 2164846,
-          "views": 500,
-          "downloads": 416,
-          "collections": 5,
-          "likes": 43,
-          "comments": 0,
-          "user_id": 10327513,
-          "user": "NickyPe",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-        },
-        {
-          "id": 8751724,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/kingfisher-flight-wildlife-water-8751724\/",
-          "type": "illustration",
-          "tags": "kingfisher, flight, wildlife",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/09\/19\/53\/kingfisher-8751724_150.jpg",
+          "tags": "exoplanet, planet, kosmos",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/01\/44\/exoplanet-8776644_150.png",
           "previewWidth": 150,
           "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/gd57e01cdeb45db54d54c4a15b0da6ebfdf75da954261d4c6cdbccf247ce1b2ea65b2f8318fe7f5e192592e34f19510f3_640.jpg",
+          "webformatURL": "https:\/\/pixabay.com\/get\/g2c6a0ec2d03715adba4371c40c5f7f78d25f08c9dd5cf4dde2d10737e6e27315a1d7e8497765b3b2a4a7754e9e9ee64c_640.png",
           "webformatWidth": 640,
           "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g437609fb78288e3c32299471ac60bb65c80688507800d3db7717c485586518157b801665de721b9ae052f37c3f9d55bbc88f3ac8cec0b52c23cbf5b9728328a1_1280.jpg",
+          "largeImageURL": "https:\/\/pixabay.com\/get\/gf4ffd0514ad6bc9943484bcd1bcbea04ee6abda9d804312caa54261bad0c2e8cd530e464cf737d631713fa96f9a35b8ccd8903f04a98955d38e6f3f8fbd8c14b_1280.png",
+          "imageWidth": 3500,
+          "imageHeight": 3500,
+          "imageSize": 8340757,
+          "views": 182,
+          "downloads": 153,
+          "collections": 1,
+          "likes": 40,
+          "comments": 2,
+          "user_id": 23759469,
+          "user": "Terranaut",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
+        },
+        {
+          "id": 8781136,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-lavender-field-bloom-8781136\/",
+          "type": "illustration",
+          "tags": "ai generated, lavender, field",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/16\/45\/ai-generated-8781136_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 100,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g46b0dfcfa4adb5fa7ceeb95617f226e3403bded9602956bf6f21550e0bb65e18b40a134f8ad007c545ee480d86a2d9a3_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 427,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/gcd6c40245e0636e20a8a09cb083566692058508c32d9ed1e115b23674c48ce8d06c716577e6fa5b18ef2359f6ed6d325c83d30d77ecdb648fd7a4f79e557e015_1280.jpg",
+          "imageWidth": 5016,
+          "imageHeight": 3344,
+          "imageSize": 2015532,
+          "views": 0,
+          "downloads": 0,
+          "collections": 2,
+          "likes": 38,
+          "comments": 0,
+          "user_id": 7673058,
+          "user": "Ray_Shrewsberry",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+        },
+        {
+          "id": 8780840,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-sunflower-flower-8780840\/",
+          "type": "illustration",
+          "tags": "ai generated, sunflower, flower",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/14\/39\/ai-generated-8780840_150.jpg",
+          "previewWidth": 100,
+          "previewHeight": 150,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g9ad756419ae5ecef3a052fbf6c095b2265569fea480f29185db8ce08c8c921dd43bd7139419c8ee6d9b13c78ab923880_640.jpg",
+          "webformatWidth": 427,
+          "webformatHeight": 640,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g93b71858e0c8035167096003170ed6cad0087c8f668ace750064d8779be46028dc6d3ecd7cdd7348b2ccd92b0e2510f7f1776798881bec933abf7f02f07afa8b_1280.jpg",
+          "imageWidth": 3344,
+          "imageHeight": 5016,
+          "imageSize": 2706555,
+          "views": 1,
+          "downloads": 1,
+          "collections": 1,
+          "likes": 37,
+          "comments": 0,
+          "user_id": 7673058,
+          "user": "Ray_Shrewsberry",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+        },
+        {
+          "id": 3147855,
+          "pageURL": "https:\/\/pixabay.com\/photos\/desktop-old-champagne-cloth-3147855\/",
+          "type": "photo",
+          "tags": "desktop, old, champagne",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2018\/02\/12\/09\/53\/desktop-3147855_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 78,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gc0a9a7d908e9895145cc1cdf99d797c6b9f009d1bf7dcfad9a947816fe68ea060f4e84c8b4bc19bdaf7edbdf1c76742a_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 334,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g106f0d157cf5c9d4ead1f92d18aba0b5a968ab8a0afbb8ffd3c7219ec8d84b096bff8c8f20f8945a2436cc12b506177a581adb86cf2424d0a58dc5a37c3e492d_1280.jpg",
+          "imageWidth": 5834,
+          "imageHeight": 3047,
+          "imageSize": 5562282,
+          "views": 18350,
+          "downloads": 11021,
+          "collections": 97,
+          "likes": 60,
+          "comments": 5,
+          "user_id": 4283981,
+          "user": "rawpixel",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/14\/08-35-52-464_250x250.jpg"
+        },
+        {
+          "id": 8776649,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/exoplanet-planet-kosmos-erde-8776649\/",
+          "type": "illustration",
+          "tags": "exoplanet, planet, kosmos",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/01\/52\/exoplanet-8776649_150.png",
+          "previewWidth": 150,
+          "previewHeight": 150,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g0d5781eb194cac83833711276d9b4b5790b34eaac33058d964539758ae984e3a993e9d829505f3dde9ebdd15301bbe0c_640.png",
+          "webformatWidth": 640,
+          "webformatHeight": 640,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g86c6be7d4376ee9514453703c78647040b40b73b3c2d9710a20cab4c64a90e16da35f4757ed1e746cdae8dd9459c5f79c3bdd9fe7fa5b62b8999900fd972f756_1280.png",
           "imageWidth": 4000,
           "imageHeight": 4000,
-          "imageSize": 2986233,
-          "views": 46,
-          "downloads": 14,
+          "imageSize": 13005692,
+          "views": 181,
+          "downloads": 154,
           "collections": 0,
-          "likes": 22,
-          "comments": 6,
-          "user_id": 32364022,
-          "user": "beasternchen",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/16-15-30-223_250x250.jpg"
+          "likes": 39,
+          "comments": 2,
+          "user_id": 23759469,
+          "user": "Terranaut",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
         },
         {
-          "id": 8750426,
-          "pageURL": "https:\/\/pixabay.com\/photos\/barnacle-goose-wild-goose-water-bird-8750426\/",
+          "id": 8783210,
+          "pageURL": "https:\/\/pixabay.com\/photos\/duck-bird-animal-feathers-plumage-8783210\/",
           "type": "photo",
-          "tags": "barnacle goose, free wallpaper, free background",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/09\/10\/03\/barnacle-goose-8750426_150.jpg",
+          "tags": "duck, bird, animal",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/13\/23\/duck-8783210_150.jpg",
           "previewWidth": 150,
-          "previewHeight": 84,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g4283b699a11ff6c4e964c9e25d55ce52a57b99e318db960d8e9acb1d48ddc58c52d88b64a3cfee68fe5eb5c0e2ef7228_640.jpg",
+          "previewHeight": 113,
+          "webformatURL": "https:\/\/pixabay.com\/get\/gf869fd1330ce52170736a55fd718580c4a240cbb242acd873040990083d7ed7944072e9ea72bc4088c2c798f237d4ff7_640.jpg",
           "webformatWidth": 640,
-          "webformatHeight": 360,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g6114dc10e755ab3ee3ea5b966f6bfaaf2703d29d963395152c5d8027dbd63551b2ceeb3a27f327d0bec8b8b8cd3bdd62c658de97512f6734b78beb651a682f53_1280.jpg",
-          "imageWidth": 5509,
-          "imageHeight": 3099,
-          "imageSize": 4359102,
-          "views": 946,
-          "downloads": 869,
-          "collections": 3,
-          "likes": 42,
-          "comments": 15,
-          "user_id": 1425977,
-          "user": "ChiemSeherin",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
-        },
-        {
-          "id": 8750435,
-          "pageURL": "https:\/\/pixabay.com\/photos\/raven-crow-carrion-crow-bird-8750435\/",
-          "type": "photo",
-          "tags": "raven, laptop wallpaper, crow",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/09\/10\/14\/raven-8750435_150.jpg",
-          "previewWidth": 150,
-          "previewHeight": 84,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g1b45f0242b00627ea6afedc8accc8825ddeca2dbe16df1019be2c04a2c050068aa95524e703d7a48efea346d40d785f3_640.jpg",
-          "webformatWidth": 640,
-          "webformatHeight": 360,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g869bd511edb4225f177abab3b8c0d8144b18499b2f53c03a72afe7359a9704d62365392a85ebd2bc08b03f6a6fb66c8e506eb8c0df2d4193e6ffc46c2621d3ff_1280.jpg",
-          "imageWidth": 5176,
-          "imageHeight": 2912,
-          "imageSize": 3830775,
-          "views": 634,
-          "downloads": 569,
-          "collections": 1,
+          "webformatHeight": 480,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g84093ef99b0824f8974b9cbbcc936799a8c0122f371b1bac14d0521763e028d51c52ade48341018e7a71a6caf2603f5648a6ef6136b471497613df6392fd671f_1280.jpg",
+          "imageWidth": 4848,
+          "imageHeight": 3636,
+          "imageSize": 3978576,
+          "views": 0,
+          "downloads": 0,
+          "collections": 4,
           "likes": 34,
-          "comments": 9,
+          "comments": 13,
           "user_id": 1425977,
           "user": "ChiemSeherin",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
         },
         {
-          "id": 8745123,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-river-forest-trees-8745123\/",
+          "id": 8779230,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ballerina-ballet-dance-dancer-8779230\/",
           "type": "illustration",
-          "tags": "ai generated, river, forest",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/07\/07\/49\/ai-generated-8745123_150.jpg",
-          "previewWidth": 150,
-          "previewHeight": 85,
-          "webformatURL": "https:\/\/pixabay.com\/get\/g864c710df81e0710613c54993a667f0cea4de42152a823fe80053788a01575fc8cf872a094880cf83a3cadfd612c2ac4_640.jpg",
-          "webformatWidth": 640,
-          "webformatHeight": 362,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gb356a561be6d29cae9c003be4a56729ab9fc7f7169f010f34cee1e8bc400fb85f64bb0fb251a33a906602241defab8508b057bf83d534d38eba1f461a6201574_1280.jpg",
-          "imageWidth": 4084,
-          "imageHeight": 2310,
-          "imageSize": 2706046,
-          "views": 704,
-          "downloads": 562,
-          "collections": 3,
-          "likes": 53,
-          "comments": 0,
-          "user_id": 10327513,
-          "user": "NickyPe",
-          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-        },
-        {
-          "id": 8751314,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/grunge-texture-wall-concrete-8751314\/",
-          "type": "illustration",
-          "tags": "grunge, texture, wall",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/09\/15\/23\/grunge-8751314_150.jpg",
+          "tags": "ballerina, ballet, dance",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/22\/17\/ballerina-8779230_150.png",
           "previewWidth": 150,
           "previewHeight": 150,
-          "webformatURL": "https:\/\/pixabay.com\/get\/gaf8ebde3779488a518265e699bff489bc7f0f4289aab37f5ca4f08ac92d74db7c9f152321607acde327916f9bf0e2791_640.jpg",
+          "webformatURL": "https:\/\/pixabay.com\/get\/gd995d0b5c7ea53dd1adf34e22b4fc64d0c39b651640cf3328e4eb505769b7d2df0b64eed0cbfc66352034a7df78dc0cb_640.png",
           "webformatWidth": 640,
           "webformatHeight": 640,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/gcffa54d8e6d25c258087ed0de2c9668e653e43e9ec8ebc97fd28dd3fc1f480826cfb8a2e574775f499ad86c070a16f2fb81b01419239bbcc2bde7b446734ccaa_1280.jpg",
-          "imageWidth": 4500,
-          "imageHeight": 4500,
-          "imageSize": 1040122,
-          "views": 223,
-          "downloads": 188,
-          "collections": 6,
-          "likes": 28,
-          "comments": 2,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g132ef3ae320e987c5723730e3ced6626566959aed825db58cfe57045ff1fd38a1986786d53e2c3834a5b649df005ab2c2c7fad4d0ce9ca5b84bc075006fbb840_1280.png",
+          "imageWidth": 4000,
+          "imageHeight": 4000,
+          "imageSize": 226680,
+          "views": 141,
+          "downloads": 128,
+          "collections": 7,
+          "likes": 33,
+          "comments": 4,
           "user_id": 17475707,
           "user": "flutie8211",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
         },
         {
-          "id": 8743609,
-          "pageURL": "https:\/\/pixabay.com\/illustrations\/man-mystic-computer-science-head-8743609\/",
+          "id": 8776677,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/blaumeise-meise-fr%C3%BChling-singvogel-8776677\/",
           "type": "illustration",
-          "tags": "man, mystic, computer science",
-          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/06\/15\/48\/man-8743609_150.jpg",
+          "tags": "blaumeise, meise, fr\u00fchling",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/02\/20\/blaumeise-8776677_150.jpg",
           "previewWidth": 150,
-          "previewHeight": 85,
-          "webformatURL": "https:\/\/pixabay.com\/get\/ge56942d1a173f9f98f3fa1f912054e5954a0d030bc325877cfd8fb121d7a9f8bf4e729f595a4c4d326f6c4c0f85fd721_640.jpg",
+          "previewHeight": 150,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g0edca7459e27a15ef55b6c2c64cb92275b48b270fded7b3c611f8c3afddc6cfc8b3d78fdf7fb4222286af49fb17a72fd_640.jpg",
           "webformatWidth": 640,
-          "webformatHeight": 362,
-          "largeImageURL": "https:\/\/pixabay.com\/get\/g88cd8f8af368ed21f076da3eee34767f475e6fc5e2501c32ccd027b5c4712633e5b643e7f92c2d66fb5cd69bb3cf5f7d07de038e822c0f81747e501700860f92_1280.jpg",
-          "imageWidth": 4084,
-          "imageHeight": 2310,
-          "imageSize": 1491539,
-          "views": 1185,
-          "downloads": 1004,
+          "webformatHeight": 640,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g367aa555b523762a6090385465d2285f3e5cb948777a41285c99dba05fbb4f723d737f5876857e30221026dd216134198e1c8be448d6e7ffb902753633ff727a_1280.jpg",
+          "imageWidth": 5000,
+          "imageHeight": 5000,
+          "imageSize": 3490413,
+          "views": 63,
+          "downloads": 50,
+          "collections": 0,
+          "likes": 36,
+          "comments": 0,
+          "user_id": 23759469,
+          "user": "Terranaut",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
+        },
+        {
+          "id": 8783349,
+          "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-drink-lemon-glass-8783349\/",
+          "type": "illustration",
+          "tags": "ai generated, drink, lemon",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/15\/12\/ai-generated-8783349_150.jpg",
+          "previewWidth": 85,
+          "previewHeight": 150,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g42b142b69c9d9f769a96720ba166940cc9876898ed8ca2d80515257cc8bff05c61ce1bcd64a3fa8e854487cb2f6769f1_640.jpg",
+          "webformatWidth": 362,
+          "webformatHeight": 640,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g839a53bcf8bd9dfc76eed7e87593db1a0a1fe4fc4564373c89034efaf81257491041c118b5fddfc4ffc0c4bec1b8769f834f5993950414d108eb6d6ddc075638_1280.jpg",
+          "imageWidth": 2310,
+          "imageHeight": 4084,
+          "imageSize": 1682731,
+          "views": 0,
+          "downloads": 0,
           "collections": 3,
-          "likes": 64,
+          "likes": 34,
           "comments": 0,
           "user_id": 10327513,
           "user": "NickyPe",
           "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+        },
+        {
+          "id": 8777374,
+          "pageURL": "https:\/\/pixabay.com\/photos\/bird-ornithology-kingfisher-tree-8777374\/",
+          "type": "photo",
+          "tags": "bird, ornithology, kingfisher",
+          "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/09\/04\/bird-8777374_150.jpg",
+          "previewWidth": 150,
+          "previewHeight": 100,
+          "webformatURL": "https:\/\/pixabay.com\/get\/g579b7dbe71cd62a74285151f0165d9cabe6f016db09cef1e50462ff746e60a5655077bb08a0ec5656f35b78fbff83d45_640.jpg",
+          "webformatWidth": 640,
+          "webformatHeight": 427,
+          "largeImageURL": "https:\/\/pixabay.com\/get\/g73a43ef0bffa66b72c6ccbe40480eb98b969c8bd6a3537dcc521c0fef61637cdf2e890c81d37b3365ca997a6197ffa5fbdf1aec46ea9ca7bdfcc3abc2255a934_1280.jpg",
+          "imageWidth": 5568,
+          "imageHeight": 3712,
+          "imageSize": 1875714,
+          "views": 380,
+          "downloads": 341,
+          "collections": 1,
+          "likes": 36,
+          "comments": 14,
+          "user_id": 13177285,
+          "user": "Gruendercoach",
+          "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2021\/07\/11\/18-47-15-179_250x250.jpg"
         },
       ]
 
@@ -4598,10 +8358,14 @@ export class AppComponent implements OnInit {
     else if(this.activeTabID === 4) {
       this.activeTab.tabId = 4;
     }
+    else if(this.activeTabID === 8) {
+      this.activeTab.tabId = 8;
+    }
   }
 
   // Load sticker from database
   stickerCatalogChanged(catalog_detail, isOpenReplace: boolean = false) {
+    this.isBasicShapes = false;
     let payLoad: any = {};
     if (this.shape) {
 
@@ -5910,7 +9674,14 @@ export class AppComponent implements OnInit {
         this.textures = false;
         this.images = true;
         this.bgMyPhotos = false;
-        this.isBgImg = true;
+        if (this.canvas.backgroundImage) {
+
+          this.isBgImg = true;
+        }
+        else {
+          this.isBgImg = false;
+        }
+        this.activateAddImageSubTab('bgStockPhotos');
         break;
 
       case 'myPhotos':
@@ -5935,7 +9706,9 @@ export class AppComponent implements OnInit {
   }
   removeBackgroundColorGradient() {
     if (this.canvas.backgroundColor || this.canvas.backgroundImage) {
-      
+      this.canvas.backgroundImage = '';
+      this.backgroundStockPhoto = '';
+      this.isBgImg = false;
       this.props.canvasFill = transparentColor;
       this.canvas.backgroundColor = this.props.canvasFill;
       this.canvas.renderAll();
@@ -6522,7 +10295,7 @@ export class AppComponent implements OnInit {
       // }
     }
   }
-
+  
   // Load BG Collection
   activeTextures(search_query) {
     let payLoad = {
@@ -6799,6 +10572,7 @@ export class AppComponent implements OnInit {
           this.setCanvasImage(this.backgroundStockPhoto);
         }
         break;
+      
       case 'Maintain Aspect':
         var isFromServer = this.canvas.toJSON(this.custom_attributes).backgroundImage.isFromServer
         if (typeof isFromServer != 'undefined' && isFromServer != null && isFromServer != '')
@@ -6808,6 +10582,7 @@ export class AppComponent implements OnInit {
         else
           this.setCanvasImage(this.backgroundStockPhoto);
         break;
+      
       case 'No Scale':
         var isFromServer = this.canvas.toJSON(this.custom_attributes).backgroundImage.isFromServer
         if (typeof isFromServer != 'undefined' && isFromServer != null && isFromServer != '')
@@ -6817,6 +10592,7 @@ export class AppComponent implements OnInit {
         else
           this.setCanvasImage(this.backgroundStockPhoto);
         break;
+      
       case 'Scale Crop':
         var isFromServer = this.canvas.toJSON(this.custom_attributes).backgroundImage.isFromServer
         if (typeof isFromServer != 'undefined' && isFromServer != null && isFromServer != '')
@@ -6826,7 +10602,466 @@ export class AppComponent implements OnInit {
         else
           this.setCanvasImage(this.backgroundStockPhoto);
         break;
+      
     }
+  }
+
+  // Load Stock Photo
+  getBGStockPhotos(search_query) {
+    search_query = this.bg_stock_photo_search_query;
+    /* let payLoad = {
+      "search_query": "",
+      "page": 2,
+      "item_count": 200,
+    }
+
+    this.dataService.postData("getImagesFromPixabay", payLoad, {
+      heheaders: {
+        Authorization: "Bearer " + localStorage.getItem("ut")
+      }
+    }).subscribe((res) => {
+      console.log(res,"-- res");
+    }); */
+
+    this.stock_photo_list = [
+      {
+        "id": 8769483,
+        "pageURL": "https:\/\/pixabay.com\/photos\/squirrel-rodent-animal-wildlife-8769483\/",
+        "type": "photo",
+        "tags": "squirrel, rodent, animal",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/18\/04\/30\/squirrel-8769483_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 98,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gf3715abdb6d62917ec621ef45dfd9213b2689a74c8ccf8f261c1c019efcca5d26301edd31fd05de0e1f8a0df2307ce91_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 419,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gea7c28a044d9dc41205ef4b9bdd0cc0c39804dbe7c1e3c5e27a895fa9259e28ffeed834bcb17d139ae3f2bb82a11e8a1d8853ac2842bbdfc95dd2f42296c1351_1280.jpg",
+        "imageWidth": 5496,
+        "imageHeight": 3602,
+        "imageSize": 3977899,
+        "views": 831,
+        "downloads": 770,
+        "collections": 3,
+        "likes": 44,
+        "comments": 0,
+        "user_id": 1767157,
+        "user": "Ralphs_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/05\/14\/01-52-59-78_250x250.jpg"
+      },
+      {
+        "id": 8768697,
+        "pageURL": "https:\/\/pixabay.com\/photos\/purple-flower-spring-nature-field-8768697\/",
+        "type": "photo",
+        "tags": "purple, flower wallpaper, flower",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/17\/17\/30\/purple-8768697_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g88f989be1daf7638c80b57b191dcbc17258ed3e8a41342fe651dd09d6f1119db441eedc485f54a745f2f34876bc26ee3_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g4a9b9450e2c41aa2adb573e9a9b4e027e13b6ece849ba8ad308ba362ff909d754cf24caf676ffc04b0904b015315623dd079a007a0f2052262297c2915cb3098_1280.jpg",
+        "imageWidth": 5568,
+        "imageHeight": 3712,
+        "imageSize": 4265301,
+        "views": 1822,
+        "downloads": 1676,
+        "collections": 3,
+        "likes": 71,
+        "comments": 16,
+        "user_id": 3764790,
+        "user": "ELG21",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/04\/07\/18-24-56-559_250x250.jpg"
+      },
+      {
+        "id": 8769612,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/animal-mouse-mammal-rodent-mobile-8769612\/",
+        "type": "illustration",
+        "tags": "animal, mouse, nature",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/18\/05\/34\/animal-8769612_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g77c28171703d3b5136a72631ac2b03de3f5143f9c98a3c4040970d4bbbff952b8de74c5a68b90a36228c6babaed77c36_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/geed25d9f833ef71805e59f64992483ed3ab8912b32210e8a177a0387a17fd08922a94da73743f88f8386dbf720bfca6d93ecf74c6c5c04c512449ad59be5d6e8_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1176468,
+        "views": 725,
+        "downloads": 607,
+        "collections": 4,
+        "likes": 56,
+        "comments": 0,
+        "user_id": 10327513,
+        "user": "NickyPe",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+      },
+      {
+        "id": 8768695,
+        "pageURL": "https:\/\/pixabay.com\/photos\/flowers-spring-nature-field-garden-8768695\/",
+        "type": "photo",
+        "tags": "flowers, beautiful flowers, flower wallpaper",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/17\/17\/29\/flowers-8768695_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g7ff3d16527c4c558b83561c5787c6d4f513b718630ceed74920622368fcad3ef0f7c445516d1e08941712efd564721c3_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/ge38792b8573c494f9460677609f3a2a2b4bfadb06da5f83282b8d7db05fe73b3833b63048df58c6d7d7e56afd45508eb33071f777942b61f19a121de1b5d1173_1280.jpg",
+        "imageWidth": 5568,
+        "imageHeight": 3712,
+        "imageSize": 4143307,
+        "views": 1679,
+        "downloads": 1560,
+        "collections": 4,
+        "likes": 66,
+        "comments": 10,
+        "user_id": 3764790,
+        "user": "ELG21",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/04\/07\/18-24-56-559_250x250.jpg"
+      },
+      {
+        "id": 8772663,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-bald-eagle-eagle-bird-8772663\/",
+        "type": "illustration",
+        "tags": "ai generated, bald eagle, eagle",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/13\/59\/ai-generated-8772663_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g401cb7a258038e099c54155904eea52ef9151e99e9c118b1116e9d5737a7898d5a94d2012316237222b4ee7cf77ddbfd_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g6c20fd098765f7235dc1a4e002d2030864407d03aef74b551b95e49497807e78ca6cbfaef7d051a1b0b4cd015e2aaf63e87f11928daf01495fe0aa3068c471e4_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 3080917,
+        "views": 380,
+        "downloads": 297,
+        "collections": 2,
+        "likes": 48,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8771560,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-nature-spirit-8771560\/",
+        "type": "illustration",
+        "tags": "ai generated, woman, nature spirit",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/05\/52\/ai-generated-8771560_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g5a11ca02fff685f318a3173c3e036074ceaaf6c1fd5caf6729d5d3c058a42668af568d4ab3a43a82f51f671eead30cb2_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gacdc152f06f2ae6a939ca2f99fcced4137d64de7dc5db7985d3e0864b7b69c1133956452014923a10a563381eccfc4948236d0d5deec805bd04780224c1357cb_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1868426,
+        "views": 316,
+        "downloads": 252,
+        "collections": 5,
+        "likes": 45,
+        "comments": 0,
+        "user_id": 10327513,
+        "user": "NickyPe",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+      },
+      {
+        "id": 8770019,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-teddy-toy-teddy-bear-8770019\/",
+        "type": "illustration",
+        "tags": "ai generated, teddy, toy",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/18\/10\/13\/ai-generated-8770019_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g53e220bf30b43f921b1e6f3fe9ddb061a3cc25edaf276378638101e28cae9d0cb9a699c96ae67ff0c16737310727ec12_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g8e39e6cc160e7a0fce493dbea66015e397362445e3dfdb4a94aea0d4715cc9b3850dd11034970a461bb07da8f328bb5780469ba4e77386be424dbf70e4d7be30_1280.png",
+        "imageWidth": 3275,
+        "imageHeight": 4096,
+        "imageSize": 14001127,
+        "views": 786,
+        "downloads": 635,
+        "collections": 6,
+        "likes": 41,
+        "comments": 1,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 8769486,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-raven-crow-bird-8769486\/",
+        "type": "illustration",
+        "tags": "ai generated, raven, crow",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/18\/04\/36\/ai-generated-8769486_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gd9e592e170d6cace7e7b41555ddc4acf54e9b2ce2fa7f27230e27be65dadebfe35893c12130ff8cc13695b8dd93006b4_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gb5e3893d9e7ee25d16c9431b4f5ff2ab03f68ec9084f4269b1a8e84a65792233c777189f7caa42f105d4dd62294c5662cb083b8635645f56e7b951f90df19b5f_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 2204471,
+        "views": 535,
+        "downloads": 470,
+        "collections": 6,
+        "likes": 52,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8769390,
+        "pageURL": "https:\/\/pixabay.com\/photos\/crow-bird-beak-ornithology-8769390\/",
+        "type": "photo",
+        "tags": "crow, bird, beak",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/18\/01\/56\/crow-8769390_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 98,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g19757dae2bb486d7ae28f61c8646fab9a4a90f4dce17a9de2fa68756d17157c61fff1f45ce4caf922915d518a992fc9c_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 420,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gb710e80298c16ebe28f839446840f1549c3c16c81ed9a0ac92c6b5647ead3737a3664ad39acdcbc61b07b4f88c406dfdee0d8184f878f590256a1d3e5c908632_1280.jpg",
+        "imageWidth": 4791,
+        "imageHeight": 3142,
+        "imageSize": 1722379,
+        "views": 718,
+        "downloads": 669,
+        "collections": 2,
+        "likes": 46,
+        "comments": 0,
+        "user_id": 1767157,
+        "user": "Ralphs_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/05\/14\/01-52-59-78_250x250.jpg"
+      },
+      {
+        "id": 8772630,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-foal-donkey-animal-8772630\/",
+        "type": "illustration",
+        "tags": "ai generated, foal, donkey",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/13\/40\/ai-generated-8772630_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/ge202d750db0ff2049a0912b809ecf3251dad070cc2ce6a0f665a2d0371e40c2bbdb7c521dab2c3bf7fbce1c66b02bcdd_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/ge2d4d8e80004b5dac9c3198df0d217f463950f9d227594a7998ff449740de6e245d4fea08a90a2e23d38a19ba24383946e0c263f6764e21a705319cf72f1f990_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 2666735,
+        "views": 247,
+        "downloads": 189,
+        "collections": 2,
+        "likes": 46,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8771533,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-bird-colorful-animal-8771533\/",
+        "type": "illustration",
+        "tags": "ai generated, bird, colorful",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/05\/38\/ai-generated-8771533_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gc176a0f4887a74e7ee522e9543501fbaf1ee5fc7dd18352481fd4f8a5654970ce84a32c15bd385d3ac2b599559dde695_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g768e4515d8501eff51b5262ce7da5c78b29b48c65a8b0264871c2fba2d5af717476cd9bd4b124aa18d94dc056dfe5a9ce2b7195dc1d11c772b43fb10836e95ea_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1924389,
+        "views": 254,
+        "downloads": 207,
+        "collections": 3,
+        "likes": 44,
+        "comments": 0,
+        "user_id": 10327513,
+        "user": "NickyPe",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+      },
+      {
+        "id": 8772788,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-rose-flower-bloom-8772788\/",
+        "type": "illustration",
+        "tags": "ai generated, rose, flower",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/15\/01\/ai-generated-8772788_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g81330c590392cdb102fd023d1e5a15fd3e3735bc86668f42c3704411134b3c500e1400f2725e2bcaa0a338d5aefdca38_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g3c713d88a7cdeab55ef69d2db472ad6e11b550e520f5afcbd872bc1732aa4a356f4f67dcc43ddb0071f485c6311c05d9d5224f61a2a7508d0832fa527afe563b_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 2287478,
+        "views": 345,
+        "downloads": 287,
+        "collections": 3,
+        "likes": 45,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8771711,
+        "pageURL": "https:\/\/pixabay.com\/photos\/wild-bird-nature-bird-ornithology-8771711\/",
+        "type": "photo",
+        "tags": "wild bird, nature, bird",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/06\/38\/wild-bird-8771711_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gf59d4154ba6f9ded362374f6d892cf83243e5dd1da6adca6d91b8c9959fa354b5a272c5c7ca698147cddc6982e9ea3e7_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gf9f7a101f52504f83ed9e120708af4cf17835fd5efaa34a03b679f25a9092a93d5adc62a57e4c8edc9ce24d4d59dbf1fa68b76fe5b0ae3626e647718f175c27d_1280.jpg",
+        "imageWidth": 5007,
+        "imageHeight": 3338,
+        "imageSize": 3202895,
+        "views": 855,
+        "downloads": 799,
+        "collections": 1,
+        "likes": 38,
+        "comments": 0,
+        "user_id": 17561499,
+        "user": "Beto_MdP",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/02\/04\/00-22-52-402_250x250.jpg"
+      },
+      {
+        "id": 8772652,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-robin-bird-animal-8772652\/",
+        "type": "illustration",
+        "tags": "ai generated, robin, bird",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/13\/53\/ai-generated-8772652_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g63e0277a514b572bfc5bd1d87877cec0dd682744163f471f795851f45c9934478caa1cd4d4e47804fd809906a70b7ba5_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g9115afd756e7ea5b8bc91fd8b5c8cdf57f9ea18549873de6e9c0b369c0997bab9f78a13d64cea9bc757f8fca932b5c2faa752718bf36581b5269e62947d920b2_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 3502359,
+        "views": 197,
+        "downloads": 163,
+        "collections": 1,
+        "likes": 46,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8775767,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-teddy-teddy-bear-sign-8775767\/",
+        "type": "illustration",
+        "tags": "ai generated, teddy, teddy bear",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/20\/16\/46\/ai-generated-8775767_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gfc57d9e61889fd9842b4de23e8f74b3c2ef4ccda234ae424ca4d353bdd7b08c683997950097de6d0b3d6b4459ec86561_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gdf3f354f59382daaaa390c7e286499677b74a9d1046a4fdad4a0b9ee13ddc31515c52ac61b823ea566d7df5793d78a485077d89f69c607673565b5b562efc599_1280.png",
+        "imageWidth": 3275,
+        "imageHeight": 4096,
+        "imageSize": 9540436,
+        "views": 198,
+        "downloads": 137,
+        "collections": 4,
+        "likes": 34,
+        "comments": 2,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 8771581,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-robot-machine-web-8771581\/",
+        "type": "illustration",
+        "tags": "ai generated, robot, machine",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/05\/59\/ai-generated-8771581_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gd9cb975cf0aafe4c7dfe478278bd840945a737eb24681d8360309228c57ef3c772f12d645b8c5adcf8afc82f22310221_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g54c65bd8ee6e8d8b45701ca965c3f2f923ad4767c8edc38d06d171b67df0cb0cc9323439aac44497287ca3c7e9c66e76ba53106fde3d756b19d2555ec0770c89_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1617526,
+        "views": 315,
+        "downloads": 264,
+        "collections": 3,
+        "likes": 43,
+        "comments": 0,
+        "user_id": 10327513,
+        "user": "NickyPe",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+      },
+      {
+        "id": 8772711,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/music-piano-song-melody-classic-8772711\/",
+        "type": "illustration",
+        "tags": "music, piano, song",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/19\/14\/21\/music-8772711_150.jpg",
+        "previewWidth": 115,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g7df6f30b0250db45900e81367c19f7e1fed0a5d9ab865297188e2d3304fd9a2b33433cf306aed77aa9d7a2e6f4afe6af_640.jpg",
+        "webformatWidth": 491,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g905b32bf110b1e68a05bf93a2acc350ee1528f256641e294113a9cae2c9cb3b1fe13b6f17265dcda1ac742a5aac659ed6ff7e08957f33aa59ff0b9ec21736fda_1280.jpg",
+        "imageWidth": 2973,
+        "imageHeight": 3872,
+        "imageSize": 1804316,
+        "views": 237,
+        "downloads": 194,
+        "collections": 9,
+        "likes": 37,
+        "comments": 13,
+        "user_id": 17475707,
+        "user": "flutie8211",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
+      },
+      {
+        "id": 8775773,
+        "pageURL": "https:\/\/pixabay.com\/photos\/winter-nevada-snow-path-home-8775773\/",
+        "type": "photo",
+        "tags": "winter, nevada, snow",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/20\/16\/50\/winter-8775773_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g18b97468819bbc4e7e69d046ebe08400d9dfeded2b638447163021e3d2cf1d5b1e0298f9d12d3fa0dafc5557f25fbf26_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g8c73010181e97424313046bb80342d193af47952994dc64b8aeb9103864f14aa2887c9e7f5b0f90d45b6a3f9b4d8f0ea32ccdcdd56d49e4c0209f5ef72e07ee1_1280.jpg",
+        "imageWidth": 7087,
+        "imageHeight": 4724,
+        "imageSize": 5710581,
+        "views": 67,
+        "downloads": 47,
+        "collections": 6,
+        "likes": 37,
+        "comments": 11,
+        "user_id": 3764790,
+        "user": "ELG21",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/04\/07\/18-24-56-559_250x250.jpg"
+      },
+    ]
+  }
+  async setCanvasImageForStockPhoto(stock_photo) {
+    this.props.canvasImage = stock_photo.largeImageURL;
+    await this.setCanvasImage(stock_photo);
+    await this.canvas.renderAll();
   }
 
   public bgScrollLeft(): void {
@@ -6844,5 +11079,199 @@ export class AppComponent implements OnInit {
     }, 200);
   }
 
+  // Tools functions
+  hideToolTab(type) {
+    if (type == "default") {
+      if (this.active_tool == "chart" && this.chart_workspace) {
+        this.edit_chart_status = false;
+        // this.resetChartTab();
+        this.active_tool == "chart";
+      }
+      else {
+        this.active_tool = type;
+      }
+    }
+    else {
+      this.active_tool = type;
+    }
+    this.edit_qr_status = false;
+    this.edit_barcode_status = false;
+    if (type == "qrcode") {
+      if (!this.QrCode) {
+        // import("qrcode").then(QRCode => {
+        //   this.QrCode = QRCode;
+        // });
+      }
+      // this.resetQrTab();
+    }
+    else if (type == "barcode") {
+      this.barcode_value = "";
+      if (!this.JsBarcode) {
+        // import("jsbarcode").then(JsBarcode => {
+        //   this.JsBarcode = JsBarcode;
+        // });
+      }
+      // this.resetBarcodeTab();
+    }
+    else if (type == "chart") {
+      this.edit_chart_status = false;
+      // this.resetChartTab();
+      if (!this.XLSX) {
 
+        // import("xlsx").then(XLSX => {
+        //   this.XLSX = XLSX;
+        // });
+      }
+    }
+  }
+  changeQrTab(type) {
+    this.active_qr_tab = type;
+  }
+  changeBarcodeTab(type) {
+    this.active_barcode_tab = type;
+  }
+  openDropDown(status, code_type_data) {
+    if (status == "open") {
+      $("#qrSelctOption").slideToggle("fast");
+    }
+    else {
+      $("#qrSelctOption").slideUp("fast");
+      if (code_type_data) {
+
+        this.qr_code_error = false;
+        this.qr_field_error = "";
+        this.qr_field_error_types = {
+          "email_error": "",
+          "phone_error": "",
+          "url_error": ""
+        }
+        if (this.active_tool == "qrcode") {
+          this.active_qr_data = code_type_data;
+          if (code_type_data.select_name == "Contact") {
+
+            this.active_qr_data.qr_data = {
+              "name": "",
+              "firstname": "",
+              "organization": "",
+              "email": "",
+              "phone": "",
+              "address": "",
+              "website": ""
+            }
+          }
+          else if (code_type_data.select_name == "SMS") {
+
+            this.active_qr_data.qr_data = {
+              "number": "",
+              "message": ""
+            }
+          }
+          else if (code_type_data.select_name == "Email") {
+
+            this.active_qr_data.qr_data = {
+              "email": "",
+              "subject": "",
+              "body": ""
+            }
+          }
+          else if (code_type_data.select_name == "Wifi") {
+
+            this.active_qr_data.qr_data = {
+              "security": "none",
+              "networkName": "",
+              "password": ""
+            }
+          }
+          else {
+            this.active_qr_data.qr_data = "";
+          }
+          if (this.edit_qr_status) {
+            setTimeout(() => {
+              // document.getElementById("qrcode_gen_btn").setAttribute("disabled", "");
+            }, 100);
+          }
+          // this.generateQrCode(this.active_qr_data);
+        }
+        else if (this.active_tool == "barcode") {
+
+          this.barcode_value = "";
+          this.active_barcode_data = code_type_data;
+          // this.generateBarcode(this.active_barcode_data.format);
+        }
+        else if (this.active_tool == "chart" && this.chart_workspace) {
+
+          if (this.active_select_chart_type.chart_type != code_type_data.chart_type) {
+            this.active_select_chart_type = JSON.parse(JSON.stringify(code_type_data));
+            // this.changeBarType(code_type_data.chart_type, "select", "add", "normal");
+          }
+        }
+      }
+    }
+  }
+  checkValidFieldForQr(type, qr_data_obj) {
+    var pattern;
+    var code_value = "";
+    var msg;
+    if (type == "url") {
+      pattern = /\s/g;
+      if (qr_data_obj.select_name == "URL") {
+        code_value = qr_data_obj.qr_data;
+      }
+      else {
+        code_value = qr_data_obj.qr_data.website;
+      }
+      if (code_value.trim().length > 0) {
+        if (pattern.test(code_value)) {
+          this.qr_field_error_types.url_error = "Please enter valid URL";
+        }
+        else {
+          this.qr_field_error_types.url_error = "";
+        }
+      }
+      else {
+        this.qr_field_error_types.url_error = "";
+      }
+    }
+    else if (type == "phone") {
+      pattern = /^[ +()]*[0-9][ +()0-9]*$/;
+      // pattern = /^( +())[0-9]$/;
+      if (qr_data_obj.select_name == "Phone") {
+        code_value = qr_data_obj.qr_data;
+      }
+      else if (qr_data_obj.select_name == "Contact") {
+        code_value = qr_data_obj.qr_data.phone;
+      }
+      else if (qr_data_obj.select_name == "SMS") {
+        code_value = qr_data_obj.qr_data.number;
+      }
+      if (code_value.trim().length > 0) {
+        if (pattern.test(code_value)) {
+          this.qr_field_error_types.phone_error = "";
+        }
+        else {
+          this.qr_field_error_types.phone_error = "Please enter valid Phone Number";
+        }
+      }
+      else {
+        this.qr_field_error_types.phone_error = "";
+      }
+    }
+    else if (type == "email") {
+      code_value = qr_data_obj.qr_data.email;
+      pattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      if (code_value.trim().length > 0) {
+        if (pattern.test(code_value)) {
+          this.qr_field_error_types.email_error = "";
+        }
+        else {
+          this.qr_field_error_types.email_error = "Please enter valid Email Address";
+        }
+      }
+      else {
+        this.qr_field_error_types.email_error = "";
+      }
+    }
+  }
+  generateQrCode(active_qr_data) {
+  }
 }

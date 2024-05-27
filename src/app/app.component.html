@@ -241,11 +241,11 @@
                                           </button>
                                           <div class="sub-tab-content pb-2" id="stickertb_cntainr" #stickerTab>
                                                 <ul class="sub-tab">
-                                                      <li [ngClass]="!isSvgEle ? 'active-sub-menu new-active' : ''" *ngIf="shape" (click)="isSvgEle = false" class="sub-tab-li" id="bsic_shape">Basic
+                                                      <li [ngClass]="isBasicShapes ? 'active-sub-menu new-active' : ''" *ngIf="shape" (click)="isBasicShapes = true" class="sub-tab-li" id="bsic_shape">Basic
                                                       </li>
                                                       <li *ngFor="let catalog_details of stickerCatalog_List;let i= index" id="{{'ctlog'+i}}"
-                                                      (click)="stickerCatalogChanged(catalog_details);"
-                                                      [ngClass]="stkr_catalog_id == catalog_details.catalog_id && isSvgEle ? 'active-sub-menu new-active' : ''"  class="sub-tab-li">
+                                                            (click)="stickerCatalogChanged(catalog_details);"
+                                                            [ngClass]="stkr_catalog_id == catalog_details.catalog_id && !isBasicShapes ? 'active-sub-menu new-active' : ''"  class="sub-tab-li">
                                                             {{catalog_details.name}}</li>
                                                 </ul>
                                           </div>
@@ -276,13 +276,13 @@
                               </div>
                         </div>
 
-                        <div class='item-container sticker-item-container three-col margin-bottom' id="basic_shap_cntainr" *ngIf="!isSvgEle && shape && !isSvgSticker && activeTabID === 2">
+                        <div class='item-container sticker-item-container three-col margin-bottom' id="basic_shap_cntainr" *ngIf="isBasicShapes && activeTabID === 2">
                               <div class="item" *ngFor="let shape of basicShapesList;let i=index">
                                     <img id="{{'bsc_shape'+i}}" [src]="shape.thumbnail" (click)="addBasicShape(shape)" alt="" draggable="true" (dragend)="addBasicShape(shape)">
                               </div>
                         </div>
                         <div id="basic_shap_cntainr1" class='item-container sticker-item-container three-col margin-bottom'
-                              *ngIf="(isSvgEle || isSvgSticker) && activeTabID === 2">
+                              *ngIf="(isSvgEle || isSvgSticker) && activeTabID === 2 && !isBasicShapes">
                               <div class="item sticker-item" *ngFor="let sticker_details of stickerContent_List.content_list; let i = index">
                                     <img *ngIf="sticker_details.content_type == 1" [src]="sticker_details.thumbnail_img"
                                           (click)="selectSticker(sticker_details, 0,shape?'shapeSticker':stickers?'svgSticker':buttons?'iconSticker':'')"
@@ -306,6 +306,74 @@
                         </div>
                   </div>
             </div>
+            <!---------------- Cropping Start ----------------->
+            <div class="active-tab-content" *ngIf="activeTabID === 0">
+                  <div class="crop_div_parent" #croppingArea>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '' ? 'active-crop-border' : '' " (click)="changeCropStyle('')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="39.000000pt" height="30.000000pt" viewBox="0 0 39.000000 30.000000" preserveAspectRatio="xMidYMid meet">
+                                          <g transform="translate(0.000000,30.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                <path d="M36 244 c-10 -25 -7 -34 9 -34 8 0 15 7 15 15 0 8 7 15 15 15 8 0 15 5 15 10 0 16 -47 11 -54 -6z"/>
+                                                <path d="M250 251 c0 -6 7 -11 15 -11 9 0 18 -7 21 -15 9 -23 26 -18 22 8 -2 16 -11 23 -30 25 -16 2 -28 -1 -28 -7z"/>
+                                                <path d="M30 91 c0 -25 14 -41 36 -41 13 0 24 5 24 10 0 6 -7 10 -15 10 -8 0 -15 7 -15 15 0 8 -7 15 -15 15 -8 0 -15 -4 -15 -9z"/>
+                                                <path d="M290 85 c0 -8 -9 -15 -20 -15 -11 0 -20 -5 -20 -11 0 -6 12 -9 28 -7 19 2 28 9 30 26 2 12 -1 22 -7 22 -6 0 -11 -7 -11 -15z"/>
+                                          </g>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">FreeMode</p>
+                        </div>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '1:1' ? 'active-crop-border' : '' " (click)="changeCropStyle('1:1')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="50" height="50">
+                                          <path d="M0 0 C19.14 0 38.28 0 58 0 C58 18.15 58 36.3 58 55 C38.86 55 19.72 55 0 55 C0 36.85 0 18.7 0 0 Z " fill="#c3c8db" transform="translate(0,0)"></path>
+                                          <path d="M0 0 C0.886875 -0.00257812 1.77375 -0.00515625 2.6875 -0.0078125 C4.0796875 0.00378906 4.0796875 0.00378906 5.5 0.015625 C6.428125 0.00789062 7.35625 0.00015625 8.3125 -0.0078125 C9.6428125 -0.00394531 9.6428125 -0.00394531 11 0 C11.8146875 0.00225586 12.629375 0.00451172 13.46875 0.00683594 C15.5 0.265625 15.5 0.265625 17.5 2.265625 C17.74291992 4.40454102 17.74291992 4.40454102 17.73046875 7.01953125 C17.72853516 7.95603516 17.72660156 8.89253906 17.72460938 9.85742188 C17.70624023 11.32791992 17.70624023 11.32791992 17.6875 12.828125 C17.68685547 13.81232422 17.68621094 14.79652344 17.68554688 15.81054688 C17.64017532 23.12544968 17.64017532 23.12544968 16.5 24.265625 C14.87742456 24.3647907 13.25060169 24.39642277 11.625 24.3984375 C10.64015625 24.39972656 9.6553125 24.40101562 8.640625 24.40234375 C7.60421875 24.39847656 6.5678125 24.39460938 5.5 24.390625 C3.94539063 24.39642578 3.94539063 24.39642578 2.359375 24.40234375 C1.37453125 24.40105469 0.3896875 24.39976563 -0.625 24.3984375 C-1.53507812 24.39730957 -2.44515625 24.39618164 -3.3828125 24.39501953 C-5.5 24.265625 -5.5 24.265625 -6.5 23.265625 C-6.75098924 19.79353693 -6.68522096 16.3082188 -6.6875 12.828125 C-6.69974609 11.84779297 -6.71199219 10.86746094 -6.72460938 9.85742188 C-6.72750977 8.45266602 -6.72750977 8.45266602 -6.73046875 7.01953125 C-6.73457764 6.15658447 -6.73868652 5.2936377 -6.74291992 4.40454102 C-6.25138224 0.07653938 -3.74071804 0.010358 0 0 Z " fill="#c3c8db" transform="translate(22.5,14.734375)"></path><path _ngcontent-ng-c4288145340="" d="M0 0 C0.886875 -0.00257812 1.77375 -0.00515625 2.6875 -0.0078125 C4.0796875 0.00378906 4.0796875 0.00378906 5.5 0.015625 C6.428125 0.00789062 7.35625 0.00015625 8.3125 -0.0078125 C9.6428125 -0.00394531 9.6428125 -0.00394531 11 0 C11.8146875 0.00225586 12.629375 0.00451172 13.46875 0.00683594 C15.5 0.265625 15.5 0.265625 17.5 2.265625 C17.74291992 4.40454102 17.74291992 4.40454102 17.73046875 7.01953125 C17.72853516 7.95603516 17.72660156 8.89253906 17.72460938 9.85742188 C17.70624023 11.32791992 17.70624023 11.32791992 17.6875 12.828125 C17.68685547 13.81232422 17.68621094 14.79652344 17.68554688 15.81054688 C17.64017532 23.12544968 17.64017532 23.12544968 16.5 24.265625 C14.87742456 24.3647907 13.25060169 24.39642277 11.625 24.3984375 C10.64015625 24.39972656 9.6553125 24.40101562 8.640625 24.40234375 C7.60421875 24.39847656 6.5678125 24.39460938 5.5 24.390625 C3.94539063 24.39642578 3.94539063 24.39642578 2.359375 24.40234375 C1.37453125 24.40105469 0.3896875 24.39976563 -0.625 24.3984375 C-1.53507812 24.39730957 -2.44515625 24.39618164 -3.3828125 24.39501953 C-5.5 24.265625 -5.5 24.265625 -6.5 23.265625 C-6.75098924 19.79353693 -6.68522096 16.3082188 -6.6875 12.828125 C-6.69974609 11.84779297 -6.71199219 10.86746094 -6.72460938 9.85742188 C-6.72750977 8.45266602 -6.72750977 8.45266602 -6.73046875 7.01953125 C-6.73457764 6.15658447 -6.73868652 5.2936377 -6.74291992 4.40454102 C-6.25138224 0.07653938 -3.74071804 0.010358 0 0 Z M-3.5 3.265625 C-3.5 9.205625 -3.5 15.145625 -3.5 21.265625 C2.44 21.265625 8.38 21.265625 14.5 21.265625 C14.5 15.325625 14.5 9.385625 14.5 3.265625 C8.56 3.265625 2.62 3.265625 -3.5 3.265625 Z " fill="#000000" transform="translate(22.5,14.734375)"></path>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">1:1</p>
+                        </div>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '16:9' ? 'active-crop-border' : '' " (click)="changeCropStyle('16:9')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="42.000000pt" height="28.000000pt" viewBox="0 0 42.000000 28.000000" preserveAspectRatio="xMidYMid meet">
+                                          <g transform="translate(0.000000,28.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                <path d="M82 218 c-7 -7 -12 -38 -12 -75 0 -51 3 -64 19 -73 23 -12 230 -13 249 -1 9 5 12 29 10 82 l-3 74 -125 3 c-89 2 -129 -1 -138 -10z m248 -73 l0 -55 -115 0 -115 0 0 55 0 55 115 0 115 0 0 -55z"/>
+                                          </g>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">16:9</p>
+                        </div>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '9:16' ? 'active-crop-border' : '' " (click)="changeCropStyle('9:16')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="24.000000pt" height="34.000000pt" viewBox="0 0 24.000000 34.000000" preserveAspectRatio="xMidYMid meet">
+                                          <g transform="translate(0.000000,34.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                <path d="M61 297 c-8 -10 -11 -54 -9 -138 l3 -124 78 -3 78 -3 -3 138 -3 138 -66 3 c-48 2 -69 -1 -78 -11z m127 -129 l-3 -112 -52 0 -53 -1 0 112 0 113 55 0 56 0 -3 -112z"/>
+                                          </g>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">9:16</p>
+                        </div>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '5:4' ? 'active-crop-border' : '' " (click)="changeCropStyle('5:4')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="41.000000pt" height="35.000000pt" viewBox="0 0 41.000000 35.000000" preserveAspectRatio="xMidYMid meet">
+                                          <g transform="translate(0.000000,35.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                <path d="M57 284 c-4 -4 -7 -51 -7 -104 0 -71 4 -101 14 -109 9 -8 55 -11 137 -9 l124 3 0 110 0 110 -131 3 c-71 1 -133 -1 -137 -4z m251 -108 l3 -86 -116 0 -115 0 0 88 0 87 112 -1 113 -2 3 -86z"/>
+                                          </g>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">5:4</p>
+                        </div>
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '4:5' ? 'active-crop-border' : '' " (click)="changeCropStyle('4:5')">
+                              <span class="crop_svg_ele">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="35.000000pt" height="35.000000pt" viewBox="0 0 35.000000 35.000000" preserveAspectRatio="xMidYMid meet">
+                                          <g transform="translate(0.000000,35.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+                                                <path d="M64 307 c-2 -7 -3 -69 -2 -138 l3 -124 101 -3 c78 -2 104 1 113 12 8 9 11 53 9 137 l-3 124 -108 3 c-82 2 -109 0 -113 -11z m196 -122 l0 -115 -90 0 -90 0 0 108 c0 60 3 112 7 115 3 4 44 7 90 7 l83 0 0 -115z"/>
+                                          </g>
+                                    </svg>
+                              </span>
+                              <p class="crop_txt">4:5</p>
+                        </div>
+                  </div>
+            </div>
+            <!---------------- Cropping End ----------------->
             <div class="active-tab-content" [style.overflow-y]="!bgcolor && !gradient ? 'scroll' : 'initial'" *ngIf="activeTabID == 4">
                   <div class="extra_div" style="position: sticky;top: 0px;background: #374168;z-index: 111;">
                         <div class="mb-cust-8 sub-tab-container" id="color_list_cntainr" *ngIf="bg_sub_tab_shown == true">
@@ -610,6 +678,114 @@
                         <div class="item" *ngFor="let item of txturs_bg_list.content_list;let i = index" id="{{'txtr_bg_lst'+i}}">
                               <img (click)="setCollectionBackground(item, txturs_bg_list)" [src]="item.thumbnail_img"
                                 id="{{'txtr_bg_img'+i}}" draggable="true" (dragend)="setCollectionBackground(item, txturs_bg_list)">
+                        </div>
+                  </div>
+                  <div *ngIf="images && bgStockPhotos" class='item-container bg-stock-image-item-container two-col margin-bottom' id="stck_img_container">
+                        <div class="item" id="trnsp_img" (click)="removeBackgroundColorGradient()" draggable="true"
+                              (dragend)="removeBackgroundImage()" *ngIf="stock_photo_list && stock_photo_list.length > 0">
+                              <img src="./assets/images/transparent.png">
+                        </div>
+                        <div class="item pxby-container" *ngFor="let stock_photo of stock_photo_list; let i= index">
+                              <img [src]="stock_photo.webformatURL" id="{{'stck_img'+i}}" (click)="setCanvasImageForStockPhoto(stock_photo)"
+                                    draggable="true" (dragend)="setCanvasImageForStockPhoto(stock_photo)">
+                        </div>
+                  </div>
+            </div>
+            <div class="active-tab-content" *ngIf="activeTab.tabId==8 && active_tool == 'default'">
+                  <p class="tool-option-text">Tools</p>
+                  <div class="tool-options-item item-container sticker-item-container three-col">
+                        <div class="item tool-qrcode" (click)="hideToolTab('qrcode')">
+                              <div class="tool-item-image ml-auto mr-auto height-90"> <img src="./assets/icons/qr-code.png"> </div>
+                              <p class="height-20">QR Code</p>
+                        </div>
+                        <div class="item tool-barcode" (click)="hideToolTab('barcode')">
+                              <div class="tool-item-image mr-auto ml-auto height-90"> <img src="./assets/icons/barcode-icon.png">
+                              </div>
+                              <p class="height-20">Barcode</p>
+                        </div>
+                        <div class="item tool-chart" (click)="hideToolTab('chart')">
+                              <div class="tool-item-image ml-auto mr-auto height-90"> <img src="./assets/icons/charts-icon.png">
+                              </div>
+                              <p class="height-20">Charts</p>
+                        </div>
+                  </div>
+            </div>
+            <div class="active-tab-content" *ngIf="activeTab.tabId==8 && active_tool == 'qrcode'">
+                  <p class="tool-option-text ml-1">
+                        <span (click)="hideToolTab('default')" class="tool-back-icon">
+                              <svg _ngcontent-c2="" viewBox="0 0 1024.000000 1024.000000" xmlns="http://www.w3.org/2000/svg">
+                                    <g _ngcontent-c2="" fill="#ffffff" stroke="none" transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+                                          <path _ngcontent-c2=""
+                                                d="M7161 10214 c-73 -15 -187 -67 -258 -116 -59 -39 -4510 -4476 -4566 -4550 -100 -131 -141 -272 -135 -458 4 -107 9 -138 35 -211 16 -48 51 -118 77 -157 35 -53 589 -611 2292 -2309 1235 -1231 2267 -2253 2293 -2271 217 -156 515 -181 749 -63 231 117 379 340 397 598 11 148 -26 293 -106 431 -26 43 -522 544 -2014 2034 l-1980 1978 1982 1977 c1741 1738 1987 1986 2022 2048 164 287 122 635 -104 867 -103 105 -244 183 -379 207 -80 15 -227 13 -305 -5z">
+                                          </path>
+                                    </g>
+                              </svg>
+                        </span>
+                        QR Code
+                  </p>
+                  <div class="tool-code-preview" id="tool_container">
+                        <p class="mb-0">Preview :</p>
+                        <div class="code-preview item">
+                              <canvas id="qrcanvas" class="ml-auto mr-auto" width="111" height="111"></canvas>
+                        </div>
+                        <p class="tool-error-text mb-0" style="line-height: 1.2;" *ngIf="qr_code_error">*Maximum 2800 characters are
+                              allowed for generate QR Code
+                        </p>
+                        <div class="mb-2 sub-tab-container tool-tab-style" [ngClass]="{'mt-7':qr_code_error}">
+                              <div class="sub-tab-content">
+                                    <ul class="sub-tab smooth-slop-tab">
+                                          <li class="sub-tab-item" [ngClass]="active_qr_tab == 'content' ? 'active-sub-menu blue-active' : ''"
+                                                (click)="changeQrTab('content')">Content</li>
+                                          <li class="sub-tab-item" [ngClass]="active_qr_tab == 'style' ? 'active-sub-menu blue-active' : ''"
+                                                (click)="changeQrTab('style')">Style</li>
+                                    </ul>
+                              </div>
+                        </div>
+                        <div class="qr-content" *ngIf="active_qr_tab == 'content'">
+                              <div class="tool-form-group mb-3">
+                                    <label>QR Code Type :</label>
+                                    <div class="tool-select-box">
+                                          <div class="select-main form-control" tabindex="0" (click)="openDropDown('open','')"
+                                                (blur)="openDropDown('close',active_qr_data)">
+                                                <img [src]="active_qr_data.image_path"><span>{{ active_qr_data.select_name }}</span>
+                                          </div>
+                                          <div class="select-option" id="qrSelctOption" style="display: none;">
+                                                <div class="form-control" tabindex="0" *ngFor="let item of qr_data_object"
+                                                      (mousedown)="openDropDown('close',item)"><img [src]="item.image_path"><span>{{ item.select_name }}</span>
+                                                </div>
+                                          </div>
+                                          <img class="tool-drop-down-icon" src="./assets/icons/Drop-down.svg" (click)="openDropDown('open','')">
+                                    </div>
+                              </div>
+                              <div class="qr-data-container" id="qr-data-container" [ngClass]="{'qr-data-container-new': qr_code_error}">
+                                    <div *ngIf="active_qr_data.select_name == 'URL'">
+                                          <div class="tool-form-group">
+                                                <label>URL :</label>
+                                                <input type="text" class="form-control" placeholder="Enter URL" [(ngModel)]="active_qr_data.qr_data"
+                                                      (keyup)="checkValidFieldForQr('url',active_qr_data);generateQrCode(active_qr_data);" animation="true"
+                                                      triggers="manual" placement="right">
+                                                <ng-template #ValidUrlMessage>
+                                                      <div>Please enter Valid URL</div>
+                                                </ng-template>
+                                                <p class="tool-field-error-text" *ngIf="qr_field_error_types.url_error">
+                                                      *{{ qr_field_error_types.url_error }}
+                                                </p>
+                                          </div>
+                                    </div>
+                                    <div *ngIf="active_qr_data.select_name == 'Phone'">
+                                          <div class="tool-form-group">
+                                                <label>Phone Number :</label>
+                                                <input type="text" class="form-control" placeholder="Enter Phone Number"
+                                                      [(ngModel)]="active_qr_data.qr_data"
+                                                      (keyup)="checkValidFieldForQr('phone',active_qr_data);generateQrCode(active_qr_data);" >
+                                                <ng-template #ValidPhoneMessage>
+                                                      <div>Please enter valid Phone Number</div>
+                                                </ng-template>
+                                                <p class="tool-field-error-text" *ngIf="qr_field_error_types.phone_error">
+                                                      *{{ qr_field_error_types.phone_error }}</p>
+                                          </div>
+                                    </div>
+                              </div>
                         </div>
                   </div>
             </div>
