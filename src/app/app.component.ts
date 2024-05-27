@@ -4715,6 +4715,18 @@ export class AppComponent implements OnInit {
     // document.addEventListener('mousedown', this.handleGlobalMouseDown);
   }
 
+  // Apply crop to image using crop suggestion
+  applyCrop() {
+    if(!this.listener){
+
+      this.listener = new FabricCropListener(this.canvas);
+    }
+    if(this.canvas.getActiveObject().type === 'image' && !this.isCropingEnable) {
+      this.isCropingEnable = true;
+      this.listener.crop();
+    }
+  }
+
   changeCropStyle(type) {
     const activeObject = this.activeObjectonCanvas;
     this.croppingType = type;
@@ -8359,9 +8371,11 @@ export class AppComponent implements OnInit {
       // })  
     }
     else if(this.activeTabID === 4) {
+      this.isBgImg = true;
       this.activeTab.tabId = 4;
     }
     else if(this.activeTabID === 8) {
+      this.isBgImg = false;
       this.activeTab.tabId = 8;
     }
   }
