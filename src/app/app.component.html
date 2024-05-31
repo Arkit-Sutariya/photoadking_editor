@@ -180,7 +180,7 @@
                   </ul>
             </div>
             
-            <div class="active-tab-content" style="overflow-y: scroll;" *ngIf="activeTabID === 2 || activeTabID === 5">
+            <div class="active-tab-content" style="overflow-y: scroll;" [style.display]="activeTabID === 2 || activeTabID === 5 ? 'inline-block' : 'none'">
                   <div class="cat-wrapper" style="position: relative;">
                         <div class="extra_div" style="position: sticky;top: 0px;background: #374168;z-index: 111;">
                               <div class="custom-search-control margin-bottom cat-search w-100">
@@ -304,12 +304,69 @@
                                     
                               </div>
                         </div>
+                        <div class="catalog-wrapper mb-2" *ngIf="collection_sub_tab_shown==true && collectionCatalog_list.length>0 && collection && activeTabID === 5">
+                              <div class="catalog-list sub-tab-container" id="colctlog_list_cntainr">
+                                    <button  class="catalog-list-btn catalog-slide-btn mr-2" id="coll_Scrl_lft"
+                                          *ngIf="collectionCatalog_list.length>0" (click)="clScrollLeft()">
+                                          <svg class="catalog-slide-btn-icon" viewBox="0 0 1024.000000 1024.000000"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g fill="#ffffff" stroke="none"
+                                                      transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+                                                      <path
+                                                            d="M7161 10214 c-73 -15 -187 -67 -258 -116 -59 -39 -4510 -4476 -4566 -4550 -100 -131 -141 -272 -135 -458 4 -107 9 -138 35 -211 16 -48 51 -118 77 -157 35 -53 589 -611 2292 -2309 1235 -1231 2267 -2253 2293 -2271 217 -156 515 -181 749 -63 231 117 379 340 397 598 11 148 -26 293 -106 431 -26 43 -522 544 -2014 2034 l-1980 1978 1982 1977 c1741 1738 1987 1986 2022 2048 164 287 122 635 -104 867 -103 105 -244 183 -379 207 -80 15 -227 13 -305 -5z">
+                                                      </path>
+                                                </g>
+                                          </svg>
+                                    </button>
+                                    <div class="sub-tab-content pb-2" id="collectiontb_cntainr" #collectionTab>
+                                          <ul class="sub-tab">
+                                                <li *ngFor="let catalog_details of collectionCatalog_list;let i= index" class="sub-tab-li"
+                                                      id="{{'coll_cat'+i}}"
+                                                      [ngClass]="collection_catalog_id == catalog_details.catalog_id ? 'active-sub-menu new-active' : ''"
+                                                      (click)="collectionCatalogChanged(catalog_details);setCategoryInCenter();">
+                                                      {{catalog_details.name}}</li>
+                                          </ul>
+                                    </div>
+                                    <button  class="catalog-list-btn catalog-slide-btn ml-2" id="coll_scrl_rght"
+                                          *ngIf="collectionCatalog_list.length>0" (click)="clScrollRight()">
+                                          <svg class="catalog-slide-btn-icon" preserveAspectRatio="xMidYMid meet" version="1.0"
+                                                viewBox="0 0 1024.000000 1024.000000" xmlns="http://www.w3.org/2000/svg">
+                                                <g fill="#ffffff" stroke="none"
+                                                      transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)">
+                                                      <path
+                                                            d="M2735 10210 c-134 -35 -223 -86 -323 -183 -78 -77 -142 -177 -179 -282 -26 -74 -28 -92 -28 -230 0 -131 3 -159 24 -220 28 -83 71 -164 117 -222 19 -23 915 -922 1992 -1997 l1957 -1956 -1973 -1972 c-1336 -1336 -1987 -1992 -2013 -2033 -82 -125 -113 -245 -107 -415 4 -103 10 -140 33 -209 70 -206 240 -375 450 -447 105 -36 285 -45 398 -20 91 21 193 69 272 129 33 25 1073 1058 2311 2294 2227 2224 2251 2249 2293 2329 58 114 81 212 81 344 0 169 -38 288 -135 425 -52 73 -4510 4518 -4578 4564 -65 45 -164 88 -240 106 -88 21 -264 19 -352 -5z">
+                                                      </path>
+                                                </g>
+                                          </svg>
+                                    </button>
+                              </div>
+                              <button  class="catalog-list-btn ml-2" id="notfocusonclickcollection" *ngIf="collectionCatalog_list.length>0">
+                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                          viewBox="-305 -115 1024 1024" class="catalog-btn-icon" xml:space="preserve">
+                                          <path fill="white" d="M689-115h-964c-16.6,0-30,13.4-30,30v964c0,16.6,13.4,30,30,30h964c16.6,0,30-13.4,30-30V-85
+                                     C719-101.6,705.6-115,689-115z M659,849h-904V-55h904V849z" />
+                                          <path fill="white" d="M-84.6,725H61.2c20.1,0,36.4-16.3,36.4-36.4c0-20.1-16.3-36.4-36.4-36.4H3.4l458.7-458.7v57.8
+                                     c0,20.1,16.3,36.4,36.4,36.4c20.1,0,36.4-16.3,36.4-36.4V105.4c0,0,0-0.1,0-0.1c-0.1-20-16.3-36.3-36.5-36.3H352.8
+                                     c-20.1,0-36.4,16.3-36.4,36.4s16.3,36.4,36.4,36.4h57.8L-48.1,600.6v-57.8c0-20.1-16.3-36.4-36.4-36.4s-36.4,16.3-36.4,36.4v145.8
+                                     c0,0,0,0.1,0,0.1C-120.9,708.6-104.7,725-84.6,725z" />
+                                    </svg>
+                              </button>
+                        </div>
+                        <div *ngIf="collection && activeTabID === 5" class='item-container three-col margin-bottom texture-container' id="collection_catalog_wrapr"
+                              [ngClass]="{'texture-search-container': (collection_sub_tab_shown!=true || collectionCatalog_list.length<=0) && collection}">
+                              <div class="item dragable" *ngFor="let item of collection_bg_list.content_list;let i=index">
+                                    <img id="{{'image'+i}}" (click)="getImgPolaroid(item.compressed_img, 'server',item, 'collectionImage')"
+                                          [src]="item.thumbnail_img" draggable="true"
+                                          (dragend)="getImgPolaroid(item.compressed_img, 'server',item, 'collectionImage')">
+                              </div>
+                        </div>
                   </div>
             </div>
             <!---------------- Cropping Start ----------------->
-            <div class="active-tab-content" *ngIf="activeTabID === 0">
+            <!-- <div class="active-tab-content"> -->
+            <div class="active-tab-content" [style.display]="activeTabID === 0 ? 'inline-block' : 'none'">
                   <div class="crop_div_parent" #croppingArea>
-                        <div class="crop_parent_svg" [ngClass]="croppingType == '' ? 'active-crop-border' : '' " (click)="changeCropStyle('')">
+                        <div class="crop_parent_svg" [ngClass]="croppingType == '0:0' ? 'active-crop-border' : '' " (click)="changeCropStyle('0:0')">
                               <span class="crop_svg_ele">
                                     <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="39.000000pt" height="30.000000pt" viewBox="0 0 39.000000 30.000000" preserveAspectRatio="xMidYMid meet">
                                           <g transform="translate(0.000000,30.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
@@ -860,7 +917,7 @@
                   [ngStyle]="is_page_active == true ? {'height':'calc(100% - 84px)'} : {}">
                   <div *ngIf="IsPropActive && selected">
                         <div class="row-1 justify-content-around">
-                              <button class="btn-sm format-painter-btn" *ngIf="!isGroup" id="3d_editr_btn" (click)="!isReplaceMode ? isReplaceMode = true : disableReplaceMode();"
+                              <button class="btn-sm format-painter-btn" *ngIf="!isGroup" id="3d_editr_btn" (click)="!isReplaceMode ? showReplaceImageHint() : disableReplaceMode();"
                                     [ngClass]="{'active-format-painter': isReplaceMode}">
                                     <div class="select-icon">
                                           <svg  class="w-100 h-100" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -937,10 +994,10 @@
             </div>
 
             <div *ngIf="IsPropActive" class="position-container mb-0">
-                  <div *ngIf="(selected && !isGroup) || isBgImg">
+                  <div *ngIf="(selected && !isGroup)">
 
                         <mat-accordion>
-                              <mat-expansion-panel *ngIf="!isBgImg">
+                              <mat-expansion-panel>
                                     <mat-expansion-panel-header>
                                           <mat-panel-title *ngIf="(isSvgEle || isRect || isCircle || isLine) && !isSvgSticker">
                                                 Element Setting
@@ -1017,7 +1074,7 @@
                                                 <td>
                                                       <div class="new-input-control limit-icon">
                                                             <button id="dec_sze" name="dec_sze" (mousedown)="timeoutStop();setWidthofElement('decWidth');"
-                                                            (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();">
+                                                            (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();" [disabled]="elementWidth <= 10">
                                                                   <svg version="1.1" id="Layer_1"
                                                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                                                         x="0px" y="0px" viewBox="0 0 100 20" style="enable-background:new 0 0 100 20;"
@@ -1054,7 +1111,7 @@
                                                 <td>
                                                       <div class="new-input-control limit-icon">
                                                             <button id="dec_hgt" name="dec_hgt" (mousedown)="timeoutStop();setWidthofElement('decHeight');"
-                                                            (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();" [disabled]="activeStrokeWidth <= 0 && isLine">
+                                                            (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();" [disabled]="(isLine) ? elementHeight <= 0 : elementHeight < 10">
                                                                   <svg version="1.1" id="Layer_1"
                                                                         xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                                                                         x="0px" y="0px" viewBox="0 0 100 20" style="enable-background:new 0 0 100 20;"
@@ -1067,7 +1124,7 @@
                                                                         <rect class="st-minus0" width="100" height="20" />
                                                                   </svg>
                                                             </button>
-                                                            <input type="number" id="obj_hgt_inpt" min="0" [max]="isLine ? 50 : 1000000" [(ngModel)]="elementHeight" (change)="increaseInput($event,'height')">
+                                                            <input type="number" id="obj_hgt_inpt" min="10" [max]="isLine ? 50 : 1000000" [(ngModel)]="elementHeight" (change)="increaseInput($event,'height')">
                                                             <button id="inc_hgt" (mousedown)="timeoutStop();setWidthofElement('incHeight');"
                                                             (mouseup)="timeoutStop();" (mouseleave)="timeoutStop();" [disabled]="activeStrokeWidth >= 50 && isLine">
                                                                   <svg version="1.1" id="Layer_1"
@@ -1580,7 +1637,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="isSvgSticker && !isBgImg">
+                              <mat-expansion-panel *ngIf="isSvgSticker">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title>
                                                 Effects
@@ -1681,7 +1738,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="isSvgSticker && !isBgImg">
+                              <mat-expansion-panel *ngIf="isSvgSticker">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title>
                                                 Adjust
@@ -2067,7 +2124,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel class="custom-panel" *ngIf="isBgImg">
+                              <mat-expansion-panel class="custom-panel" *ngIf="isBgImg && custom_background_tab_index == activeTab.tabId">
                                     <mat-expansion-panel-header class="custom-expansion-header" name="color_panel">
                                           <mat-panel-title>
                                                 Setting
@@ -2677,7 +2734,7 @@
       <!-- <div class="rmenu-icon-below"></div> -->
       <ul>
             <li>
-                  <div  (click)="!isReplaceMode ? isReplaceMode = true : disableReplaceMode();" class="rmenu-item" *ngIf="selected">
+                  <div  (click)="!isReplaceMode ? showReplaceImageHint() : disableReplaceMode();" class="rmenu-item" *ngIf="selected">
                         <div>
                               <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 389.7"
