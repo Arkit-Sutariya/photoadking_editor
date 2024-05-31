@@ -4565,7 +4565,7 @@ export class AppComponent implements OnInit {
           this.canvas.renderAll();
           this.isCropingEnable = false;
           this.isReplaceShow = true;
-          this.activeTabID = 5;
+          // this.activeTabID = 5;
         }
       },
       'mouse:up': (e) => {
@@ -4609,13 +4609,13 @@ export class AppComponent implements OnInit {
         this.isReplaceMode = false;
         
         if(e.target.type === 'image' && !this.isCropingEnable) {
-          this.activeTabID = 0;
+          // this.activeTabID = 0;
           this.isCropingEnable = true;
 
-          const activeObject = this.canvas.getActiveObject();
-          this.activeObjectonCanvas = activeObject;
-          const cropData = activeObject.toObject();
-          const sourceData = activeObject._cropSource || cropData;
+          // const activeObject = this.canvas.getActiveObject();
+          // this.activeObjectonCanvas = activeObject;
+          // const cropData = activeObject.toObject();
+          // const sourceData = activeObject._cropSource || cropData;
           // let freeModeScaling;
           // freeModeScaling = "9:16";
           // freeModeScaling = "16:9";
@@ -4629,157 +4629,158 @@ export class AppComponent implements OnInit {
           // freeModeScaling,
           // });
           
-          this.cropSource = {left:activeObject.left, top:activeObject.top, height:activeObject.height, width: activeObject.width, croppingType: this.croppingType, cropX: 0, cropY: 0, scaleX: activeObject.scaleX, scaleY: activeObject.scaleY}
-          if(!activeObject._cropSource){
-            // if(activeObject.height > activeObject.width) {
-            //   this.cropSource.height = activeObject.width//activeObject.height
-            //   this.cropSource.width = activeObject.width//(activeObject.height * 4)/5
-            // }
-            // else if(activeObject.width > activeObject.height) {
-            //   this.cropSource.height = activeObject.height//(activeObject.width * 5)/4
-            //   this.cropSource.width = activeObject.height//activeObject.width
-            // }
-          }
-          activeObject._cropSource = sourceData;
+          // this.cropSource = {left:activeObject.left, top:activeObject.top, height:activeObject.height, width: activeObject.width, croppingType: this.croppingType, cropX: 0, cropY: 0, scaleX: activeObject.scaleX, scaleY: activeObject.scaleY}
+          // if(!activeObject._cropSource){
+          //   // if(activeObject.height > activeObject.width) {
+          //   //   this.cropSource.height = activeObject.width//activeObject.height
+          //   //   this.cropSource.width = activeObject.width//(activeObject.height * 4)/5
+          //   // }
+          //   // else if(activeObject.width > activeObject.height) {
+          //   //   this.cropSource.height = activeObject.height//(activeObject.width * 5)/4
+          //   //   this.cropSource.width = activeObject.height//activeObject.width
+          //   // }
+          // }
+          // activeObject._cropSource = sourceData;
           
-          if(!activeObject.isCroped) {
-            switch(this.croppingType) {
-              case "9:16" :
-                if(activeObject.height > activeObject.width) {
-                  this.cropSource.cropX = 100
-                  this.cropSource.cropY = 0; 
-                  this.cropSource.top = activeObject.top;
-                  this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height;
-                  this.cropSource.width = activeObject.width - 200;
-                }
-                else if(activeObject.width > activeObject.height) {
-                  this.cropSource.cropX = 400
-                  this.cropSource.cropY = 0; 
-                  this.cropSource.top = activeObject.top;
-                  this.cropSource.left = activeObject.left + (400 * activeObject.scaleX);
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height;
-                  this.cropSource.width = activeObject.width - 800;
-                }
-                break;
+          // if(!activeObject.isCroped) {
+          //   switch(this.croppingType) {
+          //     case "9:16" :
+          //       if(activeObject.height > activeObject.width) {
+          //         this.cropSource.cropX = 100
+          //         this.cropSource.cropY = 0; 
+          //         this.cropSource.top = activeObject.top;
+          //         this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height;
+          //         this.cropSource.width = activeObject.width - 200;
+          //       }
+          //       else if(activeObject.width > activeObject.height) {
+          //         this.cropSource.cropX = 400
+          //         this.cropSource.cropY = 0; 
+          //         this.cropSource.top = activeObject.top;
+          //         this.cropSource.left = activeObject.left + (400 * activeObject.scaleX);
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height;
+          //         this.cropSource.width = activeObject.width - 800;
+          //       }
+          //       break;
               
-              case "1:1" :
-                if(activeObject.height > activeObject.width) {
-                  this.cropSource.cropX = 0; //(activeObject.width - activeObject.height) / 2;
-                  this.cropSource.cropY = (activeObject.height - activeObject.width) / 2;
-                  this.cropSource.top = ((activeObject.height - activeObject.width) / 2) * activeObject.scaleY + activeObject.top;
-                  this.cropSource.left = activeObject.left; //((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.width
-                  this.cropSource.width = activeObject.width
-                }
-                else if(activeObject.width > activeObject.height) {
-                  this.cropSource.cropX = (activeObject.width - activeObject.height) / 2;
-                  this.cropSource.cropY = 0;
-                  this.cropSource.top = activeObject.top;
-                  this.cropSource.left = ((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height;
-                  this.cropSource.width = activeObject.height;
-                }
-                break;
+          //     case "1:1" :
+          //       if(activeObject.height > activeObject.width) {
+          //         this.cropSource.cropX = 0; //(activeObject.width - activeObject.height) / 2;
+          //         this.cropSource.cropY = (activeObject.height - activeObject.width) / 2;
+          //         this.cropSource.top = ((activeObject.height - activeObject.width) / 2) * activeObject.scaleY + activeObject.top;
+          //         this.cropSource.left = activeObject.left; //((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.width
+          //         this.cropSource.width = activeObject.width
+          //       }
+          //       else if(activeObject.width > activeObject.height) {
+          //         this.cropSource.cropX = (activeObject.width - activeObject.height) / 2;
+          //         this.cropSource.cropY = 0;
+          //         this.cropSource.top = activeObject.top;
+          //         this.cropSource.left = ((activeObject.width - activeObject.height) / 2) * activeObject.scaleX + activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height;
+          //         this.cropSource.width = activeObject.height;
+          //       }
+          //       break;
 
-              case "16:9" :
-                if(activeObject.height > activeObject.width) {
-                  // this.cropSource.cropX = 0
-                  // this.cropSource.cropY = (activeObject.height - 700) / 2; 
-                  // this.cropSource.top = ((activeObject.height - (activeObject.height - 700)) / 2) * activeObject.scaleY + activeObject.top - 19;
-                  // this.cropSource.left = activeObject.left;
-                  // this.cropSource.scaleX = activeObject.scaleX;
-                  // this.cropSource.scaleY = activeObject.scaleY;
-                  // this.cropSource.height = activeObject.height - 700;
-                  // this.cropSource.width = activeObject.width;
-                  this.cropSource.cropX = 0
-                  this.cropSource.cropY = 400; 
-                  this.cropSource.top = activeObject.top + (400 * activeObject.scaleY);
-                  this.cropSource.left = activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height - 800;
-                  this.cropSource.width = activeObject.width;
-                }
-                else if(activeObject.width > activeObject.height) {
-                  // this.cropSource.cropX = 0;
-                  // this.cropSource.cropY = ((activeObject.height - 200) / 2 )* activeObject.scaleY;
-                  // this.cropSource.top = activeObject.top + 19//+ ((activeObject.height * activeObject.scaleY) / 2); //((activeObject.height - (activeObject.width - 500)) / 2) * activeObject.scaleX + activeObject.top;
-                  // this.cropSource.left = activeObject.left;
-                  // this.cropSource.scaleX = activeObject.scaleX;
-                  // this.cropSource.scaleY = activeObject.scaleY;
-                  // this.cropSource.height = activeObject.height - 200;
-                  // this.cropSource.width = activeObject.width;
-                  this.cropSource.cropX = 0;
-                  this.cropSource.cropY = 100;
-                  this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
-                  this.cropSource.left = activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height - 200;
-                  this.cropSource.width = activeObject.width;
-                }
-                break;
+          //     case "16:9" :
+          //       if(activeObject.height > activeObject.width) {
+          //         // this.cropSource.cropX = 0
+          //         // this.cropSource.cropY = (activeObject.height - 700) / 2; 
+          //         // this.cropSource.top = ((activeObject.height - (activeObject.height - 700)) / 2) * activeObject.scaleY + activeObject.top - 19;
+          //         // this.cropSource.left = activeObject.left;
+          //         // this.cropSource.scaleX = activeObject.scaleX;
+          //         // this.cropSource.scaleY = activeObject.scaleY;
+          //         // this.cropSource.height = activeObject.height - 700;
+          //         // this.cropSource.width = activeObject.width;
+          //         this.cropSource.cropX = 0
+          //         this.cropSource.cropY = 400; 
+          //         this.cropSource.top = activeObject.top + (400 * activeObject.scaleY);
+          //         this.cropSource.left = activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height - 800;
+          //         this.cropSource.width = activeObject.width;
+          //       }
+          //       else if(activeObject.width > activeObject.height) {
+          //         // this.cropSource.cropX = 0;
+          //         // this.cropSource.cropY = ((activeObject.height - 200) / 2 )* activeObject.scaleY;
+          //         // this.cropSource.top = activeObject.top + 19//+ ((activeObject.height * activeObject.scaleY) / 2); //((activeObject.height - (activeObject.width - 500)) / 2) * activeObject.scaleX + activeObject.top;
+          //         // this.cropSource.left = activeObject.left;
+          //         // this.cropSource.scaleX = activeObject.scaleX;
+          //         // this.cropSource.scaleY = activeObject.scaleY;
+          //         // this.cropSource.height = activeObject.height - 200;
+          //         // this.cropSource.width = activeObject.width;
+          //         this.cropSource.cropX = 0;
+          //         this.cropSource.cropY = 100;
+          //         this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+          //         this.cropSource.left = activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height - 200;
+          //         this.cropSource.width = activeObject.width;
+          //       }
+          //       break;
         
-              case "5:4" :
-                if(activeObject.height > activeObject.width) {
-                  this.cropSource.cropX = 0;
-                  this.cropSource.cropY = 250; 
-                  this.cropSource.top = activeObject.top + (250 * activeObject.scaleY);
-                  this.cropSource.left = activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height - 500;
-                  this.cropSource.width = activeObject.width;
-                }
-                else if(activeObject.width > activeObject.height) {
-                  this.cropSource.cropX = 100
-                  this.cropSource.cropY = 0; 
-                  this.cropSource.top = activeObject.top;
-                  this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height;
-                  this.cropSource.width = activeObject.width - 200;
-                }
-                break;
+          //     case "5:4" :
+          //       if(activeObject.height > activeObject.width) {
+          //         this.cropSource.cropX = 0;
+          //         this.cropSource.cropY = 250; 
+          //         this.cropSource.top = activeObject.top + (250 * activeObject.scaleY);
+          //         this.cropSource.left = activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height - 500;
+          //         this.cropSource.width = activeObject.width;
+          //       }
+          //       else if(activeObject.width > activeObject.height) {
+          //         this.cropSource.cropX = 100
+          //         this.cropSource.cropY = 0; 
+          //         this.cropSource.top = activeObject.top;
+          //         this.cropSource.left = activeObject.left + (100 * activeObject.scaleX);
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height;
+          //         this.cropSource.width = activeObject.width - 200;
+          //       }
+          //       break;
             
-              case "4:5" :
-                if(activeObject.height > activeObject.width) {
-                  this.cropSource.cropX = 0;
-                  this.cropSource.cropY = 100; 
-                  this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
-                  this.cropSource.left = activeObject.left;
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height - 200;
-                  this.cropSource.width = activeObject.width;
-                }
-                else if(activeObject.width > activeObject.height) {
-                  this.cropSource.cropX = 250
-                  this.cropSource.cropY = 0; 
-                  this.cropSource.top = activeObject.top;
-                  this.cropSource.left = activeObject.left + (250 * activeObject.scaleX);
-                  this.cropSource.scaleX = activeObject.scaleX;
-                  this.cropSource.scaleY = activeObject.scaleY;
-                  this.cropSource.height = activeObject.height;
-                  this.cropSource.width = activeObject.width - 500;
-                }
-                break;
+          //     case "4:5" :
+          //       if(activeObject.height > activeObject.width) {
+          //         this.cropSource.cropX = 0;
+          //         this.cropSource.cropY = 100; 
+          //         this.cropSource.top = activeObject.top + (100 * activeObject.scaleY);
+          //         this.cropSource.left = activeObject.left;
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height - 200;
+          //         this.cropSource.width = activeObject.width;
+          //       }
+          //       else if(activeObject.width > activeObject.height) {
+          //         this.cropSource.cropX = 250
+          //         this.cropSource.cropY = 0; 
+          //         this.cropSource.top = activeObject.top;
+          //         this.cropSource.left = activeObject.left + (250 * activeObject.scaleX);
+          //         this.cropSource.scaleX = activeObject.scaleX;
+          //         this.cropSource.scaleY = activeObject.scaleY;
+          //         this.cropSource.height = activeObject.height;
+          //         this.cropSource.width = activeObject.width - 500;
+          //       }
+          //       break;
             
-            }
-          }
+          //   }
+          // }
           
-          this.listener.crop(this.cropSource);
-          // this.listener.crop();
+          // this.listener.crop(this.cropSource);
+          
+          this.listener.crop();
         }
 
         /*************** crop image ************/
