@@ -4464,7 +4464,7 @@ export class AppComponent implements OnInit {
         });
         this.canvas.renderAll();
         
-        this.isReplaceShow = (this.isGroup) ? false : true;
+        this.isReplaceShow = (this.isGroup) ? false : false;
         if (!this.isReplaceSame) {
           this.isReplaceMode = false;
         }

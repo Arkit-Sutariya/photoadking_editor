@@ -994,10 +994,10 @@
             </div>
 
             <div *ngIf="IsPropActive" class="position-container mb-0">
-                  <div *ngIf="(selected && !isGroup)">
+                  <div *ngIf="(!isGroup)">
 
                         <mat-accordion>
-                              <mat-expansion-panel>
+                              <mat-expansion-panel *ngIf="selected">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title *ngIf="(isSvgEle || isRect || isCircle || isLine) && !isSvgSticker">
                                                 Element Setting
@@ -2730,7 +2730,7 @@
       </div>
 </div>
 
-<div class="rmenu" id="rmenu" *ngIf="isReplaceShow">
+<div class="rmenu" id="rmenu" [style.display]="isReplaceShow ? 'block' : 'none'">
       <!-- <div class="rmenu-icon-below"></div> -->
       <ul>
             <li>
