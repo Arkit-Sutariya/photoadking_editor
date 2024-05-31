@@ -4084,7 +4084,7 @@ export class AppComponent implements OnInit {
         this.isRect = (activeObject.type === "rect") ? true : false;
         this.isLine = (activeObject.type === "line") ? true : false;
         this.isSvgEle = (activeObject.element_type === 'shapeSticker') ? true : false;
-        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') ? true : false;
+        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.type === 'image' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') ? true : false;
 
         if(activeObject._objects && !activeObject.element_type) {
           this.isGroup = true;
@@ -7481,7 +7481,7 @@ export class AppComponent implements OnInit {
     this.isFromInput = true;
     if (!activeObject) return;
   
-    this.selectedObjDeg = event ? this.checkLimitBeforeApplyForInputSlider(parseFloat(event.target.value), 360, 0) : this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
+    this.selectedObjDeg = event ? this.checkLimitBeforeApplyForInputSlider(parseFloat(event.target.value), 360, 0) : this.checkLimitBeforeApplyForInputSlider(Math.round(value), 360, 0);
   
     // Calculate the object's center points
     const center = activeObject.getCenterPoint();
@@ -7524,7 +7524,7 @@ export class AppComponent implements OnInit {
     switch(type) {
 
       case 'decrease':
-        if(this.activeStrokeWidth >= 0) {
+        if(this.activeStrokeWidth > 0) {
     
           this.activeStrokeWidth = this.activeStrokeWidth - 1;
           activeObject.set('strokeWidth', this.activeStrokeWidth);
@@ -7537,7 +7537,7 @@ export class AppComponent implements OnInit {
         break;
 
       case 'increase':
-        if(this.activeStrokeWidth <= 50) {
+        if(this.activeStrokeWidth < 50) {
       
           this.activeStrokeWidth = this.activeStrokeWidth + 1;
           activeObject.set('strokeWidth', this.activeStrokeWidth);
@@ -7575,7 +7575,7 @@ export class AppComponent implements OnInit {
     switch(type) {
 
       case 'decrease':
-        if(this.activeBorderRadius >= 0) {
+        if(this.activeBorderRadius > 0) {
     
           this.activeBorderRadius = this.activeBorderRadius - 1;
           activeObject.set('rx', this.activeBorderRadius);
@@ -7586,7 +7586,7 @@ export class AppComponent implements OnInit {
         break;
 
       case 'increase':
-        if(this.activeBorderRadius <= 100) {
+        if(this.activeBorderRadius < 100) {
       
           this.activeBorderRadius = this.activeBorderRadius + 1;
           activeObject.set('rx', this.activeBorderRadius);
@@ -7679,7 +7679,8 @@ export class AppComponent implements OnInit {
 
     switch (type) {
       case 'shadowblur':
-        this.shadowBlur = event.target.value;
+
+        this.shadowBlur = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
           shadow: {
             color: this.shadowColor,
@@ -7694,7 +7695,8 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offSetX':
-        this.offSetX = event.target.value;
+
+        this.offSetX = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
           shadow: {
             color: this.shadowColor,
@@ -7708,7 +7710,8 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offSetY':
-        this.offSetY = event.target.value;
+  
+        this.offSetY = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
           shadow: {
             color: this.shadowColor,
@@ -7745,7 +7748,7 @@ export class AppComponent implements OnInit {
       switch(value) {
 
         case 'decrease':
-        if(this.offSetX >= -50) {
+        if(this.offSetX > -50) {
     
           this.offSetX = this.offSetX - 1;
           this.canvas.getActiveObject().set({
@@ -7764,7 +7767,7 @@ export class AppComponent implements OnInit {
         break;
 
         case 'increase':
-          if(this.offSetX <= 50) {
+          if(this.offSetX < 50) {
         
             this.offSetX = this.offSetX + 1;
             this.canvas.getActiveObject().set({
@@ -8790,9 +8793,12 @@ export class AppComponent implements OnInit {
       });
 
       var shape = fabric.util.groupSVGElements(objects, options);
-      // objects.forEach((obj) => {
-      //   obj.strokeWidth = 0; 
-      // });
+      if(!shape._objects) {
+        objects.forEach((obj) => {
+          obj.strokeWidth = 0; 
+        });
+      }
+      
       shape.set({
         angle: 0,
         padding: 0,
