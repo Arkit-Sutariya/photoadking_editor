@@ -848,9 +848,11 @@
             </div>
       </div>
 
+      <!-- <div class="editor-container" [ngStyle]="{'width': canvas_container}" [ngClass]="{'isCropingEnable': isCropingEnable}" (click)="handleEditorClick($event)"> -->
       <div class="editor-container" [ngStyle]="{'width': canvas_container}" [ngClass]="{'isCropingEnable': isCropingEnable}">
             <div class="col-12 p-0 h-100pr position-relative">
                   <div class="canvas-wrapper" id="canvas-wrapper" style="flex-wrap: wrap;">
+                        <!-- <canvas id="canvas" #canvas class="shadow canvas-style" width="546" height="672" (click)="stopPropagation($event)"></canvas> -->
                         <canvas id="canvas" #canvas class="shadow canvas-style" width="546" height="672"></canvas>
                   </div>
             </div>
@@ -1006,6 +1008,7 @@
                                                 Image Setting
                                           </mat-panel-title>
                                     </mat-expansion-panel-header>
+                                    <!-- X and Y Positon  -->
                                     <p *ngIf="selected">Position :</p>
                                     <table class="w-100pr mb-10" cellspacing="5" cellpadding="3px">
                                           <tr *ngIf="selected">
@@ -1067,6 +1070,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Object Height anfd width -->
                                     <p>Size :</p>
                                     <table class="w-100pr mb-10" cellspacing="3" cellpadding="3px">
                                           <tr>
@@ -1146,6 +1150,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Object Flip -->
                                     <table class="w-100pr mb-10">
                                           <tr>
                                                 <td>
@@ -1199,6 +1204,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Object Rotate -->
                                     <table class="w-100pr mb-10">
                                           <tr>
                                                 <td class="wc-50"><span class="d-block wc-50">Rotate : </span></td>
@@ -1247,6 +1253,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Object color for rect and circle -->
                                     <table class="w-100pr mb-10" *ngIf="isRect || isCircle && !isSvgEle">
                                           <tr class="d-flex flex-column">
                                                 <td class="w-58 new-colors-text">
@@ -1279,6 +1286,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- SVG Elment color -->
                                     <table class="w-100pr mb-10" *ngIf="selected && isSvgEle && uniqueArray.length > 0">
                                           <tr>
                                                 <td class="w-58 new-colors-text">
@@ -1294,6 +1302,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Border color for basic shapes -->
                                     <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker">
                                           <tr class="d-flex flex-column">
                                                 <td class="w-97">
@@ -1345,6 +1354,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Border size -->
                                     <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker">
                                           <tr>
                                                 <td class="wc-81"><span class="d-block wc-81">Border Size :</span></td>
@@ -1394,6 +1404,7 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Border Radius -->
                                     <table class="w-100pr" *ngIf="isRect && !isSvgEle">
                                           <tr>
                                                 <td class="wc-50"><span class="d-block wc-50">Border Radius :</span></td>
@@ -1443,9 +1454,101 @@
                                                 </td>
                                           </tr>
                                     </table>
+                                    <!-- Crop and Eraser -->
+                                    <table class="w-100pr mb-10" *ngIf="selected && isCroping && !isSvgEle && !isRect && !isCircle && !isLine">
+                                          <tr>
+                                                <td class="w-50 pr-1">
+                                                      <button id="cropbtn" focusable="false" (click)="openCroper()" class="cust-icon-button"
+                                                            matTooltip="Crop" matTooltipPosition="below">
+                                                            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                                                  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512"
+                                                                  style="enable-background:new 0 0 512 512;" xml:space="preserve">
+                                                                  <style type="text/css">
+                                                                        .stcropper0 {
+                                                                              fill: #FFFFFF;
+                                                                        }
+                                                                  </style>
+                                                                  <g>
+                                                                        <g>
+                                                                              <path class="stcropper0" d="M436.7,391.5V107.2l70.2-70.2L474.9,5.1l-70.2,70.2H120.5V0H75.3v75.3H0v45.2h75.3v316.2h316.2V512h45.2
+                                                                                  v-75.3H512v-45.2L436.7,391.5L436.7,391.5z M120.5,120.5h239.1L120.5,359.6V120.5z M391.5,391.5H152.4l239.1-239.1L391.5,391.5
+                                                                                  L391.5,391.5z" />
+                                                                        </g>
+                                                                  </g>
+                                                            </svg>
+                                    
+                                                            <span>Crop</span>
+                                                      </button>
+                                                </td>
+                                                <td class="w-50 pl-1">
+                                                      <button id="bgremoverbtn" focusable="false" (click)="openBgRemover()" *ngIf="selected && isCroping"
+                                                            class="cust-icon-button" matTooltip="Background Eraser" matTooltipPosition="below">
+                                                            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+                                                                  xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 489 489"
+                                                                  style="enable-background:new 0 0 489 489;" xml:space="preserve">
+                                                                  <style type="text/css">
+                                                                        .sterasor0 {
+                                                                              fill: #FFFFFF;
+                                                                        }
+                                                                  </style>
+                                                                  <path class="sterasor0" d="M489,212.2L280.4,3.6L0,284l201.4,201.4h5.5h8.9h261.4v-30H245.8L489,212.2z M154.4,396h108.5l-30,30h-48.5
+                                                                      L154.4,396z M295.4,363.4l-2.6,2.6H124.4l-30-30h173.6L295.4,363.4z M446.6,212.2l-130,130L150.4,176l130-130L446.6,212.2z
+                                                                       M147.9,216l30,30H80.5l30-30H147.9z M50.5,276h157.4l30,30H64.4L42.4,284L50.5,276z" />
+                                                            </svg>
+                                                            <span>Eraser</span>
+                                                      </button>
+                                                </td>
+                                          </tr>
+                                    </table>
+                                    <!-- Background remover -->
+                                    <div *ngIf="selected && isCroping && !isSvgEle && !isRect && !isCircle && !isLine" class="" style="background: #0F1934;height: 60px;margin-bottom: 10px;border-radius: 4px;cursor: pointer;" (click)="openBgRemover()">
+                                          <div class="eraser-control-wrapper">
+                                                <div class="d-flex" style="padding: 6px;">
+                                                      <div class="w-40 position-relative">
+                                                            <img style="height: 48px;" alt="" src="./assets/images/girlsback.png">
+                                                            <svg *ngIf="user_free == true" fill="none" height="17"
+                                                                  style="position: absolute;top: -4px;right: -9px;" viewBox="0 0 17 17" width="17"
+                                                                  xmlns="http://www.w3.org/2000/svg">
+                                                                  <g clip-path="url(#clip0_5547_6019)">
+                                                                        <path d="M16.9999 8.50001C17.0011 8.06531 16.8588 7.64235 16.5952 7.29672C16.5115 7.18677 16.454 7.05914 16.4272 6.92359C16.4003 6.78804 16.4048 6.64814 16.4402 6.51458C16.5505 6.0942 16.5203 5.64927 16.354 5.24771C16.1878 4.84615 15.8947 4.51 15.5196 4.29059C15.3999 4.22088 15.2978 4.12478 15.2209 4.0096C15.144 3.89442 15.0945 3.76322 15.076 3.62598C15.0171 3.19523 14.8187 2.79563 14.5112 2.48826C14.2037 2.1809 13.804 1.98267 13.3732 1.92388C13.2361 1.9055 13.1049 1.85606 12.9897 1.77931C12.8745 1.70257 12.7784 1.60056 12.7086 1.48104C12.4897 1.10577 12.154 0.81252 11.7527 0.646133C11.3513 0.479746 10.9066 0.449381 10.4864 0.559682C10.4109 0.579342 10.3332 0.589333 10.2552 0.589415C10.0562 0.589137 9.86272 0.524194 9.70389 0.404373C9.35803 0.140695 8.9348 -0.00144604 8.49989 1.10923e-05L6.50781 8.50001L8.49989 17C8.9346 17.0012 9.35756 16.859 9.70319 16.5953C9.86216 16.4752 10.0559 16.41 10.2552 16.4096C10.3328 16.4096 10.4102 16.4196 10.4853 16.4393C10.6507 16.4827 10.8209 16.5047 10.9918 16.5047C11.3392 16.5042 11.6804 16.4129 11.9817 16.24C12.2829 16.067 12.5337 15.8184 12.7093 15.5186C12.779 15.399 12.8751 15.2968 12.9903 15.22C13.1055 15.1431 13.2367 15.0936 13.3739 15.0751C13.8045 15.0162 14.204 14.8179 14.5114 14.5107C14.8187 14.2034 15.017 13.8039 15.076 13.3733C15.0944 13.2362 15.1439 13.105 15.2206 12.9898C15.2973 12.8747 15.3994 12.7785 15.5189 12.7087C15.8939 12.4896 16.1869 12.1538 16.3533 11.7526C16.5196 11.3513 16.5502 10.9067 16.4402 10.4865C16.4049 10.3528 16.4005 10.2128 16.4274 10.0771C16.4543 9.94148 16.5118 9.81375 16.5955 9.70366C16.8593 9.35795 17.0014 8.93482 16.9999 8.50001Z"
+                                                                              fill="#0F9AF0"></path>
+                                                                        <path d="M7.29643 0.40472C7.13745 0.524866 6.94372 0.590058 6.74445 0.590461C6.66678 0.59042 6.58942 0.580428 6.51429 0.560728C6.34894 0.517371 6.17872 0.495387 6.00778 0.495317C5.66042 0.495824 5.31921 0.587076 5.01796 0.760034C4.71671 0.932992 4.46587 1.18165 4.2903 1.48139C4.22062 1.60067 4.12468 1.70251 4.00976 1.77918C3.89485 1.85585 3.76398 1.90533 3.62709 1.92388C3.19601 1.9824 2.79601 2.18061 2.48833 2.48816C2.18066 2.7957 1.98228 3.19563 1.92359 3.62668C1.90517 3.76388 1.85567 3.89507 1.77887 4.01025C1.70207 4.12542 1.59998 4.22154 1.4804 4.29129C1.10544 4.51048 0.812478 4.8463 0.64619 5.24753C0.479901 5.64876 0.449418 6.09336 0.559392 6.51353C0.59473 6.64724 0.599109 6.78724 0.572196 6.9229C0.545284 7.05855 0.487788 7.18628 0.404084 7.29637C0.141287 7.64254 -0.000976563 8.06522 -0.000976562 8.49984C-0.000976563 8.93446 0.141287 9.35714 0.404084 9.70331C0.487847 9.81323 0.545384 9.94084 0.5723 10.0764C0.599217 10.212 0.594802 10.3519 0.559392 10.4855C0.449087 10.9058 0.479362 11.3508 0.645596 11.7523C0.81183 12.1539 1.10489 12.49 1.48005 12.7094C1.59953 12.779 1.70157 12.8749 1.77843 12.9898C1.85529 13.1047 1.90493 13.2357 1.92359 13.3727C1.98211 13.8037 2.18032 14.2037 2.48787 14.5114C2.79541 14.8191 3.19534 15.0175 3.62639 15.0762C3.76359 15.0946 3.89478 15.1441 4.00995 15.2209C4.12513 15.2977 4.22125 15.3998 4.291 15.5193C4.50993 15.8946 4.84572 16.1877 5.24703 16.3541C5.64834 16.5204 6.09307 16.5507 6.51324 16.4404C6.64692 16.4054 6.78679 16.4012 6.92233 16.4281C7.05786 16.455 7.18553 16.5123 7.29573 16.5957C7.64159 16.8593 8.06481 17.0015 8.49972 17V7.56167e-06C8.06501 -0.00119497 7.64205 0.141062 7.29643 0.40472Z"
+                                                                              fill="#13BDF7"></path>
+                                                                        <path _ngcontent-c19=""
+                                                                              d="M8.50048 2.02539L7.07227 8.50008L8.50048 14.9748C10.2177 14.9748 11.8645 14.2926 13.0788 13.0784C14.293 11.8641 14.9752 10.2173 14.9752 8.50008C14.9752 6.78289 14.293 5.13602 13.0788 3.92178C11.8645 2.70754 10.2177 2.02539 8.50048 2.02539Z"
+                                                                              fill="#085AAE"></path>
+                                                                        <path _ngcontent-c19=""
+                                                                              d="M2.02531 8.50008C2.02531 10.2173 2.70746 11.8641 3.9217 13.0784C5.13594 14.2926 6.78281 14.9748 8.5 14.9748V2.02539C6.78281 2.02539 5.13594 2.70754 3.9217 3.92178C2.70746 5.13602 2.02531 6.78289 2.02531 8.50008Z"
+                                                                              fill="#0A77E8"></path>
+                                                                        <path _ngcontent-c19=""
+                                                                              d="M8.50012 5.44824L7.50391 8.93464L13.0303 7.93843L11.7466 5.44824H8.50012Z"
+                                                                              fill="#B2F5FF">
+                                                                        </path>
+                                                                        <path _ngcontent-c19=""
+                                                                              d="M8.50001 5.448H5.25356L3.96982 7.93818L8.50001 8.9344V5.448Z" fill="white">
+                                                                        </path>
+                                                                        <path _ngcontent-c19=""
+                                                                              d="M8.50012 13.1459L13.0303 7.93848H8.50012L7.50391 10.542L8.50012 13.1459Z"
+                                                                              fill="#18E0FF">
+                                                                        </path>
+                                                                        <path _ngcontent-c19="" d="M3.96982 7.93848L8.50001 13.1459V7.93848H3.96982Z"
+                                                                              fill="#B2F5FF">
+                                                                        </path>
+                                                                  </g>
+                                                                  <defs _ngcontent-c19="">
+                                                                        <clipPath _ngcontent-c19="" id="clip0_5547_6019">
+                                                                              <rect _ngcontent-c19="" fill="white" height="17" width="17"></rect>
+                                                                        </clipPath>
+                                                                  </defs>
+                                                            </svg>
+                                                      </div>
+                                                      <div class="w-60 img-text">Remove Background</div>
+                                                </div>
+                                          </div>
+                                    </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="(isRect || isCircle) && !isSvgEle && !isSvgSticker">
+                              <mat-expansion-panel *ngIf="(isRect || isCircle) && !isSvgEle && !isSvgSticker && selected">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title *ngIf="(isRect || isCircle) && !isSvgEle">
                                                 Shadow
@@ -1637,7 +1740,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="isSvgSticker">
+                              <mat-expansion-panel *ngIf="isSvgSticker && selected">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title>
                                                 Effects
@@ -1738,7 +1841,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="isSvgSticker">
+                              <mat-expansion-panel *ngIf="isSvgSticker && selected">
                                     <mat-expansion-panel-header>
                                           <mat-panel-title>
                                                 Adjust
@@ -2729,12 +2832,11 @@
             </div>
       </div>
 </div>
-
-<div class="rmenu" id="rmenu" [style.display]="isReplaceShow ? 'block' : 'none'">
-      <!-- <div class="rmenu-icon-below"></div> -->
+<!-- <div class="rmenu" id="rmenu" [style.display]="isReplaceShow ? 'block' : 'none'"> -->
+<div class="rmenu" id="rmenu" *ngIf="isReplaceShow">
       <ul>
             <li>
-                  <div  (click)="!isReplaceMode ? showReplaceImageHint() : disableReplaceMode();" class="rmenu-item" *ngIf="selected">
+                  <div  (click)="!isReplaceMode ? showReplaceImageHint() : disableReplaceMode();" class="rmenu-item">
                         <div>
                               <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
                                     xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 389.7"
@@ -2770,6 +2872,17 @@
                               </svg>
                         </div>
                         <div> Crop </div>
+                  </div>
+                  <div (click)="openBgRemover()" class="rmenu-item ng-star-inserted" *ngIf="selected && !isCircle && !isRect && !isLine && !isSvgEle" style="display: flex;align-items: baseline;">
+                        <div>
+                              <svg fill="none" height="16" viewBox="0 0 22 16" width="22" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.9856 3.18721C19.9856 3.18721 18.7542 2.12692 17.7161 2.71825C16.9169 3.1778 11.8396 5.72541 9.5744 6.86016L6.36699 5.02625C6.71529 4.40925 6.77348 3.69554 6.58607 3.0075C6.34902 2.13805 5.72174 1.31394 4.79581 0.784226C3.13134 -0.169952 1.13057 0.192892 0.332137 1.59464C-0.0238614 2.21335 -0.0820534 2.9322 0.104503 3.62537C0.34155 4.49482 0.968826 5.31978 1.89476 5.85206C2.30382 6.08312 2.72999 6.2363 3.15359 6.31503V6.31589C3.15702 6.31674 3.16044 6.31674 3.16386 6.31846C3.19724 6.32359 3.23575 6.33129 3.27254 6.33557C5.91343 6.72837 7.26383 7.47374 7.91935 7.99918C7.26383 8.52633 5.91343 9.26999 3.27254 9.66364C3.23575 9.66792 3.19724 9.67477 3.16386 9.6799C3.16044 9.68161 3.15702 9.68161 3.15359 9.68332C2.73085 9.76205 2.30467 9.91524 1.89476 10.1471C0.968826 10.6794 0.342406 11.5035 0.104503 12.3738C-0.0829092 13.0653 -0.0238614 13.7841 0.332137 14.4063C1.13142 15.8055 3.13134 16.17 4.79666 15.2158C5.7226 14.6844 6.34902 13.8603 6.58692 12.9891C6.77433 12.302 6.71529 11.59 6.36785 10.9721L9.57525 9.13906C11.8396 10.2729 16.9177 12.8231 17.717 13.2801C18.755 13.8714 19.9865 12.812 19.9865 12.812L11.5675 7.99918L19.9856 3.18721ZM5.00033 4.26291C4.63578 4.89789 3.57121 5.00143 2.67522 4.48883C2.14893 4.18931 1.75271 3.7118 1.6175 3.21545C1.55845 2.99381 1.51994 2.66948 1.6928 2.37253C2.05565 1.7384 3.12022 1.63486 4.0162 2.1466C4.55106 2.4504 4.9353 2.91508 5.07222 3.41998C5.13383 3.63906 5.16892 3.9651 5.00033 4.26291ZM5.07222 12.5775C4.9353 13.0833 4.55106 13.5471 4.0162 13.8518C3.12022 14.3652 2.05565 14.2608 1.6928 13.625C1.52079 13.3272 1.5593 13.0037 1.6175 12.7846C1.75271 12.2866 2.14893 11.809 2.67522 11.5078C3.57121 10.9961 4.63578 11.0996 5.00033 11.7354C5.16892 12.035 5.13383 12.3584 5.07222 12.5775Z"
+                                          fill="#374168"></path>
+                                    <path d="M15.6383 7.58325H13.5759V8.43217H15.6383V7.58325Z" fill="#374168"></path>
+                                    <path d="M18.7294 7.58325H16.6687V8.43217H18.7294V7.58325Z" fill="#374168"></path>
+                                    <path d="M22.0001 7.57471H19.9412V8.42277H22.0001V7.57471Z" fill="#374168"></path>
+                              </svg></div>
+                        <div style="font-family: 'Roboto-Regular';"> Remove BG </div>
                   </div>
             </li>
       </ul>

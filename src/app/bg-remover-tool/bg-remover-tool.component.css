@@ -1,0 +1,313 @@
+.main {
+      height: 100%;
+      position: relative;
+}
+
+.header {
+      height: 50px !important;
+      margin: 0px;
+      background: #0069FF !important;
+}
+
+.c-reset-menu {
+      height: 32px;
+      background-color: #3988FA;
+      padding: 0px 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      margin-left: 10px;
+}
+
+.zoom-group {
+      align-items: center;
+      height: 32px;
+      margin: auto 15px;
+      background-color: rgb(57, 136, 250);
+      border-radius: 4px;
+}
+
+.zoom-btn {
+      background-color: transparent;
+      box-shadow: none;
+      min-width: unset;
+      width: 30px;
+      height: 30px;
+      padding: 0px;
+      margin: 0px;
+}
+
+.bdr-right-1 {
+      position: relative;
+}
+
+.zoom-reset {
+      width: 16px;
+      height: 100%;
+      margin: auto;
+}
+
+.bdr-right-1::after {
+      content: '';
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background-color: #ffffff;
+      top: 50%;
+      -webkit-transform: translateY(-50%);
+      transform: translateY(-50%);
+      right: 0px;
+}
+
+.zoom-minus,
+.zoom-plus {
+      height: 100%;
+      margin: auto;
+}
+
+.zoom-minus,
+.zoom-plus {
+      padding: 0;
+      width: 12px;
+      height: 12px;
+}
+
+.bgzoom-percentage {
+      border-radius: 5px;
+      background-color: transparent;
+      outline: none;
+      color: white;
+      border: 0px solid;
+      padding: 2px 5px;
+      font-size: 13px;
+}
+
+.zoom-minus,
+.zoom-plus {
+      height: 100%;
+      margin: auto;
+}
+
+.zoom-minus,
+.zoom-plus {
+      padding: 0;
+      width: 12px;
+      height: 12px;
+}
+
+.bg-green {
+      background-color: #0069ff;
+}
+
+.model-button {
+      border-radius: 5px;
+      height: 32px;
+      margin: auto 0px;
+      outline: none !important;
+      box-shadow: none !important;
+      background-color: #0B2E98;
+      padding: 0px 5px 0px 2px;
+      min-width: 75px;
+}
+
+.button-icon {
+      width: 30px !important;
+      height: 30px !important;
+      min-width: 30px;
+      color: white;
+}
+
+.button-text {
+      color: white;
+      font-family: 'Roboto-Regular';
+      text-align: center;
+      width: calc(100% - 30px);
+}
+
+.bgzoom-size-container {
+      height: 100%;
+      width: 100%;
+      color: rgba(0, 0, 0, 0.7);
+}
+
+.bgzoom-size-container {
+      height: 100%;
+      width: 100%;
+      color: white;
+      background-color: #374168;
+      position: relative;
+      padding: 5px 10px;
+      transition: 0.5s;
+      border-radius: 5px;
+}
+
+.bgzoom-size-list {
+      padding: 0px;
+      margin: 0;
+      list-style-type: none;
+      position: relative;
+      z-index: 10;
+}
+
+.bgzoom-size-list li {
+      border-radius: 5px;
+      padding: 2px;
+      text-align: center;
+      width: 100%;
+      font-family: 'roboto-regular';
+      font-size: 14px;
+      transition: 0.5s cubic-bezier(0.12, 0.94, 1, 1);
+      cursor: pointer;
+      margin: 5px 0px;
+      overflow: hidden;
+      border: 1px solid transparent;
+}
+
+.left-bar {
+      width: calc(100% - 285px);
+      height: calc(100% - 0px);
+}
+
+.aspectRatio {
+      width: 100%;
+      height: calc(100% - 40px);
+      display: flex;
+      align-items: center;
+      padding: 0px 15px;
+      background-image: url('../../assets/images/transparent.jpg');
+      background-size: 25px;
+      overflow: auto;
+      padding: 10px;
+}
+
+::ng-deep .aspectRatio .canvas-container {
+      margin: auto !important;
+}
+
+.upload-img {
+      width: 525px;
+      position: absolute;
+      height: 415px;
+      top: 50%;
+      -webkit-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      left: 50%;
+      border: 4px dashed #808080;
+      border-radius: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+}
+
+.upload-box {
+      width: 300px;
+      height: 65px;
+      justify-content: center;
+      display: flex;
+      background: #0069FF;
+      border: 1px solid #FFFFFF;
+      box-shadow: 0px 0px 16px rgb(0 0 0 / 25%);
+      border-radius: 63px;
+}
+
+.upload-text {
+      font-size: 24px;
+      margin-left: 10px;
+      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      line-height: 29px;
+}
+
+.info-container {
+      z-index: 5;
+      background-color: #3d3d3dcc;
+      height: 0px;
+      line-height: 15px;
+      font-family: 'Roboto-Regular';
+      overflow: hidden;
+      width: 100%;
+}
+
+.info {
+      color: white;
+      text-align: center;
+      line-height: 20px;
+      margin-bottom: 0px;
+}
+
+.force-overflow {
+      overflow-y: scroll;
+}
+
+.right-bar {
+      width: 285px;
+      height: calc(100% - 50px);
+      background: #374168;
+}
+
+.cursor-class {
+      cursor: pointer;
+}
+
+.right-bar-body {
+      margin: 15px 12px 10px 12px;
+      border-radius: 5px;
+      background-color: rgba(0, 0, 0, 0.25);
+      padding: 9px;
+      transition: 0.5s;
+}
+
+.eraser-control-wrapper {
+      display: block;
+      color: white;
+}
+
+.img-text {
+      font-size: 14px;
+      font-family: 'Roboto-Regular';
+      font-weight: 500;
+      margin-left: 18px;
+}
+
+.sub-img-text {
+      margin-left: 18px;
+      margin-bottom: 0;
+      font-size: 11px;
+      margin-top: 5px;
+      line-height: 18px;
+      font-weight: 300;
+      font-family: 'Roboto-light';
+}
+
+.cursor-class {
+      cursor: pointer;
+}
+
+::ng-deep .cdk-overlay-container {
+      position: fixed;
+      z-index: 1000;
+}
+
+::ng-deep .cdk-overlay-dark-backdrop {
+      background: rgba(0, 0, 0, .4) !important;
+}
+
+::ng-deep .cdk-global-overlay-wrapper {
+      display: flex;
+      position: absolute;
+      z-index: 1000;
+}
+
+::ng-deep .bg-reomve-crop-dialog {
+      height: 95vh !important;
+      width: 90vw !important;
+      max-width: unset !important;
+      position: static !important;
+}
+
+::ng-deep .cdk-overlay-pane:has(.mdc-menu-surface--open) {
+      left: 445px !important;
+      top: 50px !important;
+}

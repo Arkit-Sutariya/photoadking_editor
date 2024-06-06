@@ -12,15 +12,19 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatSelectModule } from "@angular/material/select";
 import { MatMenuModule } from '@angular/material/menu';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatDialogModule } from "@angular/material/dialog";
 import { ColorPickerModule } from 'ngx-color-picker';
 import { NgxUiLoaderHttpModule, NgxUiLoaderModule } from 'ngx-ui-loader';
 import { ReverseArrayPipe } from './reverse-array.pipe'; 
 import { DataService } from 'src/app/services/data.service';
+import { BgRemoverToolComponent } from './bg-remover-tool/bg-remover-tool.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 
 @NgModule({
   declarations: [
     AppComponent,
-    ReverseArrayPipe
+    ReverseArrayPipe,
+    BgRemoverToolComponent
   ],
   imports: [
     BrowserModule,
@@ -34,8 +38,10 @@ import { DataService } from 'src/app/services/data.service';
     MatSelectModule,
     MatMenuModule,
     MatRadioModule,
+    MatDialogModule,
     ColorPickerModule,
     NgxUiLoaderModule,
+    NgbModule,
     NgxUiLoaderHttpModule.forRoot({
       showForeground : true
     }),

@@ -6,6 +6,8 @@ import * as $ from 'jquery';
 import { DataService } from './services/data.service';
 import { UtilsService } from './services/utils.service';
 import { ImageCropper, FabricCropListener } from './../assets/js/cropping.js';
+import { BgRemoverToolComponent } from './bg-remover-tool/bg-remover-tool.component';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 
 var custom_attributes: any[] = CUSTOM_ATTRIBUTES;
 
@@ -226,6 +228,9 @@ export class AppComponent implements OnInit {
   stock_photo_pg_count: number = 1;
   userUpload_bg_pg_count: number = 1;
   threed_pg_count: any = 1;
+  public isCroping: boolean = true;
+  user_free: any = false;
+  isSubEditorOpen: boolean = false;
 
   getClippathtop: any = 300;
   getClippathleft: any = 525;
@@ -3644,10 +3649,10 @@ export class AppComponent implements OnInit {
 
   ngOnDestroy() {
     document.removeEventListener("keydown", this.processKeys, false);
-    // document.removeEventListener('mousedown', this.handleGlobalMouseDown);
+    document.removeEventListener('mousedown', this.handleGlobalMouseDown);
   }
 
-  constructor(private sanitizer: DomSanitizer, private dataService: DataService, public utils: UtilsService) {
+  constructor(private sanitizer: DomSanitizer, private dataService: DataService, public utils: UtilsService, public dialog: MatDialog,) {
       
     this.tabs = this.tabs.map(tab => ({
       ...tab,
@@ -3818,8 +3823,41 @@ export class AppComponent implements OnInit {
     this.canvas = new fabric.Canvas('canvas');
     // this.listener = new FabricCropListener(this.canvas);
     let hoveredObject: any;
-    localStorage.setItem('ut','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjM4ODgsImlzcyI6Imh0dHBzOi8vdGVzdC5waG90b2Fka2luZy5jb20vYXBpL3B1YmxpYy9hcGkvZG9Mb2dpbkZvclVzZXIiLCJpYXQiOjE3MTY4Nzk4OTEsImV4cCI6MTcxNzQ4NDY5MSwibmJmIjoxNzE2ODc5ODkxLCJqdGkiOiJEQks0UnBLdjVQbmdQZ2hiIn0.21jnHjNzBSX2WvjyWzhoF_YPvRDhWV_IYZGwhxMGH5c')
+    let user_detail = {
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjM4ODgsImlzcyI6Imh0dHBzOi8vdGVzdC5waG90b2Fka2luZy5jb20vYXBpL3B1YmxpYy9hcGkvZG9Mb2dpbkZvclVzZXIiLCJpYXQiOjE3MTY5NTcyOTQsImV4cCI6MTcxNzU2MjA5NCwibmJmIjoxNzE2OTU3Mjk0LCJqdGkiOiJCSFpsa2ZqM2c5eXYzQ2s0In0.IrMcW92PcqwNvuFI52iCvyaI2RE5DZ6ptiXljMmvock",
+      "user_detail": {
+        "user_id": "b7d9sj5ec3e0d4",
+        "user_name": "111612578324448906456",
+        "first_name": "Arkit",
+        "email_id": "arkit.optimumbrew@gmail.com",
+        "thumbnail_img": "",
+        "compressed_img": "",
+        "original_img": "",
+        "social_uid": "111612578324448906456",
+        "signup_type": 3,
+        "profile_setup": 1,
+        "is_active": 1,
+        "is_multi_login": 1,
+        "is_verify": 1,
+        "is_once_logged_in": 1,
+        "mailchimp_subscr_id": "e19788a67357bf41621fe925959374fc",
+        "balance": "",
+        "user_keyword": "graph",
+        "role_id": 11,
+        "create_time": "2023-08-15 05:34:14",
+        "update_time": "2024-04-17 06:23:13",
+        "is_pending": 0,
+        "subscr_expiration_time": "2028-08-15 06:04:36",
+        "next_billing_date": "2028-08-15 06:04:36",
+        "is_subscribe": 1,
+        "payment_type": 3,
+        "is_new_rule_applied": 1
+      }
+    }
+    localStorage.setItem('l_r',JSON.stringify(user_detail));
+    localStorage.setItem('ut','eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjQ2OCwiaXNzIjoiaHR0cHM6Ly90ZXN0LnBob3RvYWRraW5nLmNvbS9hcGkvcHVibGljL2FwaS9kb0xvZ2luRm9yVXNlciIsImlhdCI6MTcxNzU2NDIwOSwiZXhwIjoxNzE4MTY5MDA5LCJuYmYiOjE3MTc1NjQyMDksImp0aSI6InlhallKM251VmNndXJ0UlQifQ.EdmOFU1PbRjiW8UAValoJTHTHy2yGhhXBQexUL-arPI')
     
+   
     this.canvas.on({
       'selection:created': (e) => {
         
@@ -3886,8 +3924,16 @@ export class AppComponent implements OnInit {
         this.selectedObjPos.left = Math.round(activeObject.left);
         this.selectedObjPos.top = Math.round(activeObject.top);
         this.activeBorderRadius = (activeObject.rx) ? activeObject.rx : 0;
+        this.activeStrokeWidth = activeObject.strokeWidth;
         this.isReplaceShow = (activeObject._objects && !activeObject.element_type) ? false : true;
         this.layerSelected = activeObject;
+
+        if(this.isCircle || this.isRect) {
+          this.shadowBlur = activeObject.shadow.blur;
+          this.shadowColor = activeObject.shadow.color;
+          this.offSetX = activeObject.shadow.offsetX;
+          this.offSetY = activeObject.shadow.offsetY;
+        }
         
         this.changeToolTipPosition(activeObject);
         
@@ -3924,6 +3970,7 @@ export class AppComponent implements OnInit {
 
         // this.isReplaceMode = false;
         if(activeObject.type == 'image') {
+          this.props.opacity = (activeObject.opacity * 100).toFixed(0);
           this.getfilter();
           
           // const filters = activeObject.filters || [];
@@ -4099,6 +4146,7 @@ export class AppComponent implements OnInit {
         this.selectedObjPos.left = Math.round(activeObject.left);
         this.selectedObjPos.top = Math.round(activeObject.top);
         this.activeBorderRadius = (activeObject.rx) ? activeObject.rx : 0;
+        this.activeStrokeWidth = activeObject.strokeWidth;
         this.isReplaceShow = (activeObject._objects && !activeObject.element_type) ? false : true;
         this.isReplaceMode = false;
         this.layerSelected = activeObject;
@@ -4127,7 +4175,15 @@ export class AppComponent implements OnInit {
           }
         }
 
+        if(this.isCircle || this.isRect) {
+          this.shadowBlur = activeObject.shadow.blur;
+          this.shadowColor = activeObject.shadow.color;
+          this.offSetX = activeObject.shadow.offsetX;
+          this.offSetY = activeObject.shadow.offsetY;
+        }
+
         if(activeObject.type == 'image') {
+          this.props.opacity = (activeObject.opacity * 100).toFixed(0);
           this.getfilter();
 
           // const filters = activeObject.filters || [];
@@ -4478,6 +4534,10 @@ export class AppComponent implements OnInit {
       },
       'object:rotating': (e) => {
         if (this.selected) {
+          this.selectedObjDeg = Math.round(e.target.angle);
+          this.selectedObjPos.left = Math.round(e.target.left);
+          this.selectedObjPos.top = Math.round(e.target.top);
+
           // Set near by angle while rotating object
           /* const activeObject = e.target;
           const currentAngle = activeObject.angle % 360;
@@ -4493,7 +4553,6 @@ export class AppComponent implements OnInit {
           this.canvas.requestRenderAll(); */
 
           // object rotating 
-          this.selectedObjDeg = Math.round(e.target.angle);
           // switch (Math.round(e.target.angle)) {
           //   case 0:
           //   case 45:
@@ -4545,24 +4604,71 @@ export class AppComponent implements OnInit {
         // }
       },
       'mouse:down': (e) => {
-
+        
         if(this.canvas.getActiveObject()) {
           
           this.drawGrid(15);
         }
         if(this.listener && this.isCropingEnable){
-          
+
           this.listener.confirm();
           this.canvas.getActiveObject().set({
-            cleft: this.listener.cropTarget.left,
-            ctop: this.listener.cropTarget.top,
-            cwidth: this.listener.cropTarget.width,
-            cheight: this.listener.cropTarget.height,
-            isCroped: true
+            cleft: this.listener.cropper.croppedData.left,
+            ctop: this.listener.cropper.croppedData.top,
+            cwidth: this.listener.cropper.croppedData.width,
+            cheight: this.listener.cropper.croppedData.height,
+            isCroped: true,
+            originalHeight: this.listener.cropper.sourceData.height,
+            originalWidth: this.listener.cropper.sourceData.width
           });
 
-          // this.canvas.backgroundColor = (this.whatLastBg) ? this.whatLastBg : '#ffffff';
           this.canvas.renderAll();
+          
+          const acobj = this.canvas.getActiveObject();
+          const result = {
+            height: acobj.cheight,
+            imageHeight: acobj.originalHeight,
+            imageWidth: acobj.originalWidth,
+            is_payment_done: false,
+            left: acobj.cropX,
+            res: true,
+            top: acobj.cropY,
+            width: acobj.cwidth,
+          }
+          
+          this.convertCropToBlob(result);
+
+          /* var tmpsrc;
+          var server_src = this.canvas.getActiveObject().toJSON(custom_attributes).src || this.canvas.getActiveObject().toObject().src;
+          var isTransparent = this.canvas.getActiveObject().toJSON(custom_attributes).isTransparent;
+          var original_src = this.canvas.getActiveObject().toJSON(custom_attributes).original_src;
+
+          if (isTransparent)
+              tmpsrc = server_src;
+          else
+              tmpsrc = original_src || server_src;
+
+          console.log(acobj);
+          const imageDetails = {
+            src: tmpsrc,
+            imgWidth: acobj.width,
+            imgHeight: acobj.height,
+            scaleX: acobj.scaleX,
+            scaleY: acobj.scaleY,
+            cleft: acobj.cropX * acobj.scaleX,
+            ctop: acobj.cropY * acobj.scaleY,
+            cwidth: acobj.cwidth,
+            cheight: acobj.cheight,
+          }
+          
+          this.utils.cropImage(imageDetails).then((res: any) => {
+            // // console.log(res.base64);
+            // var blob = this.dataURLtoBlob(res.base64);
+            // var blobUrl = URL.createObjectURL(blob);
+            // // console.log(blobUrl);
+            // var file = this.dataService.blobToFile(blob, 'tmp.png');
+          }) */
+
           this.isCropingEnable = false;
           this.isReplaceShow = true;
           // this.activeTabID = 5;
@@ -4779,8 +4885,23 @@ export class AppComponent implements OnInit {
           // }
           
           // this.listener.crop(this.cropSource);
-          
+          // console.log(this.listener,"-- listener");
           this.listener.crop();
+          // console.log(this.listener.scaling());
+
+          /* const editorContainer : any = document.querySelector('.editor-container');
+          const canvasContainer : any = document.querySelector('.canvas-container');
+
+          const editorHeight = editorContainer.offsetHeight;
+          const editorWidth = editorContainer.offsetWidth;
+
+          // Get the margin-right of the canvas-container
+          const canvasMarginRight = window.getComputedStyle(canvasContainer).marginRight;
+
+          // Log the values to the console
+          console.log('Editor Height:', editorHeight);
+          console.log('Editor Width:', editorWidth);
+          console.log('Canvas Margin Right:', canvasMarginRight); */
         }
 
         /*************** crop image ************/
@@ -4810,7 +4931,87 @@ export class AppComponent implements OnInit {
       }
     });
 
-    // document.addEventListener('mousedown', this.handleGlobalMouseDown);
+    document.addEventListener('mousedown', this.handleGlobalMouseDown);
+  }
+
+  handleEditorClick(event: MouseEvent) {
+    // console.log(event,"click");
+    // if(this.listener && this.isCropingEnable){
+          
+    //   this.listener.confirm();
+    //   this.canvas.getActiveObject().set({
+    //     cleft: this.listener.cropTarget.left,
+    //     ctop: this.listener.cropTarget.top,
+    //     cwidth: this.listener.cropTarget.width,
+    //     cheight: this.listener.cropTarget.height,
+    //     isCroped: true
+    //   });
+
+    //   this.canvas.renderAll();
+    //   this.isCropingEnable = false;
+    //   this.isReplaceShow = true;
+    // }
+
+    // const target = event.target as HTMLElement;
+    // (this.isCropingEnable) ? console.log(target,'outside click') : '';
+    (this.isCropingEnable) ? console.log(this.listener) : '';
+
+    // console.log(target,"-- target");
+
+    // // Check if the clicked element is a canvas or if the canvas contains the clicked element
+    // if (target.tagName === 'CANVAS' || target.closest('canvas')) {
+    //   console.log('Canvas was clicked, ignoring.');
+    //   return; // Do not proceed further if the click is from a canvas
+    // }
+    // else {
+    //   if(target.className == 'ic-corner-ctrl') {
+    //     console.log('ic-corner');
+    //   }
+    //   else {
+    //     console.log('other');
+    //   }
+    // }
+
+    const target = event.target as HTMLElement;
+    if(this.isCropingEnable) {
+      if (target.className.includes('ic')) {
+        if (this.isCropingEnable) {
+          console.log("click on ic");
+        }
+      } 
+      else {
+        if(this.listener.cropper.activeCursorStyle.over == "move") {
+          if(this.listener && this.isCropingEnable){
+          
+            this.listener.confirm();
+            this.canvas.getActiveObject().set({
+              cleft: this.listener.cropTarget.left,
+              ctop: this.listener.cropTarget.top,
+              cwidth: this.listener.cropTarget.width,
+              cheight: this.listener.cropTarget.height,
+              isCroped: true
+            });
+  
+            this.canvas.renderAll();
+            this.isCropingEnable = false;
+            this.isReplaceShow = true;
+          }
+        }
+        else {
+          console.log("Do-nothing");
+        }
+      }
+    }
+    else {
+      console.log("croping not enable");
+    }
+
+  }
+  stopPropagation(event: MouseEvent): void {
+    let target = event.target as HTMLElement;
+    // console.log('click on canvas and ic:', target.className);
+    // (this.isCropingEnable) ? console.log('click on canvas and ic:', event) : '';
+    event.stopPropagation();
   }
 
   /********** Image cropping without library ***********/
@@ -4922,8 +5123,6 @@ export class AppComponent implements OnInit {
     this.edit_barcode_status = false;
     this.edit_chart_status = false;
     this.active_tool = "default";
-    // this.toggleLeftSide();
-    // this.is_searching_text_art = false;
 
     for (let j = 0; j < this.tabs.length; j++) {
       if (i == j) {
@@ -5016,7 +5215,7 @@ export class AppComponent implements OnInit {
     this.props.tintOpacity = 0;
 
     if (this.canvas.getActiveObject().filters) {
-
+      
       this.canvas.getActiveObject().filters.forEach(element => {
 
         switch (element.__proto__.type) {
@@ -5029,8 +5228,8 @@ export class AppComponent implements OnInit {
             this.props.contrast = (element.contrast  * 100).toFixed(0);
             break;
 
-          case 'Saturate':
-            this.props.saturation = (element.saturate  * 100).toFixed(0);
+          case 'Saturation':
+            this.props.saturation = (element.saturation  * 100).toFixed(0);
             break;
 
           case 'Tint':
@@ -5084,7 +5283,7 @@ export class AppComponent implements OnInit {
             this.props.gradient = element.threshold;
             break;
 
-          case 'Blend':
+          case 'BlendColor':
             this.props.blendColor = element.color;
             this.props.blendMode = element.mode;
             this.props.blendAlpha = (element.alpha * 100).toFixed(0);
@@ -5288,6 +5487,17 @@ export class AppComponent implements OnInit {
       
       const canvasDomElement = this.canvas.nativeElement;
       this.listener.confirm();
+      this.canvas.getActiveObject().set({
+        cleft: this.listener.cropper.croppedData.left,
+        ctop: this.listener.cropper.croppedData.top,
+        cwidth: this.listener.cropper.croppedData.width,
+        cheight: this.listener.cropper.croppedData.height,
+        isCroped: true,
+        originalHeight: this.listener.cropper.sourceData.height,
+        originalWidth: this.listener.cropper.sourceData.width
+      });
+
+      this.canvas.renderAll();
     }
 
     /* const canvasDomElement = this.canvas.nativeElement;
@@ -6157,8 +6367,9 @@ export class AppComponent implements OnInit {
   }
 
   tabActive(tab_details) {
+    this.isReplaceMode = false;
     this.activeTabID = tab_details.tabId;
-    this.activeTab.tabId = tab_details.tabId;
+    // this.activeTab.tabId = tab_details.tabId;
     this.activeStickers();
   }
 
@@ -6333,7 +6544,7 @@ export class AppComponent implements OnInit {
       case 'Circle':
         this.elementHeight = shape.radius * 2;
         this.elementWidth = shape.radius * 2;
-        if(this.isReplaceMode && this.selected) {
+        if(this.isReplaceMode && this.selected && this.canvas.getActiveObject().element_type == 'basicShape') {
           let activeObject = this.canvas.getActiveObject();
           const activeObjectIndex = this.canvasObjectList.findIndex(obj => obj.id === activeObject.id);
 
@@ -6472,7 +6683,7 @@ export class AppComponent implements OnInit {
 
       case 'Rect':
 
-        if(this.isReplaceMode && this.selected) {
+        if(this.isReplaceMode && this.selected && this.canvas.getActiveObject().element_type == 'basicShape') {
           let activeObject = this.canvas.getActiveObject();
           const activeObjectIndex = this.canvasObjectList.findIndex(obj => obj.id === activeObject.id);
         
@@ -6610,7 +6821,7 @@ export class AppComponent implements OnInit {
 
       case 'Line':
 
-        if(this.isReplaceMode && this.selected) {
+        if(this.isReplaceMode && this.selected && this.canvas.getActiveObject().element_type == 'basicShape') {
 
           let activeObject = this.canvas.getActiveObject();
           const activeObjectIndex = this.canvasObjectList.findIndex(obj => obj.id === activeObject.id);
@@ -7089,36 +7300,78 @@ export class AppComponent implements OnInit {
     
     switch(type) {
       case 'vertical':
-        this.selectedObjPos.left = parseInt(event.target.value);
-        activeObject.set('left',parseInt(event.target.value));
+        if (this.selectedObjPos.left == null) {
+          this.selectedObjPos.left = Math.round(activeObject.left);
+        }
+        else {
+          this.selectedObjPos.left = parseInt(event.target.value);
+        }
+        // activeObject.set('left',parseInt(event.target.value));
+        activeObject.set('left', this.selectedObjPos.left);
         break;
 
       case 'horizontal':
-        this.selectedObjPos.top = parseInt(event.target.value);
-        activeObject.set('top', parseInt(event.target.value));
+        if (this.selectedObjPos.top == null) {
+          this.selectedObjPos.top = Math.round(activeObject.top);
+        }
+        else {
+          this.selectedObjPos.top = parseInt(event.target.value);
+        }
+        activeObject.set('top', this.selectedObjPos.top);
         break;
 
       case 'rotate':
-        this.selectedObjDeg = parseInt(event.target.value);
-        activeObject.set('angle',this.selectedObjDeg);
+        
+        if (this.selectedObjDeg == null) {
+          this.selectedObjDeg = parseInt(activeObject.angle);
+        }
+        else {
+          this.selectedObjDeg = parseInt(event.target.value);
+        }
+        console.log(this.selectedObjDeg,"-- this.selectedObjDeg --",typeof(this.selectedObjDeg));
+        activeObject.set('angle', this.selectedObjDeg);
         break;
 
       case 'borderSize':
-        this.activeStrokeWidth = parseInt(event.target.value);
+        if (this.activeStrokeWidth == null) {
+          this.activeStrokeWidth = Math.round(activeObject.strokeWidth);
+        }
+        else {
+          this.activeStrokeWidth = parseInt(event.target.value);
+        }
+
         if(activeObject.type === 'line') {
           this.elementHeight = this.activeStrokeWidth;
         }
+
+        this.activeStrokeWidth = this.checkLimitBeforeApplyForInputSlider(this.activeStrokeWidth, 50, 0);
         activeObject.set('strokeWidth', this.activeStrokeWidth);
         break;
 
       case 'borderRadius':
-        this.activeBorderRadius = parseInt(event.target.value);
+        if (this.activeBorderRadius == null) {
+          this.activeBorderRadius = Math.round(activeObject.rx);
+        }
+        else {
+          this.activeBorderRadius = parseInt(event.target.value);
+        }
+        this.activeBorderRadius = this.checkLimitBeforeApplyForInputSlider(this.activeBorderRadius, 100, 0);
+        
         activeObject.set('rx', this.activeBorderRadius);
         activeObject.set('ry', this.activeBorderRadius);
         break;
 
       case 'shadowBlur':
-        this.shadowBlur = parseInt(event.target.value);
+        if (this.shadowBlur == null) {
+          this.shadowBlur = Math.round(activeObject.shadow.blur);
+          this.offSetX = Math.round(activeObject.shadow.offsetX);
+          this.offSetY = Math.round(activeObject.shadow.offsetY);
+        }
+        else {
+          this.shadowBlur = parseInt(event.target.value);
+        }
+
+        this.shadowBlur = this.checkLimitBeforeApplyForInputSlider(this.shadowBlur, 100, 0);
         activeObject.set({
           shadow: {
             affectStroke: false,
@@ -7131,7 +7384,17 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offsetX':
-        this.offSetX = parseFloat(event.target.value);
+        
+        if (this.offSetX == null) {
+          this.shadowBlur = Math.round(activeObject.shadow.blur);
+          this.offSetX = Math.round(activeObject.shadow.offsetX);
+          this.offSetY = Math.round(activeObject.shadow.offsetY);
+        }
+        else {
+          this.offSetX = parseInt(event.target.value);
+        }
+
+        this.offSetX = this.checkLimitBeforeApplyForInputSlider(Math.round(this.offSetX), 50, -50);
         activeObject.set({
           shadow: {
             affectStroke: false,
@@ -7144,7 +7407,17 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offsetY':
-        this.offSetY = parseInt(event.target.value);
+        
+        if (this.offSetY == null) {
+          this.shadowBlur = Math.round(activeObject.shadow.blur);
+          this.offSetX = Math.round(activeObject.shadow.offsetX);
+          this.offSetY = Math.round(activeObject.shadow.offsetY);
+        }
+        else {
+          this.offSetY = parseInt(event.target.value);
+        }
+
+        this.offSetY = this.checkLimitBeforeApplyForInputSlider(Math.round(this.offSetY), 50, -50);
         activeObject.set({
           shadow: {
             affectStroke: false,
@@ -7158,67 +7431,101 @@ export class AppComponent implements OnInit {
 
       case 'width':
         if(activeObject.type === 'rect') {
-          this.elementWidth = parseInt(event.target.value);
+          if(this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(activeObject.width), 10000, 10);
+          }
+          else {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); //parseInt(event.target.value);
+          }
+
           activeObject.set({
             width: this.elementWidth,
             scaleX: 1
           });
         }
         else if(activeObject.type === 'circle') {
-          this.elementWidth = parseInt(event.target.value);
+          if(this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.floor(activeObject.width * activeObject.scaleX), 10000, 10);
+          }
+          else {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); //parseInt(event.target.value);
+          }
+          
           activeObject.set({
             scaleX: (this.elementWidth * 1.0008519837389847) / 300,
           });
         }
         else if(activeObject.type === 'line') {
-          this.elementWidth = parseInt(event.target.value);
+          if(this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(activeObject.width), 10000, 10);
+          }
+          else {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); //parseInt(event.target.value);
+          }
+          
           activeObject.width = this.elementWidth;
         }
         if(activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') {
-          this.elementWidth = parseInt(event.target.value);
+          if(this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(activeObject.width * activeObject.scaleX), 10000, 10);
+          }
+          else {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10);
+          }
+
           activeObject.scaleX = ((this.elementWidth/this.whatEleScale) * this.whatEleScale / this.whatEleWidth);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementWidth = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
-          
         }
         break;
 
       case 'height':
         if(activeObject.type === 'rect') {
-          this.elementHeight = parseInt(event.target.value);
+          if(this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(activeObject.height), 10000, 10);
+          }
+          else {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); //parseInt(event.target.value);
+          }
+
           activeObject.set({
             height: this.elementHeight,
             scaleX: 1
           });
         }
         else if(activeObject.type === 'circle') {
-          this.elementHeight = parseInt(event.target.value);
+          if(this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.floor(activeObject.height * activeObject.scaleY), 10000, 10);
+          }
+          else {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); //parseInt(event.target.value);
+          }
+
           activeObject.set({
             scaleY: (this.elementHeight * 1.0008519837389847) / 300,
           });
         }
         else if(activeObject.type === 'line') {
-          this.elementHeight = parseInt(event.target.value);
+          if(this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(activeObject.strokeWidth), 50, 0);
+          }
+          else {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 50, 0); //parseInt(event.target.value);
+          }
+
           this.activeStrokeWidth = this.elementHeight
           activeObject.set('strokeWidth',this.activeStrokeWidth);
         }
         if(activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') {
-          this.elementHeight = parseInt(event.target.value);
+          if(this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(activeObject.height * activeObject.scaleY), 10000, 10);
+          }
+          else {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(parseInt(event.target.value), 10000, 10); 
+          }
+
           activeObject.scaleY = ((this.elementHeight/this.whatEleScale) * this.whatEleScale / this.whatEleHeight);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementHeight = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
         }
         break;
+      
     }
     activeObject.setCoords();
     this.canvas.requestRenderAll();
@@ -7237,6 +7544,9 @@ export class AppComponent implements OnInit {
     switch(type) {
       case 'decWidth':  
         if(activeObject.type === 'rect' && this.elementWidth >= 11) {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
 
           this.elementWidth = this.elementWidth - 1;
           activeObject.width = this.elementWidth;
@@ -7245,29 +7555,34 @@ export class AppComponent implements OnInit {
           activeObject.scaleY = 1;
         }
         else if(activeObject.type === 'circle' && this.elementWidth >= 11) {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
           this.elementWidth = this.elementWidth - 1;
           // activeObject.width = this.elementWidth;
           activeObject.scaleX = ((this.elementWidth * 1.0008519837389847) / 300);
         }
         else if(activeObject.type === 'line' && this.elementWidth >= 11) {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 0);
+          }
           this.elementWidth = activeObject.width - 1;
           activeObject.width = this.elementWidth;
         }
         if((activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') && this.elementWidth >= 11) {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
           this.elementWidth = this.elementWidth - 1;
           activeObject.scaleX = ((this.elementWidth/this.whatEleScale) * this.whatEleScale / this.whatEleWidth);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementWidth = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
         }
         break;
 
       case 'incWidth':
         if(activeObject.type === 'rect') {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
           this.elementWidth = this.elementWidth + 1;
           activeObject.width = this.elementWidth;
           activeObject.height = this.elementHeight;
@@ -7275,29 +7590,34 @@ export class AppComponent implements OnInit {
           activeObject.scaleY = 1;
         }
         else if(activeObject.type === 'circle') {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
           this.elementWidth = this.elementWidth + 1;
           // activeObject.width = this.elementWidth;
           activeObject.scaleX = ((this.elementWidth * 1.0008519837389847) / 300);
         }
         else if(activeObject.type === 'line') {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 0);
+          }
           this.elementWidth = activeObject.width + 1;
           activeObject.width = this.elementWidth;
         }
         if(activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') {
+          if (this.elementHeight == null) {
+            this.elementHeight = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementHeight), 10000, 10);
+          }
           this.elementWidth = this.elementWidth + 1;
           activeObject.scaleX = ((this.elementWidth/this.whatEleScale) * this.whatEleScale / this.whatEleWidth);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementWidth = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
         }
         break;
 
       case 'decHeight':
         if(activeObject.type === 'rect' && this.elementHeight >= 11) {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight - 1;
           activeObject.width = this.elementWidth;
           activeObject.height = this.elementHeight;
@@ -7305,30 +7625,35 @@ export class AppComponent implements OnInit {
           activeObject.scaleY = 1;
         }
         else if(activeObject.type === 'circle' && this.elementHeight >= 11) {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight - 1;
           // activeObject.height = this.elementHeight;
           activeObject.scaleY = ((this.elementHeight * 1.0008519837389847) / 300);
         }
         else if(activeObject.type === 'line' && this.activeStrokeWidth > 0) {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = activeObject.strokeWidth - 1;
           this.activeStrokeWidth = this.elementHeight
           activeObject.set('strokeWidth',this.activeStrokeWidth);
         }
         if((activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') && this.elementHeight >= 11) {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight - 1;
           activeObject.scaleY = ((this.elementHeight/this.whatEleScale) * this.whatEleScale / this.whatEleHeight);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementHeight = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
         }
         break;
 
       case 'incHeight':
         if(activeObject.type === 'rect') {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight + 1;
           activeObject.width = this.elementWidth;
           activeObject.height = this.elementHeight;
@@ -7336,27 +7661,30 @@ export class AppComponent implements OnInit {
           activeObject.scaleY = 1;
         }
         else if(activeObject.type === 'circle') {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight + 1;
           // activeObject.height = this.elementHeight;
           activeObject.scaleY = ((this.elementHeight * 1.0008519837389847) / 300);
         }
         else if(activeObject.type === 'line' && this.activeStrokeWidth < 50) {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = activeObject.strokeWidth + 1;
           this.activeStrokeWidth = this.elementHeight
           activeObject.set('strokeWidth',this.activeStrokeWidth);
         }
         if(activeObject.element_type === 'shapeSticker' || activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') {
+          if (this.elementWidth == null) {
+            this.elementWidth = this.checkLimitBeforeApplyForInputSlider(Math.round(this.elementWidth), 10000, 10);
+          }
           this.elementHeight = this.elementHeight + 1;
           activeObject.scaleY = ((this.elementHeight/this.whatEleScale) * this.whatEleScale / this.whatEleHeight);
-          // this.whatEleWidth  = activeObject.width - 1;
-          // let scale = this.utils.getObjectMaxSize(activeObject.height, this.whatEleWidth, this.zoomHeightRef, this.zoomWidthRef);
-          
-          // this.elementHeight = (activeObject.width * scale);
-          // activeObject.width = this.whatEleWidth;
-          // activeObject.height = (activeObject.height * activeObject.scaleY)
-          // activeObject.scaleY = scale;
         }
         break;
+
     }
     activeObject.setCoords();
     this.canvas.requestRenderAll();
@@ -7478,16 +7806,26 @@ export class AppComponent implements OnInit {
   
   rotateObject(value, event) {
     const activeObject = this.canvas.getActiveObject();
+    if (this.selectedObjDeg == null) {
+      this.selectedObjDeg = parseInt(activeObject.angle);
+    }
+    else {
+      this.selectedObjDeg = event ? parseInt(event.target.value) : Math.round(value);
+    }
+    
     this.isFromInput = true;
     if (!activeObject) return;
   
-    this.selectedObjDeg = event ? this.checkLimitBeforeApplyForInputSlider(parseFloat(event.target.value), 360, 0) : this.checkLimitBeforeApplyForInputSlider(Math.round(value), 360, 0);
-  
+    // this.selectedObjDeg = event ? this.checkLimitBeforeApplyForInputSlider(parseFloat(event.target.value), 360, 0) : this.checkLimitBeforeApplyForInputSlider(Math.round(value), 360, 0);
+    this.selectedObjDeg = this.checkLimitBeforeApplyForInputSlider(Math.round(this.selectedObjDeg), 360, 0)
+    
     // Calculate the object's center points
     const center = activeObject.getCenterPoint();
   
     // Set the angle
     activeObject.angle = this.selectedObjDeg;
+    this.selectedObjPos.left = Math.round(activeObject.left);
+    this.selectedObjPos.top = Math.round(activeObject.top);
   
     // Move the object to the calculated center
     activeObject.setPositionByOrigin(center, 'center', 'center');
@@ -7679,6 +8017,10 @@ export class AppComponent implements OnInit {
 
     switch (type) {
       case 'shadowblur':
+        if(this.offSetX == null || this.offSetY == null) {
+          this.offSetX = Math.round(this.canvas.getActiveObject().shadow.offsetX);
+          this.offSetY = Math.round(this.canvas.getActiveObject().shadow.offsetY);
+        }
 
         this.shadowBlur = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
@@ -7695,6 +8037,10 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offSetX':
+        if(this.shadowBlur == null || this.offSetY == null) {
+          this.shadowBlur = Math.round(this.canvas.getActiveObject().shadow.blur);
+          this.offSetY = Math.round(this.canvas.getActiveObject().shadow.offsetY);
+        }
 
         this.offSetX = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
@@ -7710,7 +8056,11 @@ export class AppComponent implements OnInit {
         break;
 
       case 'offSetY':
-  
+        if(this.offSetX == null || this.shadowBlur == null) {
+          this.shadowBlur = Math.round(this.canvas.getActiveObject().shadow.blur);
+          this.offSetX = Math.round(this.canvas.getActiveObject().shadow.offsetX);
+        }
+
         this.offSetY = parseInt(event.target.value);
         this.canvas.getActiveObject().set({
           shadow: {
@@ -7723,6 +8073,7 @@ export class AppComponent implements OnInit {
           statefullCache: true
         });
         break;
+      
     }
     this.canvas.renderAll();
   }
@@ -7876,7 +8227,7 @@ export class AppComponent implements OnInit {
     this.canvas.renderAll();
   }
 
-  /********** De select selected object  ***********/
+  /********** De-select selected object  ***********/
   deselectElement(event) {
     this.canvas.discardActiveObject();
     this.canvas.renderAll(); 
@@ -8238,8 +8589,8 @@ export class AppComponent implements OnInit {
 
   /********** For SVG Element ***********/
   activateStickerSubTab(key, isOpenReplace: boolean = false) {
-    this.isBasicShapes = false;
-    switch (key) {
+    // this.isBasicShapes = false;
+    /* switch (key) {
       case 'shapes':
         this.shape = true;
         this.stickers = false;
@@ -8260,6 +8611,66 @@ export class AppComponent implements OnInit {
         this.buttons = true;
         this.activeStickers();
         break;
+    } */
+
+    switch (key) {
+      case 'shapes':
+
+        this.setCategoryInCenter();
+        if (!this.shape) {
+          this.stickers_search_query = "";
+          this.shape = true;
+          this.stickers = false;
+          this.buttons = false;
+          this.activeStickers(isOpenReplace);
+        }
+        else {
+          if (isOpenReplace) {
+            this.activeStickers(isOpenReplace);
+          }
+        }
+        break;
+      
+      case 'stickers':
+        this.isShapeStickerActive = false;
+        this.setCategoryInCenter();
+        if (!this.stickers) {
+          this.stickers_search_query = "";
+          this.stickers = true;
+          this.shape = false;
+          this.buttons = false;
+          this.activeStickers();
+        }
+        break;
+      
+      case 'buttons':
+        this.isShapeStickerActive = false;
+        this.setCategoryInCenter();
+        if (!this.buttons) {
+          this.stickers_search_query = "";
+          this.buttons = true;
+          this.shape = false;
+          this.stickers = false;
+          if (isOpenReplace) {
+            this.activeStickers(false);
+          } 
+          else {
+            this.activeStickers();
+          }
+        }
+        break;
+      
+      default:
+        this.setCategoryInCenter();
+        this.stickers_search_query = "";
+        if (!this.shape) {
+          this.shape = true;
+          this.activeStickers();
+        }
+        this.stickers = false;
+        this.buttons = false;
+        break;
+      
     }
   }
   activeStickers(isOpenReplace: boolean = false,) {
@@ -8295,367 +8706,35 @@ export class AppComponent implements OnInit {
     }
     
     if(this.activeTabID === 2) {
-      this.isBasicShapes = true;
-      // this.isBgImg = false;
+      
       this.dataService.postData("getNormalCatalogsBySubCategoryId", payLoad, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("ut")
         }
       }).subscribe((res) => {
         this.stickerCatalog_List = res['data']['result']; 
-
-        if(this.buttons || this.stickers) {
+        if(this.canvas.getActiveObject() && this.canvas.getActiveObject().element_type === "basicShape") {
+          this.isBasicShapes = true;
+          this.isBasicTabActive = true
+        }
+        else {
           
-          this.stickerCatalogChanged(this.stickerCatalog_List[0], true);
+          if(this.buttons || this.stickers) {
+            
+            this.stickerCatalogChanged(this.stickerCatalog_List[0], true);
+          }
+          else if(this.stickers) {
+  
+            this.stickerCatalogChanged(this.stickerCatalog_List[0],true);
+          }
         }
-        else if(this.stickers) {
 
-          this.stickerCatalogChanged(this.stickerCatalog_List[0],true);
-        }
       });
-
-      this.isBasicTabActive = true
+      
     }
     else if(this.activeTabID === 5) {
       // this.isBgImg = false;
-      // this.stock_photo_list = [
-      //   {
-      //     "id": 8782407,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/hummingbird-bird-animal-feathers-8782407\/",
-      //     "type": "photo",
-      //     "tags": "hummingbird, bird, animal",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/07\/04\/hummingbird-8782407_150.jpg",
-      //     "previewWidth": 127,
-      //     "previewHeight": 150,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/geca4ccd74f8c60a14aaf7ff78a8a186512770d26ac430b81df30672688cf8a2974178495ac6e4e3dabbacbab110d7c5f_640.jpg",
-      //     "webformatWidth": 540,
-      //     "webformatHeight": 640,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/gf3b5e87c6dc2b8513aaf72b01b10b20589e8031da440578cb721daeed3228ec870220f52422ef11e37b3522534b39259426dc489ab301bfed46fbcaf323b3468_1280.jpg",
-      //     "imageWidth": 3133,
-      //     "imageHeight": 3712,
-      //     "imageSize": 824003,
-      //     "views": 6,
-      //     "downloads": 1,
-      //     "collections": 0,
-      //     "likes": 38,
-      //     "comments": 0,
-      //     "user_id": 17561499,
-      //     "user": "Beto_MdP",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/02\/04\/00-22-52-402_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8782348,
-      //     "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-heart-love-symbol-8782348\/",
-      //     "type": "illustration",
-      //     "tags": "ai generated, heart, love",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/06\/32\/ai-generated-8782348_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 85,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g1257c10ca620c29b4b4d462fc3c8102825098a48b30a7e3424d35923b39a93b61f11c8ee8a00d1c1eca84830790610ae_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 362,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/gd4cf414ed8f68aa828297b8d254f668d13d3bae45cf4e523e74f41fc0990a5ea8b99fb8e389230e05c4b2cfcfa35625315133ccf891123da040f2840cc7570ae_1280.jpg",
-      //     "imageWidth": 4084,
-      //     "imageHeight": 2310,
-      //     "imageSize": 1727299,
-      //     "views": 80,
-      //     "downloads": 41,
-      //     "collections": 5,
-      //     "likes": 36,
-      //     "comments": 4,
-      //     "user_id": 9301,
-      //     "user": "geralt",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/08\/25\/06-52-36-900_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8783023,
-      //     "pageURL": "https:\/\/pixabay.com\/illustrations\/dahlia-flower-plant-petals-bloom-8783023\/",
-      //     "type": "illustration",
-      //     "tags": "dahlia, flower, plant",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/11\/34\/dahlia-8783023_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 113,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g36655b5b02f8c4483db18a51e00ede0813e82c5d5bdccb99b30ecd9167a609ef51dfcbfae7b0fe543d42d66ad23ffe85_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 480,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g8daaf04c0971fd0c7544e1a262debfac851072eece941ee0621a53a8163a1a39df0192da89312502383c202c35e72d815499b1b1c49e065d34da486c6258e54d_1280.jpg",
-      //     "imageWidth": 3200,
-      //     "imageHeight": 2400,
-      //     "imageSize": 1596974,
-      //     "views": 76,
-      //     "downloads": 53,
-      //     "collections": 0,
-      //     "likes": 34,
-      //     "comments": 1,
-      //     "user_id": 32364022,
-      //     "user": "beasternchen",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/16-15-30-223_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8780413,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/birds-waterfowl-lake-wildlife-8780413\/",
-      //     "type": "photo",
-      //     "tags": "birds, waterfowl, lake",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/11\/06\/birds-8780413_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 100,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g491e4b730b517a8cef4ea600a9b2e1f236e32350aebe132b8165bffa8874c8fb3e6bbbdf5c85d777ef2fa74bcccb4413_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 427,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g48911a5df301aa05df4700900e1a3f1afcd51e1d4faefa64dcd93374f2f0e9ff4a79c64949a1b02b68ac58ae3495a958b924ec1091e2b890de62df1aa1a673e7_1280.jpg",
-      //     "imageWidth": 4676,
-      //     "imageHeight": 3119,
-      //     "imageSize": 4122670,
-      //     "views": 386,
-      //     "downloads": 347,
-      //     "collections": 4,
-      //     "likes": 49,
-      //     "comments": 11,
-      //     "user_id": 1425977,
-      //     "user": "ChiemSeherin",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8784361,
-      //     "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-multicoloured-8784361\/",
-      //     "type": "illustration",
-      //     "tags": "ai generated, woman, multicoloured",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/24\/05\/57\/ai-generated-8784361_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 85,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/gaecd49e47d8d3ab87f25469e37026fc78f1a4046df2edfacfeedc820056755050da7ae39a216878418b09fadf625bf93_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 362,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g4c1af7e2ea1c2a62a141613e5ec44ad3004c374c2c0bc875a4c785dd37236a73a2f8b1f7fffb1a75ee26a0966e3694f0c1a395206bc6be0d13f9702b6a8130b4_1280.jpg",
-      //     "imageWidth": 4084,
-      //     "imageHeight": 2310,
-      //     "imageSize": 2348932,
-      //     "views": 0,
-      //     "downloads": 0,
-      //     "collections": 2,
-      //     "likes": 35,
-      //     "comments": 0,
-      //     "user_id": 10327513,
-      //     "user": "NickyPe",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8780402,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/goosander-gosling-chicks-goose-8780402\/",
-      //     "type": "photo",
-      //     "tags": "goosander, gosling, chicks",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/11\/03\/goosander-8780402_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 84,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g4fc6cbdd95284320c9913899c156344688ca211d392398cb24b163ef9611926fdd35ad436c33e66f16439441eb26fe06_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 360,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g5aabc404e0e41be3dc35e6e6e9b9f52e9d3e041cb49cf4bb922b325a643b0d5a313251545e49d4591f763a2a945c8ae5543cc6cbd8a2e0b24d2ba5e0eb1870ce_1280.jpg",
-      //     "imageWidth": 4482,
-      //     "imageHeight": 2521,
-      //     "imageSize": 2187058,
-      //     "views": 360,
-      //     "downloads": 317,
-      //     "collections": 4,
-      //     "likes": 46,
-      //     "comments": 12,
-      //     "user_id": 1425977,
-      //     "user": "ChiemSeherin",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/01\/16\/09-32-35-836_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8782391,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/chicks-swans-cygnets-nest-8782391\/",
-      //     "type": "photo",
-      //     "tags": "chicks, swans, cygnets",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/06\/54\/chicks-8782391_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 100,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g93c276b27503b836de333914536b4d5562770b4c5d316c984d3f8dd1efd2e5512bc293ce8cc1ea80d88e90b3cfde10ec_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 428,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/ge20966c89f69f6e499cf8a2162b483b1a88839e4f3922647a66940640e8ceb4ec4fc57693d1a5fbe6e70a38bec1dd33c571512c8fcdcee80243c6c6445484772_1280.jpg",
-      //     "imageWidth": 3712,
-      //     "imageHeight": 2480,
-      //     "imageSize": 2113338,
-      //     "views": 150,
-      //     "downloads": 121,
-      //     "collections": 3,
-      //     "likes": 39,
-      //     "comments": 12,
-      //     "user_id": 1614842,
-      //     "user": "Elsemargriet",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/05\/13\/07-31-24-952_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8780297,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/flowers-pollinate-blooming-lavender-8780297\/",
-      //     "type": "photo",
-      //     "tags": "flowers, pollinate, blooming lavender",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/22\/10\/40\/flowers-8780297_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 113,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/gc96b0707e3390e6413d48d35f9379cb70b480d09483964b09873a124d1e0ab2c1f3a3e7ab79a40a5824c86e747701fe7_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 480,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g47fad377a83d2ce1041ea7d60bec558b092923a7b0d9547073f4bcca599f1370897bc1355a9971f640b4d17f6792bfe82eaf7680a10df1f1e3d5d24612f08e00_1280.jpg",
-      //     "imageWidth": 4000,
-      //     "imageHeight": 3000,
-      //     "imageSize": 2334422,
-      //     "views": 191,
-      //     "downloads": 175,
-      //     "collections": 3,
-      //     "likes": 32,
-      //     "comments": 6,
-      //     "user_id": 13177285,
-      //     "user": "Gruendercoach",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2021\/07\/11\/18-47-15-179_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8777374,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/bird-ornithology-kingfisher-tree-8777374\/",
-      //     "type": "photo",
-      //     "tags": "bird, ornithology, kingfisher",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/09\/04\/bird-8777374_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 100,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/ga160ad5c1c4921b069794a5a7afbba3f90b5a81a4a08ce96fffe2ee352d05787cfea02e761fbf8204d5857c123ceae9a_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 427,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g59f824476f3623cd25c7f0306f870388a67d7a2319787ca89295a7876c1bdc2a8761867a0aff45d2e74e943af9d744bde42ad097caa0941d680b57fd1f4610f7_1280.jpg",
-      //     "imageWidth": 5568,
-      //     "imageHeight": 3712,
-      //     "imageSize": 1875714,
-      //     "views": 828,
-      //     "downloads": 768,
-      //     "collections": 2,
-      //     "likes": 47,
-      //     "comments": 20,
-      //     "user_id": 13177285,
-      //     "user": "Gruendercoach",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2021\/07\/11\/18-47-15-179_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8763079,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/bird-hummingbird-blue-nature-8763079\/",
-      //     "type": "photo",
-      //     "tags": "bird, hummingbird, blue",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/15\/08\/23\/bird-8763079_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 100,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g8fb3345bdd39fffe1edff4b17b1bfdf93d232305755e32a3c1aed33bd7172313c756b25052aabf52287a64364943fdb2_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 427,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g2e7a0a91297c8cc2cc640a8400f8672c32a64d6c652e81022d001c08e50e2a6ed439f0067ff032e24e35fc84135e8f90d8c60bf5c6785b76f073f62e6a686725_1280.jpg",
-      //     "imageWidth": 4898,
-      //     "imageHeight": 3265,
-      //     "imageSize": 2161833,
-      //     "views": 4430,
-      //     "downloads": 3215,
-      //     "collections": 50,
-      //     "likes": 96,
-      //     "comments": 23,
-      //     "user_id": 6205857,
-      //     "user": "balouriarajesh",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2019\/02\/12\/08-21-35-410_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8782679,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/fieldfare-bird-animal-feathers-8782679\/",
-      //     "type": "photo",
-      //     "tags": "fieldfare, bird, animal",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/08\/35\/fieldfare-8782679_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 100,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g8bfe0df826cdd9350b6c10169c7cc9390130778cc6862ce8e993e6942200bfcae3cd76526eca19f7612c44c0455cd547_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 427,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g586298ddf70bb0e6c7023076f8c69ef334d740f7d72c9315cee0f996bb15409838d65379dbe486a377dde4bca30c72d86a8598370c5225374d3528d2224d37e8_1280.jpg",
-      //     "imageWidth": 4800,
-      //     "imageHeight": 3200,
-      //     "imageSize": 2818454,
-      //     "views": 97,
-      //     "downloads": 86,
-      //     "collections": 1,
-      //     "likes": 33,
-      //     "comments": 12,
-      //     "user_id": 13177285,
-      //     "user": "Gruendercoach",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2021\/07\/11\/18-47-15-179_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8768698,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/flowers-field-nature-clouds-meadow-8768698\/",
-      //     "type": "photo",
-      //     "tags": "flowers, beautiful flowers, field",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/17\/17\/30\/flowers-8768698_150.jpg",
-      //     "previewWidth": 100,
-      //     "previewHeight": 150,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g41fcb82e56a70d351fedcaab99261b001acd80a0556fa41a3f05a786acc6fad95f8d02347801d40a682df9f1d031606f_640.jpg",
-      //     "webformatWidth": 427,
-      //     "webformatHeight": 640,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g2f611db7deed42088920edb5845deed12560e721c543da7323bd21dd9a2d53cc97b1653e2bc64b9ae2a592f58fb43a7ba0f88fd7883ac409db2cf3e164b43957_1280.jpg",
-      //     "imageWidth": 3712,
-      //     "imageHeight": 5568,
-      //     "imageSize": 6548304,
-      //     "views": 4451,
-      //     "downloads": 4032,
-      //     "collections": 6,
-      //     "likes": 93,
-      //     "comments": 22,
-      //     "user_id": 3764790,
-      //     "user": "ELG21",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/04\/07\/18-24-56-559_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8782404,
-      //     "pageURL": "https:\/\/pixabay.com\/photos\/hummingbird-bird-animal-feathers-8782404\/",
-      //     "type": "photo",
-      //     "tags": "hummingbird, bird, animal",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/23\/07\/03\/hummingbird-8782404_150.jpg",
-      //     "previewWidth": 150,
-      //     "previewHeight": 111,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/ga4e642693bd3ec8e17c20c58f7bedfb0a65350922459f0f114c02561ecf6e890e0ddd06ebd3464057e64751e081d3780_640.jpg",
-      //     "webformatWidth": 640,
-      //     "webformatHeight": 472,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g50ba76e5eb0d4f9691d83c99e6f0489986763a6a8dc5e7404153cc0d05644963300e474045896d9318d80b2faee02e1bbcebfb1c7fde7df1d19de59189770d09_1280.jpg",
-      //     "imageWidth": 5033,
-      //     "imageHeight": 3712,
-      //     "imageSize": 982794,
-      //     "views": 6,
-      //     "downloads": 1,
-      //     "collections": 0,
-      //     "likes": 34,
-      //     "comments": 0,
-      //     "user_id": 17561499,
-      //     "user": "Beto_MdP",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/02\/04\/00-22-52-402_250x250.jpg"
-      //   },
-      //   {
-      //     "id": 8777142,
-      //     "pageURL": "https:\/\/pixabay.com\/illustrations\/rose-colorful-blossom-bloom-8777142\/",
-      //     "type": "illustration",
-      //     "tags": "rose, colorful, blossom",
-      //     "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/21\/06\/59\/rose-8777142_150.jpg",
-      //     "previewWidth": 85,
-      //     "previewHeight": 150,
-      //     "webformatURL": "https:\/\/pixabay.com\/get\/g9d67f23e2d4ffef378b75e1d848b3464f56f5b7d11dcaabb41aba866518a6148ef57025025745ac5047a45006f0b6b34_640.jpg",
-      //     "webformatWidth": 362,
-      //     "webformatHeight": 640,
-      //     "largeImageURL": "https:\/\/pixabay.com\/get\/g7065132a66200a31daab3fe7e6c21181e712d046e140c94d0c74ac3f0b2d228835876c8457ad5306792c9d1583ee951dd55eea966944b204f817c602fd5d1ea7_1280.jpg",
-      //     "imageWidth": 2310,
-      //     "imageHeight": 4084,
-      //     "imageSize": 2034660,
-      //     "views": 799,
-      //     "downloads": 635,
-      //     "collections": 4,
-      //     "likes": 64,
-      //     "comments": 0,
-      //     "user_id": 10327513,
-      //     "user": "NickyPe",
-      //     "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-      //   },
-      // ]
+      // this.stock_photo_list = []
 
       /* this.dataService.postData("getImagesFromPixabay", {
         "search_query": "",
@@ -8711,6 +8790,10 @@ export class AppComponent implements OnInit {
   /********** Load sticker from database ***********/
   stickerCatalogChanged(catalog_detail, isOpenReplace: boolean = false) {
     this.isBasicShapes = false;
+    // if(this.canvas.getActiveObject() && this.canvas.getActiveObject().element_type === "basicShape") {
+    //   this.isBasicShapes = true;
+    //   this.isBasicTabActive = true
+    // }
     let payLoad: any = {};
     if (this.shape) {
 
@@ -8830,7 +8913,7 @@ export class AppComponent implements OnInit {
         element_type: stickerFrom || 'SVGShape',
       });
 
-      if (this.isReplaceMode == true) {
+      if (this.isReplaceMode == true && this.canvas.getActiveObject().element_type != 'basicShape' && this.canvas.getActiveObject().type != 'image') {
         let activeObject = this.canvas.getActiveObject();
         const activeObjectIndex = this.canvasObjectList.findIndex(obj => obj.id === activeObject.id);
         this.isReplaceSame = true;
@@ -8893,7 +8976,7 @@ export class AppComponent implements OnInit {
     uploadfrom = (uploadfrom == 'stockphotos') ? 'stockphotos' : stickerFrom;
     var id, that = this;
 
-    if (that.isReplaceMode == true) {
+    if (that.isReplaceMode == true && this.selected && this.canvas.getActiveObject().type == "image" && !this.canvas.getActiveObject().toolType) {
       var options = this.canvas.getActiveObject().toObject(custom_attributes);
       var targetObject = that.canvas.getActiveObject();
       this.isReplaceSame = true;
@@ -9228,6 +9311,216 @@ export class AppComponent implements OnInit {
     canvas.height = height;
     ctx!.drawImage(img, 0, 0, width, height);
     return canvas.toDataURL();
+  }
+  
+  /********** Image Crop and Eraser ***********/
+  openCroper() {
+
+    if(!this.listener){
+
+      this.listener = new FabricCropListener(this.canvas);
+    }
+    if(this.canvas.getActiveObject().type === 'image' && !this.isCropingEnable) {
+      this.isCropingEnable = true;
+      this.listener.crop();
+    }
+  }
+  
+  openBgRemover() {
+    var that = this;
+    this.isSubEditorOpen = true;
+    var tmpsrc;
+    var server_src = this.canvas.getActiveObject().toJSON(custom_attributes).src || this.canvas.getActiveObject().toObject().src;
+    tmpsrc = server_src;
+    
+    const dialogRef = this.dialog.open(BgRemoverToolComponent, {
+      width: '330px',
+      height: '400px',
+      autoFocus: true,
+      disableClose: true,
+      panelClass: 'bg-reomve-crop-dialog',
+      data: tmpsrc
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      var blob = this.dataURLtoBlob(result.base64);
+      var blobUrl = URL.createObjectURL(blob);
+      var options = this.canvas.getActiveObject().toObject();
+      delete options.filters;
+      options.crossOrigin = true;
+      var exclusiveName: any = '';
+      exclusiveName = this.generateUniqueName('transparent_image', 'png');
+      this.canvas.getActiveObject().setSrc(blobUrl, () => {
+
+        this.canvas.getActiveObject().height = this.canvas.getActiveObject().cheight;
+        this.canvas.getActiveObject().width = this.canvas.getActiveObject().cwidth;
+        this.canvas.renderAll();
+        // var custom_attr = [
+        //   { key: 'isModified', value: true },
+        //   { key: 'isTransparent', value: true },
+        //   { key: 'exclusiveName', value: exclusiveName }
+        // ];
+        
+        // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('isCroped')) {
+        //   custom_attr.push({ key: 'isCroped', value: false });
+        // }
+        // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('ctop') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cleft') &&
+        //   this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cwidth') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cheight')) {
+        //   custom_attr.push({ key: 'ctop', value: null });
+        //   custom_attr.push({ key: 'cleft', value: null });
+        //   custom_attr.push({ key: 'cheight', value: null });
+        //   custom_attr.push({ key: 'cwidth', value: null });
+        // }
+        
+      }, options);
+
+    });
+  }
+
+  dataURLtoBlob(dataurl) {
+    let parts = dataurl.split(','), mime = parts[0].match(/:(.*?);/)[1]
+    if (parts[0].indexOf('base64') !== -1) {
+        let bstr = atob(parts[1]), n = bstr.length, u8arr = new Uint8Array(n)
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n)
+        }
+        return new Blob([u8arr], { type: mime })
+    } else {
+        let raw = decodeURIComponent(parts[1]);
+        return new Blob([raw], { type: mime })
+    }
+  }
+  generateUniqueName(image_string, type) {
+    var chars = "0123456789ABCDEFG5H1IJKLMNO4P71QRST1UVWX7TZabc8defghi9klmnop5qrs99tuvw0xyz";
+    var string_length = 15;
+    var uniqueId = '';
+    for (var i = 0; i < string_length; i++) {
+      var rnum = Math.floor(Math.random() * chars.length);
+      uniqueId += chars.substring(rnum, rnum + 1);
+    }
+    var name = uniqueId + '_' + image_string + '_' + Date.now() + '.' + type;
+    return name;
+  }
+
+  /*********** Convert Cropped image into blob url *************/
+  convertCropToBlob(result) {
+    var tmpsrc;
+    var server_src = this.canvas.getActiveObject().toJSON(custom_attributes).src || this.canvas.getActiveObject().toObject().src;
+    var isTransparent = this.canvas.getActiveObject().toJSON(custom_attributes).isTransparent;
+    var original_src = this.canvas.getActiveObject().toJSON(custom_attributes).original_src;
+
+    if (isTransparent) {
+      tmpsrc = server_src;
+    }
+    else {
+      tmpsrc = original_src || server_src;
+    }
+
+    if (result.is_payment_done && result.is_payment_done == true) {
+      this.login_response = this.dataService.getLocalStorageData('l_r');
+    }
+
+    if (result != false && result != undefined) {
+      var that = this;
+      
+      this.utils.cropImage(tmpsrc, result.top, result.left, result.height, result.width).then((res: any) => {
+        try {
+          var blob = that.dataURLtoBlob(res.base64);
+          var blobUrl = URL.createObjectURL(blob);
+          that.canvas.getActiveObject().src = blobUrl;
+          this.canvas.renderAll();
+
+          // var options = that.canvas.getActiveObject().toObject();
+          // delete options.filters;
+          // options.crossOrigin = true;
+
+          // that.canvas.getActiveObject().setSrc(blobUrl, () => {
+          //   that.canvas.getActiveObject().set({ height: result.height, width: result.width });
+          //   that.canvas.renderAll();
+          //   that.renderStackObjects();
+          //   if (isTransparent == true) {
+          //     var new_attr: any = [];
+          //     if (that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('isCroped') &&
+          //       that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('ctop') &&
+          //       that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cleft') &&
+          //       that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cheight') &&
+          //       that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cwidth')) {
+          //       new_attr.push({ key: 'isCroped', value: false })
+          //       new_attr.push({ key: 'ctop', value: null });
+          //       new_attr.push({ key: 'cleft', value: null });
+          //       new_attr.push({ key: 'cheight', value: null });
+          //       new_attr.push({ key: 'cwidth', value: null });
+          //     }
+          //     if (that.canvas.getActiveObject() && !that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('original_src')) {
+          //       new_attr.push({ key: 'original_src', value: tmpsrc });
+          //     }
+          //     new_attr.push({ key: 'isModified', value: true });
+          //     this.utils.pushCustomAttribute(this.canvas.getActiveObject().toJSON(custom_attributes), new_attr).then((allAttr: any) => {
+          //       // this.canvas.getActiveObject().toObject = (function (toObject) {
+          //       //   return function () {
+          //       //     return fabric.util.object.extend(toObject.call(this), allAttr);
+          //       //   };
+          //       // })(this.canvas.getActiveObject().toObject);
+          //       that.canvas.renderAll.bind(that.canvas);
+          //       let selectedObj = this.canvas.getActiveObject().toJSON(custom_attributes);
+          //       this.canvas.loadFromJSON(this.canvas.toJSON(this.custom_attributes), () => {
+          //         that.canvas._objects.forEach((o) => {
+          //           if (o.toJSON(custom_attributes).id == selectedObj.id) {
+          //             that.selectItemAfterAdded(o);
+          //           }
+          //         });
+          //       });
+          //       this.renderStackObjects();
+          //       that.isSubEditorOpen = false;
+          //       setTimeout(() => {
+          //         this.changeToolTipPosition(this.selected);
+          //       }, 200);
+          //     });
+          //   }
+          //   else {
+          //     var custom_attr = [
+          //       { key: 'ctop', value: result.top },
+          //       { key: 'cleft', value: result.left },
+          //       { key: 'cheight', value: result.height },
+          //       { key: 'cwidth', value: result.width },
+          //       { key: 'isCroped', value: true }
+          //     ];
+          //     if (!that.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('original_src')) {
+          //       custom_attr.push({ key: 'original_src', value: tmpsrc });
+          //     }
+          //     this.utils.pushCustomAttribute(that.canvas.getActiveObject().toJSON(custom_attributes), custom_attr).then((result: any) => {
+          //       // that.canvas.getActiveObject().toObject = (function (toObject) {
+          //       //   return function () {
+          //       //     return fabric.util.object.extend(toObject.call(this), result);
+          //       //   };
+          //       // })(that.canvas.getActiveObject().toObject);
+          //       that.canvas.renderAll.bind(that.canvas);
+          //       let selectedObj = this.canvas.getActiveObject().toJSON(custom_attributes);
+          //       this.canvas.loadFromJSON(this.canvas.toJSON(this.custom_attributes), () => {
+          //         that.canvas._objects.forEach((o) => {
+          //           if (o.toJSON(custom_attributes).id == selectedObj.id) {
+          //             that.selectItemAfterAdded(o);
+          //           }
+          //         });
+          //       });
+          //       this.renderStackObjects();
+          //       that.isSubEditorOpen = false;
+          //     });
+          //   }
+          // }, options);
+
+        } catch (error) {
+          this.isSubEditorOpen = false;
+        }
+      }, err => {
+        console.log(err);
+        this.isSubEditorOpen = false;
+      });
+    }
+    else {
+      this.isSubEditorOpen = false;
+    }
+
   }
 
   /********** Image Effects ***********/
@@ -9677,70 +9970,76 @@ export class AppComponent implements OnInit {
     this.isFromInput = true;
     let image = this.canvas.getActiveObject();
 
-    if(filterType == 'blend') {
-      value = (event) ? [this.props.blendColor, this.props.blendMode, parseInt(event.target.value)] : value;
+    if(value == null) {
+      this.getfilter();
     }
     else {
-      value = (event) ? parseInt(event.target.value) : value;
-    }
 
-    if (image instanceof fabric.Image) {
-
-      const filterIndex = {
-        'brightness': fabric.Image.filters.Brightness,
-        'contrast': fabric.Image.filters.Contrast,
-        'saturation': fabric.Image.filters.Saturation,
-        'blur': fabric.Image.filters.Blur,
-        'blend': fabric.Image.filters.BlendColor,
-      };
-
-      function updateOrAddFilter(image, filterType, options) {
-
-        const FilterConstructor = filterIndex[filterType];
-        const existingFilter = image.filters.find(f => f instanceof FilterConstructor);
-
-        if (existingFilter) {
-          for (let prop in options) {
-            existingFilter[prop] = options[prop];
+      if(filterType == 'blend') {
+        value = (event) ? [this.props.blendColor, this.props.blendMode, parseInt(event.target.value)] : value;
+      }
+      else {
+        value = (event) ? parseInt(event.target.value) : value;
+      }
+  
+      if (image instanceof fabric.Image) {
+  
+        const filterIndex = {
+          'brightness': fabric.Image.filters.Brightness,
+          'contrast': fabric.Image.filters.Contrast,
+          'saturation': fabric.Image.filters.Saturation,
+          'blur': fabric.Image.filters.Blur,
+          'blend': fabric.Image.filters.BlendColor,
+        };
+  
+        function updateOrAddFilter(image, filterType, options) {
+  
+          const FilterConstructor = filterIndex[filterType];
+          const existingFilter = image.filters.find(f => f instanceof FilterConstructor);
+  
+          if (existingFilter) {
+            for (let prop in options) {
+              existingFilter[prop] = options[prop];
+            }
+          }
+          else {
+            const newFilter = new FilterConstructor(options);
+            image.filters.push(newFilter);
           }
         }
-        else {
-          const newFilter = new FilterConstructor(options);
-          image.filters.push(newFilter);
+  
+        switch (filterType) {
+          case 'brightness':
+            updateOrAddFilter(image, 'brightness', { brightness: this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0) / 100 });
+            // this.props.brightness = value;
+            this.props.brightness = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
+            break;
+  
+          case 'contrast':
+            updateOrAddFilter(image, 'contrast', { contrast: this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0) / 100 });
+            this.props.contrast = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
+            break;
+  
+          case 'saturation':
+            updateOrAddFilter(image, 'saturation', { saturation: this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0) / 100 });
+            this.props.saturation = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
+            break;
+  
+          case 'blur':
+            updateOrAddFilter(image, 'blur', { blur: this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0) / 100 });
+            this.props.blur = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
+            break;
+        
+          case 'blend':
+            updateOrAddFilter(image, 'blend', {color: value[0], mode: value[1],alpha: (this.checkLimitBeforeApplyForInputSlider(Math.round(value[2]), 100, 1) / 100)})
+            this.props.blendColor = value[0];
+            this.props.blendMode = value[1];
+            this.props.blendAlpha = this.checkLimitBeforeApplyForInputSlider(Math.round(value[2]), 100, 1);
         }
+  
+        image.applyFilters();
+        this.canvas.renderAll();
       }
-
-      switch (filterType) {
-        case 'brightness':
-          updateOrAddFilter(image, 'brightness', { brightness: value / 100 });
-          // this.props.brightness = value;
-          this.props.brightness = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
-          break;
-
-        case 'contrast':
-          updateOrAddFilter(image, 'contrast', { contrast: value / 100 });
-          this.props.contrast = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
-          break;
-
-        case 'saturation':
-          updateOrAddFilter(image, 'saturation', { saturation: value / 100 });
-          this.props.saturation = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
-          break;
-
-        case 'blur':
-          updateOrAddFilter(image, 'blur', { blur: value / 100 });
-          this.props.blur = this.checkLimitBeforeApplyForInputSlider(Math.round(value), 100, 0);
-          break;
-      
-        case 'blend':
-          updateOrAddFilter(image, 'blend', {color: value[0], mode: value[1],alpha: (value[2] / 100)})
-          this.props.blendColor = value[0];
-          this.props.blendMode = value[1];
-          this.props.blendAlpha = this.checkLimitBeforeApplyForInputSlider(Math.round(value[2]), 100, 0);
-      }
-
-      image.applyFilters();
-      this.canvas.renderAll();
     }
 
   }

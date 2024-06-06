@@ -674,8 +674,11 @@ img {
       user-select: none;
       margin: 0 auto !important;
       transition: .5s;
-      top: 30px;
+}
+
+#canvas-wrapper .canvas-container {
       background-color: white;
+      top: 30px !important;
 }
 
 .shadow {
@@ -2433,6 +2436,44 @@ ul {
       left: 0;
       height: 100%;
       width: 100%;
+}
+
+.cust-icon-button {
+      border: 1px solid transparent;
+      padding: 8px 16px !important;
+      border-radius: 4px;
+      width: 100%;
+}
+
+.cust-icon-button svg {
+      height: 15px;
+      vertical-align: middle;
+      width: 15px;
+      margin-right: 9px;
+}
+
+.cust-icon-button span {
+      color: #fff;
+      font-size: 13px;
+      vertical-align: middle;
+}
+
+.custom-panel .mat-expansion-panel-body {
+      padding: 0 10px !important;
+      color: #fff !important;
+      background-color: #374168;
+}
+
+.pull-left {
+      float: left;
+}
+
+.pull-right {
+      float: right;
+}
+
+.custom-tab .mat-tab-labels, .h-100pr, .overwrite-dropdown .mat-select-trigger {
+      height: 100% !important;
 }
 
 @media only screen and (max-width: 1340px) {

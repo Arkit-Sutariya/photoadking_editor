@@ -19,6 +19,7 @@
     "@angular/platform-browser": "^16.1.0",
     "@angular/platform-browser-dynamic": "^16.1.0",
     "@angular/router": "^16.1.0",
+    "@ng-bootstrap/ng-bootstrap": "^15.0.0",
     "bootstrap": "^5.3.3",
     "fabric": "^5.3.0",
     "icropper": "^1.0.5",

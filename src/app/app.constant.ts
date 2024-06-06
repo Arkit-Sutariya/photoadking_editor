@@ -1105,3 +1105,22 @@ export const ERROR = Object.freeze({
     ERASE_IMAGE: "Please remove any stock image or 3D object to erase image",
     SHARE_CANVAS_BLANK: "Blank card can't be share."
 });
+
+export const KEYCODES = Object.freeze({
+    Z: 90,
+    Y: 89,
+    SHIFT: 16,
+    BACKSPACE: 8,
+    DEL: 46,
+    PLUS: 187,
+    MINUS: 189,
+    NUMPLUS: 107,
+    NUMMINUS: 109
+});
+
+export const maxFileSize = 5;
+
+export const upload_limit_exceed = Object.freeze({
+    title: 'Uploading limit exceeded',
+    content: 'You have reached the maximum image upload limit. Please upgrade to enjoy unlimited plan.'
+});
