@@ -9351,9 +9351,10 @@ export class AppComponent implements OnInit {
       var exclusiveName: any = '';
       exclusiveName = this.generateUniqueName('transparent_image', 'png');
       this.canvas.getActiveObject().setSrc(blobUrl, () => {
-
-        this.canvas.getActiveObject().height = this.canvas.getActiveObject().cheight;
-        this.canvas.getActiveObject().width = this.canvas.getActiveObject().cwidth;
+        if(this.canvas.getActiveObject().isCroped) {
+          this.canvas.getActiveObject().height = this.canvas.getActiveObject().cheight;
+          this.canvas.getActiveObject().width = this.canvas.getActiveObject().cwidth;
+        }
         this.canvas.renderAll();
         // var custom_attr = [
         //   { key: 'isModified', value: true },
