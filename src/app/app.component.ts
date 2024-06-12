@@ -9118,6 +9118,7 @@ export class AppComponent implements OnInit {
           scaleY: scaleY,
           id: targetObject.id,
           cornerSize: 15,
+          borderColor: '#00C3F9',
           cornerColor: '#00C3F9',
           cornerStyle: 'circle',
           borderScaleFactor: 2,
