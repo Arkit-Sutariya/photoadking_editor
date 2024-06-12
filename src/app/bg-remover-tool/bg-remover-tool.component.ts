@@ -830,8 +830,7 @@ export class BgRemoverToolComponent implements OnInit, OnDestroy {
         that.canvas.setWidth(Math.round(image.width * scalefactor));
         that.imageHeight = Math.round(image.height * scalefactor);
         that.imageWidth = Math.round(image.width * scalefactor);
-      } 
-      else {
+      } else {
         that.canvas.setHeight(image.height);
         that.canvas.setWidth(image.width);
         that.imageHeight = image.height;
@@ -942,7 +941,7 @@ export class BgRemoverToolComponent implements OnInit, OnDestroy {
           $('#sample-container').css('display', 'block');
         }
         if (that.isEraser) {
-          
+          // that.mEraser.set({ top: -200, left: -200 }).setCoords();
           var isExist = false;
           this.canvas.forEachObject(element => {
             if (element.type == 'circle') {
@@ -967,6 +966,7 @@ export class BgRemoverToolComponent implements OnInit, OnDestroy {
         }
       },
       'mouse:up': (evt) => {
+        // console.log(this.isAuto,this.isFlood);
         if (this.isErasing) {
           this.isErasing = false;
         }
@@ -1040,20 +1040,23 @@ export class BgRemoverToolComponent implements OnInit, OnDestroy {
           });
         }
         if (this.isFlood && !this.isEraser && !this.isErasing) {
+          // console.log(this.imgData,"-- imgData",this.canvas.getWidth(),this.canvas.getHeight());
           var x = evt.e.pageX - that.offsetX;
           var y = evt.e.pageY - that.offsetY;
           var newColor = { r: 0, g: 0, b: 0, a: 0 };
           this.floodFill(this.imgData, newColor, x, y);
+
+
           this.getDataUrlFromData(this.imgData, this.canvas.getWidth(), this.canvas.getHeight()).then((result: any) => {
+            // console.log(result,"- result");
+
             this.canvas.setBackgroundImage(result, () => {
-              
               this.canvas.renderAll();
               this._config.disableUndo = false;
               this._config.disableRedo = false;
               this.updateCanvasState();
             }, {
-              // crossOrigin: 'anonymous',
-              width: this.canvas.getWidth() / this.zoomLevel,   // resize image in zoomout mode so set zoom level to maintain original viewport size
+              width: this.canvas.getWidth() / this.zoomLevel,
               height: this.canvas.getHeight() / this.zoomLevel
             });
           });

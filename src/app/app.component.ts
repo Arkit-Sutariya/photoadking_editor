@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   public gridH: any;
   public gridV: any;
   public processKeys: any;
-  public selected: boolean = false;
+  public selected: any = false;
   isBasicTabActive:boolean = true;
   public IsPropActive: boolean = true;
   public is_layer_active: boolean = false;
@@ -73,6 +73,7 @@ export class AppComponent implements OnInit {
   isLine:boolean = false;
   isSvgEle:boolean = false;
   isSvgSticker:boolean = false;
+  isSvgIcon: boolean = false;
   isFormatPainterEnable:boolean = false;
   rangeMoveTimeout: any;
   formatPainterClipboard: any = {};
@@ -88,7 +89,7 @@ export class AppComponent implements OnInit {
   isGroup:boolean = false;
   public copiedObject: any;
   isFromInput:boolean = false;
-  activeTabID:number = 1;
+  activeTabID:any = 1;
   // stickerCatalog_List: any = ['Flowchart', 'Line', 'Circle', '3D', 'Shield', 'Rectangle', 'Star', 'Heart', 'Oval', 'Square', 'Triangle', 'Stamp Border', 'SemiCircle', 'Arrow'];
   stickerCatalog_List: any = [];
   stickerContent_List: any = [];
@@ -267,6 +268,20 @@ export class AppComponent implements OnInit {
   bgCropImage: fabric.Object;
   snapAngles: number[] = [0, 45, 90, 135, 180, 225, 270, 315, 360];
   snapThreshold: number = 5;
+  isFromReplace: boolean = false;
+  clonedObject: any = undefined;
+  _config: any = {
+    canvasState: [],
+    currentStateIndex: -1,
+    undoStatus: false,
+    redoStatus: false,
+    disableUndo: true,
+    disableRedo: true,
+    undoFinishedStatus: 1,
+    redoFinishedStatus: 1
+  };
+  isUploadable: any = false;
+  isSavedInHistory: any = false;
 
   // Background Variable
   bg_sub_tab_shown: any = true;
@@ -3646,6 +3661,7 @@ export class AppComponent implements OnInit {
   chart_table_color: any = [];
   //this variable is use for check all tool objects are loaded or not
   tool_render_items: any = 0;
+  sel_stkr_catalog: any;
 
   ngOnDestroy() {
     document.removeEventListener("keydown", this.processKeys, false);
@@ -3722,6 +3738,7 @@ export class AppComponent implements OnInit {
               cornerSize: 15,
               cornerColor: '#00C3F9',
               cornerStyle: 'circle',
+              borderScaleFactor: 2,
               transparentCorners: false,
             });
 
@@ -3758,7 +3775,7 @@ export class AppComponent implements OnInit {
               clonedObj.class = activeObject.class;
               clonedObj.isLocked = activeObject.isLocked;
 
-              if(activeObject.element_type == "shapeSticker" && clonedObj._objects) {
+              if((activeObject.element_type == "shapeSticker" || activeObject.element_type == 'iconSticker') && clonedObj._objects) {
 
                 clonedObj._objects.forEach((subObj, index) => {
                   if (activeObject._objects && activeObject._objects[index]) {
@@ -3870,7 +3887,8 @@ export class AppComponent implements OnInit {
         this.isRect = (activeObject.type === "rect") ? true : false;
         this.isLine = (activeObject.type === "line") ? true : false;
         this.isSvgEle = (activeObject.element_type === 'shapeSticker') ? true : false;
-        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.type === 'image' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') ? true : false;
+        this.isSvgIcon = (activeObject.element_type == 'iconSticker') ? true : false;
+        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.type === 'image' || activeObject.element_type === 'collectionImage') ? true : false;
         
         if(activeObject._objects && !activeObject.element_type) {
           activeObject.set({
@@ -3878,6 +3896,7 @@ export class AppComponent implements OnInit {
             cornerSize: 15,
             cornerColor: '#00C3F9',
             cornerStyle: 'circle',
+            borderScaleFactor: 2,
             transparentCorners: false,
             _controlsVisibility: {
               tl: true,
@@ -3897,6 +3916,7 @@ export class AppComponent implements OnInit {
               cornerSize: 15,
               cornerColor: '#00C3F9',
               cornerStyle: 'circle',
+              borderScaleFactor: 2,
               transparentCorners: false,
               _controlsVisibility: {
                 tl: false,
@@ -3927,6 +3947,7 @@ export class AppComponent implements OnInit {
         this.activeStrokeWidth = activeObject.strokeWidth;
         this.isReplaceShow = (activeObject._objects && !activeObject.element_type) ? false : true;
         this.layerSelected = activeObject;
+        this.strokeColor = activeObject.stroke;
 
         if(this.isCircle || this.isRect) {
           this.shadowBlur = activeObject.shadow.blur;
@@ -3937,7 +3958,7 @@ export class AppComponent implements OnInit {
         
         this.changeToolTipPosition(activeObject);
         
-        if(activeObject.element_type === 'shapeSticker') {
+        if(activeObject.element_type === 'shapeSticker' || activeObject.element_type == 'iconSticker') {
           
           this.applySelectionOnObj();
           this.whatEleScale = this.utils.getObjectMaxSize(activeObject.height, activeObject.width, this.zoomHeightRef, this.zoomWidthRef);
@@ -3998,7 +4019,6 @@ export class AppComponent implements OnInit {
           //     this.props.blendAlpha = (filter.alpha * 100).toFixed(0);
           //   }
 
-          //   console.log(filter.__proto__.type,"-- created");
           //   switch (filter.__proto__.type) {
           //     case 'Sepia':
           //       this.props.sepia = true;
@@ -4131,7 +4151,8 @@ export class AppComponent implements OnInit {
         this.isRect = (activeObject.type === "rect") ? true : false;
         this.isLine = (activeObject.type === "line") ? true : false;
         this.isSvgEle = (activeObject.element_type === 'shapeSticker') ? true : false;
-        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.type === 'image' || activeObject.element_type === 'collectionImage' || activeObject.element_type === 'iconSticker') ? true : false;
+        this.isSvgIcon = (activeObject.element_type == 'iconSticker') ? true : false;
+        this.isSvgSticker = (activeObject.element_type === 'svgSticker' || activeObject.element_type === 'stockphotos' || activeObject.type === 'image' || activeObject.element_type === 'collectionImage') ? true : false;
 
         if(activeObject._objects && !activeObject.element_type) {
           this.isGroup = true;
@@ -4150,9 +4171,10 @@ export class AppComponent implements OnInit {
         this.isReplaceShow = (activeObject._objects && !activeObject.element_type) ? false : true;
         this.isReplaceMode = false;
         this.layerSelected = activeObject;
+        this.strokeColor = activeObject.stroke;
         this.changeToolTipPosition(activeObject);
 
-        if(activeObject.element_type === 'shapeSticker') {
+        if(activeObject.element_type === 'shapeSticker' || activeObject.element_type == 'iconSticker') {
           this.applySelectionOnObj();
           this.whatEleScale = this.utils.getObjectMaxSize(activeObject.height, activeObject.width, this.zoomHeightRef, this.zoomWidthRef);
           this.whatEleHeight = activeObject.height;
@@ -4208,7 +4230,6 @@ export class AppComponent implements OnInit {
           //     this.props.blendMode = filter.mode;
           //     this.props.blendAlpha = (filter.alpha * 100).toFixed(0);
           //   }
-          //   console.log(filter.__proto__.type,"-- updated");
           //   switch (filter.__proto__.type) {
               
           //     case 'Sepia':
@@ -4648,7 +4669,7 @@ export class AppComponent implements OnInit {
           else
               tmpsrc = original_src || server_src;
 
-          console.log(acobj);
+              
           const imageDetails = {
             src: tmpsrc,
             imgWidth: acobj.width,
@@ -4662,10 +4683,8 @@ export class AppComponent implements OnInit {
           }
           
           this.utils.cropImage(imageDetails).then((res: any) => {
-            // // console.log(res.base64);
             // var blob = this.dataURLtoBlob(res.base64);
             // var blobUrl = URL.createObjectURL(blob);
-            // // console.log(blobUrl);
             // var file = this.dataService.blobToFile(blob, 'tmp.png');
           }) */
 
@@ -4677,7 +4696,9 @@ export class AppComponent implements OnInit {
       'mouse:up': (e) => {
         // this.isReplaceShow = true;
         const activeObject = this.canvas.getActiveObject();
-        this.changeToolTipPosition(activeObject);
+        if(activeObject && !activeObject._objects && activeObject.element_type) {
+          this.changeToolTipPosition(activeObject);
+        }
         this.removeGrids();
       },
       'mouse:over': async (e) => {
@@ -4885,9 +4906,7 @@ export class AppComponent implements OnInit {
           // }
           
           // this.listener.crop(this.cropSource);
-          // console.log(this.listener,"-- listener");
           this.listener.crop();
-          // console.log(this.listener.scaling());
 
           /* const editorContainer : any = document.querySelector('.editor-container');
           const canvasContainer : any = document.querySelector('.canvas-container');
@@ -4896,12 +4915,7 @@ export class AppComponent implements OnInit {
           const editorWidth = editorContainer.offsetWidth;
 
           // Get the margin-right of the canvas-container
-          const canvasMarginRight = window.getComputedStyle(canvasContainer).marginRight;
-
-          // Log the values to the console
-          console.log('Editor Height:', editorHeight);
-          console.log('Editor Width:', editorWidth);
-          console.log('Canvas Margin Right:', canvasMarginRight); */
+          const canvasMarginRight = window.getComputedStyle(canvasContainer).marginRight;*/
         }
 
         /*************** crop image ************/
@@ -4935,7 +4949,6 @@ export class AppComponent implements OnInit {
   }
 
   handleEditorClick(event: MouseEvent) {
-    // console.log(event,"click");
     // if(this.listener && this.isCropingEnable){
           
     //   this.listener.confirm();
@@ -4953,22 +4966,16 @@ export class AppComponent implements OnInit {
     // }
 
     // const target = event.target as HTMLElement;
-    // (this.isCropingEnable) ? console.log(target,'outside click') : '';
-    (this.isCropingEnable) ? console.log(this.listener) : '';
 
-    // console.log(target,"-- target");
 
     // // Check if the clicked element is a canvas or if the canvas contains the clicked element
     // if (target.tagName === 'CANVAS' || target.closest('canvas')) {
-    //   console.log('Canvas was clicked, ignoring.');
     //   return; // Do not proceed further if the click is from a canvas
     // }
     // else {
     //   if(target.className == 'ic-corner-ctrl') {
-    //     console.log('ic-corner');
     //   }
     //   else {
-    //     console.log('other');
     //   }
     // }
 
@@ -4976,7 +4983,6 @@ export class AppComponent implements OnInit {
     if(this.isCropingEnable) {
       if (target.className.includes('ic')) {
         if (this.isCropingEnable) {
-          console.log("click on ic");
         }
       } 
       else {
@@ -4998,19 +5004,15 @@ export class AppComponent implements OnInit {
           }
         }
         else {
-          console.log("Do-nothing");
         }
       }
     }
     else {
-      console.log("croping not enable");
     }
 
   }
   stopPropagation(event: MouseEvent): void {
     let target = event.target as HTMLElement;
-    // console.log('click on canvas and ic:', target.className);
-    // (this.isCropingEnable) ? console.log('click on canvas and ic:', event) : '';
     event.stopPropagation();
   }
 
@@ -5060,14 +5062,18 @@ export class AppComponent implements OnInit {
     } 
     else if (uploadFromType == "shapeSticker") {
       if (this.isReplaceMode == true) {
-
-        if (this.activeTab.tabId != add_elements_tab_index + 1) {
+        // console.log(this.isShapeStickerActive,"-- before");
+        if (this.activeTabID != add_elements_tab_index + 1) {
+          // console.log("if 1");
           this.navTab(this.tabs[add_elements_tab_index], add_elements_tab_index, true);
         } 
         else {
+          // console.log("else");
           this.navTab(this.tabs[add_elements_tab_index], add_elements_tab_index);
         }
+        // console.log(this.isShapeStickerActive,"-- after");
         if (!this.isShapeStickerActive) {
+          // console.log("if 3");
           this.activateStickerSubTab('shapes', true);
         }
       } 
@@ -5105,11 +5111,11 @@ export class AppComponent implements OnInit {
     
   }
   navTab(tab, i, isOpenReplace: boolean = false, isStock: boolean = false) {
-    if (this.activeTab.tabId != 2) {
+    if (this.activeTabID != 2) {
       this.stickers_search_query = "";
       this.tmp_stickers_search_query = "";
     }
-    if (this.activeTab.tabId != 1) {
+    if (this.activeTabID != 1) {
       this.templates_search_query = "";
       this.tmp_templates_search_query = "";
     }
@@ -5133,23 +5139,24 @@ export class AppComponent implements OnInit {
       }
     }
     const activeObject = this.canvas.getActiveObject();
-
+    // console.log(tab.tabId,"-- tav id");
     switch (tab.tabId) {
       case 2:
-        
         this.activeTabID = tab.tabId;
-        if (this.activeTab.tabId != tab.tabId) {
-
+        if (this.activeTabID != tab.tabId) {
+          // console.log("if 1");
           this.activeTab = tab;
           this.shape = true;
           this.buttons = false;
           this.stickers = false;
 
           if (activeObject && activeObject.element_type == "iconSticker" && this.isReplaceMode) {
+            // console.log(" if if 1");
             this.buttons = true;
             this.shape = false;
           }
           if (activeObject && activeObject.element_type == "svgSticker" && this.isReplaceMode) {
+            // console.log("if fif 2");
             this.stickers = true;
             this.shape = false;
           }
@@ -5157,10 +5164,10 @@ export class AppComponent implements OnInit {
           this.activeStickers(isOpenReplace);
         }
         else {
-
           if (isOpenReplace) {
+            // console.log("else");
             this.activeStickers(isOpenReplace);
-          }
+        }
         }
         break;
 
@@ -5185,6 +5192,7 @@ export class AppComponent implements OnInit {
     this.activateAddImageSubTab('stockPhotos');
   }
   activeBasicShape() {
+    this.isBasicShapes = true;
     this.isBasicTabActive = true;
     this.isShapeStickerActive = false;
     this.stkr_catalog_id = null;
@@ -6304,7 +6312,7 @@ export class AppComponent implements OnInit {
   applySelectionOnObj() {
     
     let activeObject = this.canvas.getActiveObject();
-    if (activeObject.element_type === 'shapeSticker') {
+    if (activeObject.element_type === 'shapeSticker' || activeObject.element_type == 'iconSticker') {
 
       this.uniqueArray = [];
       this.referenceArray = [];
@@ -6536,9 +6544,10 @@ export class AppComponent implements OnInit {
     option['element_type'] = "basicShape";
     
     let scale;
+    this.strokeColor = (shape.stroke) ? shape.stroke : '#ffffff';
     this.activeStrokeWidth = (shape.strokeWidth) ? shape.strokeWidth : 0;
     this.activeBorderRadius = (shape.radius) ? shape.radius : (shape.rx) ? shape.rx : 0;
-    
+
     switch (shape.type) {
 
       case 'Circle':
@@ -6553,6 +6562,7 @@ export class AppComponent implements OnInit {
             const circle = new fabric.Circle({
               fill: shape.fill,
               borderColor: '#00C3F9',
+              borderScaleFactor: 2,
               centeredScaling: false,
               centeredRotation: true,
               stroke: shape.stroke,
@@ -6627,6 +6637,7 @@ export class AppComponent implements OnInit {
             id: this.generateUniqueId(),
             // Extra properties
             borderColor: '#00C3F9',
+            borderScaleFactor: 2,
             // cornerColor: '#000000',
             centeredScaling: false,
             centeredRotation: true,
@@ -6646,7 +6657,7 @@ export class AppComponent implements OnInit {
             lockScalingFlip: true,
             isLocked: false,
             visible: true,
-            stroke: '#0F1934',
+            stroke: shape.stroke,
             strokeDashArray: shape.strokeDashArray,
             clipTo: null,
             excludeFromExport: false,
@@ -6692,6 +6703,7 @@ export class AppComponent implements OnInit {
             const rect = new fabric.Rect({
               fill: shape.fill,
               borderColor: '#00C3F9',
+              borderScaleFactor: 2,
               centeredScaling: false,
               centeredRotation: true,
               stroke: shape.stroke,
@@ -6764,6 +6776,7 @@ export class AppComponent implements OnInit {
             id: this.generateUniqueId(),
             // Extra properties
             borderColor: '#00C3F9',
+            borderScaleFactor: 2,
             // cornerColor: '#000000',
             centeredScaling: false,
             centeredRotation: true,
@@ -6829,6 +6842,7 @@ export class AppComponent implements OnInit {
           if (activeObjectIndex !== -1) {
             const line = new fabric.Line(shape.coOrds, {
               borderColor: '#00C3F9',
+              borderScaleFactor: 2,
               centeredScaling: false,
               centeredRotation: true,
               cornerSize: 15,
@@ -6889,6 +6903,7 @@ export class AppComponent implements OnInit {
             left: this.canvas.width / 2 - 175,
             top: this.canvas.height / 2,
             borderColor: '#00C3F9',
+            borderScaleFactor: 2,
             id: this.generateUniqueId(),
             // cornerColor: '#000000',
             centeredScaling: false,
@@ -7080,9 +7095,11 @@ export class AppComponent implements OnInit {
           id: this.generateUniqueId(),
           centeredScaling: false,
           centeredRotation: true,
+          borderColor: '#00C3F9',
           cornerSize: 15,
           cornerColor: '#00C3F9',
           cornerStyle: 'circle',
+          borderScaleFactor: 2,
           isLocked: activeObject.isLocked,
           transparentCorners: false,
           element_type: activeObject.element_type,
@@ -7096,7 +7113,7 @@ export class AppComponent implements OnInit {
           cloned._cropSource = activeObject._cropSource;
         }
 
-        if(activeObject.element_type === 'shapeSticker' && cloned._objects) {
+        if((activeObject.element_type === 'shapeSticker' || activeObject.element_type == 'iconSticker') && cloned._objects ) {
           cloned.class = activeObject.class,
           
           cloned._objects.forEach((subObj, index) => {
@@ -7129,7 +7146,6 @@ export class AppComponent implements OnInit {
       this.canvasreveseobjectListe = [...this.canvasObjectList].reverse();
     }
     else if(activeObject && this.isGroup) {
-      
       activeObject.clone((cloned) => {
         this.canvas.discardActiveObject();
   
@@ -7191,13 +7207,15 @@ export class AppComponent implements OnInit {
             
           });
           
-          if(activeObject.element_type === 'shapeSticker') {
+          if(cloned._objects._objects) {
             cloned.forEachObject((groupObj, groupIndex) => {
-              groupObj._objects.forEach((subObj, subIndex) => {
-                if (activeObject._objects[groupIndex]._objects && activeObject._objects[groupIndex]._objects[subIndex]) {
-                  subObj.id = activeObject._objects[groupIndex]._objects[subIndex].id;
-                }
-              });
+              if (groupObj.element_type === 'shapeSticker' || groupObj.element_type == 'iconSticker') {
+                groupObj._objects.forEach((subObj, subIndex) => {
+                  if (activeObject._objects[groupIndex]._objects && activeObject._objects[groupIndex]._objects[subIndex]) {
+                    subObj.id = activeObject._objects[groupIndex]._objects[subIndex].id;
+                  }
+                });
+              }
             });
           }
 
@@ -7328,7 +7346,6 @@ export class AppComponent implements OnInit {
         else {
           this.selectedObjDeg = parseInt(event.target.value);
         }
-        console.log(this.selectedObjDeg,"-- this.selectedObjDeg --",typeof(this.selectedObjDeg));
         activeObject.set('angle', this.selectedObjDeg);
         break;
 
@@ -8433,6 +8450,46 @@ export class AppComponent implements OnInit {
     });
     this.canvas.renderAll();
   }
+  updateCanvasState() {
+    if (this.clonedObject && this.selected) {
+
+      const copyObject = JSON.parse(JSON.stringify(this.clonedObject));
+      if (copyObject.type == 'group') {
+        this.clonedObject.top = this.selected.top;
+        this.clonedObject.left = this.selected.left;
+      }
+      else {
+        if (copyObject.id == this.selected.id) {
+          this.clonedObject.top = this.selected.top;
+          this.clonedObject.left = this.selected.left;
+        }
+      }
+    }
+
+    if ((this._config.undoStatus == false && this._config.redoStatus == false)) {
+      fabric.Object.NUM_FRACTION_DIGITS = 10;
+      var jsonData = this.canvas.toJSON(custom_attributes);
+      var canvasAsJson = JSON.stringify(jsonData);
+      if (this._config.currentStateIndex < this._config.canvasState.length - 1) {
+        var indexToBeInserted = this._config.currentStateIndex + 1;
+        this._config.canvasState[indexToBeInserted] = canvasAsJson;
+        var numberOfElementsToRetain = indexToBeInserted + 1;
+        this._config.canvasState = this._config.canvasState.splice(0, numberOfElementsToRetain);
+        this.isUploadable = true;
+      } 
+      else {
+        this._config.canvasState.push(canvasAsJson);
+        if (this.isSavedInHistory == true)
+          this.isUploadable = false;
+      }
+      this._config.currentStateIndex = this._config.canvasState.length - 1;
+      if ((this._config.currentStateIndex == this._config.canvasState.length - 1) && this._config.currentStateIndex != -1) {
+        this._config.disableRedo = true;
+      }
+    }
+    else {
+    }
+  }
 
   /********** show replace tooltip ***********/
   changeToolTipPosition(e) {
@@ -8589,30 +8646,7 @@ export class AppComponent implements OnInit {
 
   /********** For SVG Element ***********/
   activateStickerSubTab(key, isOpenReplace: boolean = false) {
-    // this.isBasicShapes = false;
-    /* switch (key) {
-      case 'shapes':
-        this.shape = true;
-        this.stickers = false;
-        this.buttons = false;
-        this.isSvgEle = false;
-        this.isSvgSticker = false;
-        this.activeStickers();
-        break;
-      case 'stickers':
-        this.shape = false;
-        this.stickers = true;
-        this.buttons = false;
-        this.activeStickers();
-        break;
-      case 'buttons':
-        this.shape = false;
-        this.stickers = false;
-        this.buttons = true;
-        this.activeStickers();
-        break;
-    } */
-
+    
     switch (key) {
       case 'shapes':
 
@@ -8635,6 +8669,7 @@ export class AppComponent implements OnInit {
         this.isShapeStickerActive = false;
         this.setCategoryInCenter();
         if (!this.stickers) {
+          this.isBasicShapes = false;
           this.stickers_search_query = "";
           this.stickers = true;
           this.shape = false;
@@ -8647,6 +8682,7 @@ export class AppComponent implements OnInit {
         this.isShapeStickerActive = false;
         this.setCategoryInCenter();
         if (!this.buttons) {
+          this.isBasicShapes = false;
           this.stickers_search_query = "";
           this.buttons = true;
           this.shape = false;
@@ -8677,8 +8713,9 @@ export class AppComponent implements OnInit {
 
     let payLoad: any = {};
     this.stickerCatalog_List = [];
+    // console.log(this.shape,"-- shape --",this.stickers,"-- stickers --",this.buttons,"-- stickers 3")
     if (this.shape) {
-
+      this.isShapeStickerActive = true;
       payLoad = {
         "sub_category_id": HOST.STKR_SHAPE_SUB_CAT_ID,
         "catalog_id": 0,
@@ -8687,7 +8724,7 @@ export class AppComponent implements OnInit {
       }
     }
     else if (this.stickers) {
-
+      this.isShapeStickerActive = false;
       payLoad = {
         "sub_category_id": HOST.STKR_SUB_CAT_ID,
         "catalog_id": 0,
@@ -8696,7 +8733,7 @@ export class AppComponent implements OnInit {
       }
     }
     else {
-
+      this.isShapeStickerActive = false;
       payLoad = {
         "sub_category_id": HOST.STKR_BUTTON_SUB_CAT_ID,
         "catalog_id": 0,
@@ -8704,7 +8741,7 @@ export class AppComponent implements OnInit {
         "item_count": 50,
       }
     }
-    
+
     if(this.activeTabID === 2) {
       
       this.dataService.postData("getNormalCatalogsBySubCategoryId", payLoad, {
@@ -8713,20 +8750,23 @@ export class AppComponent implements OnInit {
         }
       }).subscribe((res) => {
         this.stickerCatalog_List = res['data']['result']; 
-        if(this.canvas.getActiveObject() && this.canvas.getActiveObject().element_type === "basicShape") {
-          this.isBasicShapes = true;
-          this.isBasicTabActive = true
+        
+        if (this.stickers || this.buttons) {
+          // console.log("if 1");
+          this.isBasicTabActive = false;
+          this.isShapeStickerActive = false;
+          this.stkr_catalog_id = this.stickerCatalog_List[0].catalog_id;
         }
-        else {
-          
-          if(this.buttons || this.stickers) {
-            
-            this.stickerCatalogChanged(this.stickerCatalog_List[0], true);
-          }
-          else if(this.stickers) {
-  
-            this.stickerCatalogChanged(this.stickerCatalog_List[0],true);
-          }
+
+        this.stickerContent_List = this.stickerCatalog_List[0];
+        this.stickerContent_List.content_list.forEach(element => {
+            element.is_free = 1;
+        });
+        // console.log(isOpenReplace,"-- isOpenReplace");
+        if (isOpenReplace) {
+          // console.log("if 3");
+          this.stickerCatalogChanged(this.stickerCatalog_List[0], true);
+          this.setCategoryInCenter();
         }
 
       });
@@ -8779,74 +8819,150 @@ export class AppComponent implements OnInit {
     }
     else if(this.activeTabID === 4) {
       // this.isBgImg = true;
-      this.activeTab.tabId = 4;
+      // this.activeTab.tabId = 4;
     }
     else if(this.activeTabID === 8) {
       // this.isBgImg = false;
-      this.activeTab.tabId = 8;
+      // this.activeTab.tabId = 8;
     }
   }
 
   /********** Load sticker from database ***********/
   stickerCatalogChanged(catalog_detail, isOpenReplace: boolean = false) {
-    this.isBasicShapes = false;
+    this.login_response = this.dataService.getLocalStorageData('l_r');
+    this.sticker_sub_tab_shown = true;
+    this.stickers_pg_count = 1;
+    this.setCategoryInCenter();
+    if (this.stkr_catalog_id != catalog_detail.catalog_id) {
+      this.stkr_catalog_id = catalog_detail.catalog_id;
+      this.sel_stkr_catalog = catalog_detail;
+      this.stickerContent_List = [];
+      this.isBasicTabActive = false;
+      this.isSvgEle = true;
+      this.isBasicShapes = false;
+
+      let payLoad: any = {};
+      if (this.shape) {
+  
+        payLoad = {
+          "catalog_id": catalog_detail.catalog_id,
+          "page": 1,
+          "item_count": 100,
+          "is_free": catalog_detail.is_free
+        }
+      }
+      else if (this.stickers) {
+  
+        payLoad = {
+          "catalog_id": catalog_detail.catalog_id,
+          "page": 1,
+          "item_count": 100,
+          "is_free": catalog_detail.is_free
+        }
+      }
+      else {
+  
+        payLoad = {
+          "catalog_id": catalog_detail.catalog_id,
+          "page": 1,
+          "item_count": 100,
+          "is_free": catalog_detail.is_free
+        }
+      }
+
+      this.dataService.postData("getContentByCatalogId", payLoad, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("ut")
+        }
+      }).subscribe((res: any) => {
+  
+        if (res.code == 200) {
+  
+          if (res.data.result && res.data.result.length > 0) {
+            this.stickerContent_List = catalog_detail;
+            this.stickerContent_List.content_list = [];
+
+            res.data.result.forEach(element => {
+              this.stickerContent_List.content_list.push(element);
+              this.stickerContent_List.is_next_page = res.data.is_next_page;
+            });
+          } 
+        }
+      });
+    }
+
+    // this.isBasicShapes = false;
     // if(this.canvas.getActiveObject() && this.canvas.getActiveObject().element_type === "basicShape") {
     //   this.isBasicShapes = true;
     //   this.isBasicTabActive = true
     // }
-    let payLoad: any = {};
-    if (this.shape) {
+    // let payLoad: any = {};
+    // if (this.shape) {
 
-      payLoad = {
-        "catalog_id": catalog_detail.catalog_id,
-        "page": 1,
-        "item_count": 500,
-        "is_free": catalog_detail.is_free
-      }
-    }
-    else if (this.stickers) {
+    //   payLoad = {
+    //     "catalog_id": catalog_detail.catalog_id,
+    //     "page": 1,
+    //     "item_count": 100,
+    //     "is_free": catalog_detail.is_free
+    //   }
+    // }
+    // else if (this.stickers) {
 
-      payLoad = {
-        "catalog_id": catalog_detail.catalog_id,
-        "page": 1,
-        "item_count": 500,
-        "is_free": catalog_detail.is_free
-      }
-    }
-    else {
+    //   payLoad = {
+    //     "catalog_id": catalog_detail.catalog_id,
+    //     "page": 1,
+    //     "item_count": 100,
+    //     "is_free": catalog_detail.is_free
+    //   }
+    // }
+    // else {
 
-      payLoad = {
-        "catalog_id": catalog_detail.catalog_id,
-        "page": 1,
-        "item_count": 1000,
-        "is_free": catalog_detail.is_free
-      }
-    }
+    //   payLoad = {
+    //     "catalog_id": catalog_detail.catalog_id,
+    //     "page": 1,
+    //     "item_count": 100,
+    //     "is_free": catalog_detail.is_free
+    //   }
+    // }
     
-    this.stickerContent_List = catalog_detail;
-    this.stickerContent_List.content_list = [];
+    // if(this.isFromReplace && this.canvas.getActiveObject().element_type === "basicShape") {
+    //   this.buttons = true;
+    //   this.stickers = false;
+    //   this.shape = false;
+    //   payLoad = {
+    //     "catalog_id": "fa0inr55a26661",
+    //     "page": 1,
+    //     "item_count": 100,
+    //     "is_free": 1
+    //   }
+    // }
+
+    // this.stickerContent_List = catalog_detail;
+    // this.stickerContent_List.content_list = [];
     
-    this.isSvgEle = true;
-    this.stkr_catalog_id = catalog_detail.catalog_id;
+    // this.isSvgEle = true;
+    // this.stkr_catalog_id = catalog_detail.catalog_id;
 
-    this.dataService.postData("getContentByCatalogId", payLoad, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("ut")
-      }
-    }).subscribe((res: any) => {
+    // this.dataService.postData("getContentByCatalogId", payLoad, {
+    //   headers: {
+    //     Authorization: "Bearer " + localStorage.getItem("ut")
+    //   }
+    // }).subscribe((res: any) => {
 
-      if (res.code == 200) {
+    //   if (res.code == 200) {
 
-        if (res.data.result && res.data.result.length > 0) {
+    //     if (res.data.result && res.data.result.length > 0) {
 
-          res.data.result.forEach(element => {
+    //       res.data.result.forEach(element => {
             
-            this.stickerContent_List.content_list.push(element);
-            this.stickerContent_List.is_next_page = res.data.is_next_page;
-          });
-        } 
-      }
-    })
+    //         this.stickerContent_List.content_list.push(element);
+    //         this.stickerContent_List.is_next_page = res.data.is_next_page;
+    //       });
+    //     } 
+    //   }
+    // });
+
+    // this.isFromReplace = false;
   }
   selectSticker(sticker_details, sticker_type, stickerFrom: string = '') {
     if (sticker_type == StickerType.Image) {
@@ -8890,6 +9006,7 @@ export class AppComponent implements OnInit {
         cornerSize: 15,
         cornerColor: '#00C3F9',
         cornerStyle: 'circle',
+        borderScaleFactor: 2,
         centeredScaling: false,
         centeredRotation: true,
         transparentCorners: false,
@@ -8972,7 +9089,6 @@ export class AppComponent implements OnInit {
 
   /********** Add Image Element ***********/
   getImgPolaroid(image_details, uploadfrom = '', st: any = {}, stickerFrom: string = '') {
-    // console.log(uploadfrom,"-- uploadfrom --",stickerFrom);
     uploadfrom = (uploadfrom == 'stockphotos') ? 'stockphotos' : stickerFrom;
     var id, that = this;
 
@@ -9004,6 +9120,7 @@ export class AppComponent implements OnInit {
           cornerSize: 15,
           cornerColor: '#00C3F9',
           cornerStyle: 'circle',
+          borderScaleFactor: 2,
           lockScalingFlip: true,
           clipTo: null,
           excludeFromExport: false,
@@ -9048,10 +9165,12 @@ export class AppComponent implements OnInit {
           scaleX: scale,
           scaleY: scale,
           id: this.generateUniqueId(),
+          borderColor: '#00C3F9',
           cornerSize: 15,
           cornerColor: '#00C3F9',
           cornerStyle: 'circle',
           lockScalingFlip: true,
+          borderScaleFactor: 2,
           clipTo: null,
           excludeFromExport: false,
           transparentCorners: false,
@@ -9083,7 +9202,6 @@ export class AppComponent implements OnInit {
         //     return fabric.util.object.extend(toObject.call(this), customAttribute);
         //   };
         // })(image.toObject);
-
         id = that.generateUniqueId();
         // that.extend(image, id);
 
@@ -9093,7 +9211,7 @@ export class AppComponent implements OnInit {
           this.isSvgEle = true;
           this.canvas.setActiveObject(image);
           this.currentImg = image;
-          this.canvas.sendToBack(image);
+          // this.canvas.sendToBack(image);
           this.layerSelected = image;
           this.whatEleScale = this.utils.getObjectMaxSize(imgObj.height, imgObj.width, this.zoomHeightRef, this.zoomWidthRef);
           this.whatEleHeight = imgObj.height;
@@ -9104,6 +9222,7 @@ export class AppComponent implements OnInit {
           this.getClippathleft = image.left;
           this.getClippathtop = image.top;
           that.canvas.renderAll();
+          that.updateCanvasState();
           that.renderStackObjects('add');
         }, 500);
 
@@ -9343,38 +9462,43 @@ export class AppComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      var blob = this.dataURLtoBlob(result.base64);
-      var blobUrl = URL.createObjectURL(blob);
-      var options = this.canvas.getActiveObject().toObject();
-      delete options.filters;
-      options.crossOrigin = true;
-      var exclusiveName: any = '';
-      exclusiveName = this.generateUniqueName('transparent_image', 'png');
-      this.canvas.getActiveObject().setSrc(blobUrl, () => {
-        if(this.canvas.getActiveObject().isCroped) {
-          this.canvas.getActiveObject().height = this.canvas.getActiveObject().cheight;
-          this.canvas.getActiveObject().width = this.canvas.getActiveObject().cwidth;
-        }
-        this.canvas.renderAll();
-        // var custom_attr = [
-        //   { key: 'isModified', value: true },
-        //   { key: 'isTransparent', value: true },
-        //   { key: 'exclusiveName', value: exclusiveName }
-        // ];
-        
-        // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('isCroped')) {
-        //   custom_attr.push({ key: 'isCroped', value: false });
-        // }
-        // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('ctop') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cleft') &&
-        //   this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cwidth') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cheight')) {
-        //   custom_attr.push({ key: 'ctop', value: null });
-        //   custom_attr.push({ key: 'cleft', value: null });
-        //   custom_attr.push({ key: 'cheight', value: null });
-        //   custom_attr.push({ key: 'cwidth', value: null });
-        // }
-        
-      }, options);
+      if (result.res != false && result != undefined) {
 
+        var blob = this.dataURLtoBlob(result.base64);
+        var blobUrl = URL.createObjectURL(blob);
+        var options = this.canvas.getActiveObject().toObject();
+        delete options.filters;
+        options.crossOrigin = true;
+        var exclusiveName: any = '';
+        exclusiveName = this.generateUniqueName('transparent_image', 'png');
+        this.canvas.getActiveObject().setSrc(blobUrl, () => {
+          if(this.canvas.getActiveObject().isCroped) {
+            this.canvas.getActiveObject().height = this.canvas.getActiveObject().cheight;
+            this.canvas.getActiveObject().width = this.canvas.getActiveObject().cwidth;
+          }
+          this.canvas.renderAll();
+          // var custom_attr = [
+          //   { key: 'isModified', value: true },
+          //   { key: 'isTransparent', value: true },
+          //   { key: 'exclusiveName', value: exclusiveName }
+          // ];
+          
+          // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('isCroped')) {
+          //   custom_attr.push({ key: 'isCroped', value: false });
+          // }
+          // if (this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('ctop') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cleft') &&
+          //   this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cwidth') && this.canvas.getActiveObject().toJSON(custom_attributes).hasOwnProperty('cheight')) {
+          //   custom_attr.push({ key: 'ctop', value: null });
+          //   custom_attr.push({ key: 'cleft', value: null });
+          //   custom_attr.push({ key: 'cheight', value: null });
+          //   custom_attr.push({ key: 'cwidth', value: null });
+          // }
+          
+        }, options);
+      }
+      else {
+        this.isSubEditorOpen = false;
+      }
     });
   }
 
@@ -9540,6 +9664,14 @@ export class AppComponent implements OnInit {
       this.props.emboss = false;
       this.props.kodachrome = false;
       this.props.technicolor = false;
+      this.props.brightness = 0;
+      this.props.contrast = 0;
+      this.props.saturation = 0;
+      this.props.tint = '#ffffff';
+      this.props.blur = 0;    
+      this.props.blendColor = '#ffffff';
+      this.props.blendMode = 'add';
+      this.props.blendAlpha = 1;
     }
   }
   setEffect(filtertype, value, filterOpacity,event) {
@@ -9969,9 +10101,12 @@ export class AppComponent implements OnInit {
 
   setFilter(filterType, value, filterOpacity, event) {
     this.isFromInput = true;
-    let image = this.canvas.getActiveObject();
+    let image = this.canvas.getActiveObject(); 
 
-    if(value == null) {
+    if(value == null && filterType != 'blend') {
+      this.getfilter();
+    }
+    else if(filterType == 'blend' && value[2] == null) {
       this.getfilter();
     }
     else {
@@ -10732,7 +10867,6 @@ export class AppComponent implements OnInit {
     }
     else if (this.gradientMode == 'radial') {
 
-      // else if(this.gradientMode == 'radial' && Object.keys(this.radialCoords).length === 0) {
       this.getCoords(this.radialMode, 'radial')
     }
 
@@ -10742,96 +10876,9 @@ export class AppComponent implements OnInit {
         coords: this.coords,
         colorStops: array
       });
-
-      // if(this.receiveData.data['parent_type'] === "transparent") {
-
-      //   const objects = this.canvas.getObjects();
-      //   for (let i = objects.length - 1; i >= 0; i--) {
-      //     if (objects[i].clipPath && objects[i].type === 'rect') {
-      //       this.canvas.remove(objects[i]);
-      //     }
-      //   }
-
-      //   this.canvas.setBackgroundImage(null, this.canvas.renderAll.bind(this.canvas));
-      //   this.canvas.backgroundColor = '';
-
-      //   var backgroundRect = new fabric.Rect({
-      //     width: this.loadCanvasWidth,
-      //     height: this.loadCanvasHeight,
-      //     fill: grad, // The new background color
-      //     originX: 'center',
-      //     originY: 'center',
-      //     top: this.loadCanvasHeight / 2,
-      //     left: this.loadCanvasWidth / 2,
-      //     selectable: false,
-      //     evented: false
-      //   });
-
-      //   if(this.receiveData.data['type'] === "transparent3") {
-
-      //     var triangleClipPath = new fabric.Triangle({
-      //       width: 400,
-      //       height: 400,
-      //       angle: 180,
-      //       fill: 'transparent',
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 325,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true
-      //     });
-      //     backgroundRect.clipPath = triangleClipPath;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent2") {
-
-      //     var squareClipPath  = new fabric.Rect({
-      //       width: 300, 
-      //       height: 300,
-      //       selectable: false,
-      //       angle: 45,
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 250,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true,
-      //       fill: 'transparent'
-      //     });
-      //     backgroundRect.clipPath = squareClipPath ;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent1") {
-      //     var circleClipPath = new fabric.Circle({
-      //       radius: 175,//Math.min(this.loadCanvasWidth, this.loadCanvasHeight) / 2, 
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 250,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true
-      //     });
-      //     backgroundRect.clipPath = circleClipPath;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent4") {
-
-      //     const starPath = 'M 250 0 L 375 500 L 0 183.33 L 500 183.33 L 125 500 Z';
-      //     const starClipPath = new fabric.Path(starPath, {
-      //       left: 0,
-      //       top: 0,
-      //       fill: 'transparent',
-      //       strokeWidth: 0, 
-      //       originX: 'center',
-      //       originY: 'center'
-      //     });
-      //     backgroundRect.clipPath = starClipPath;
-      //   }
-
-      //   this.canvas.add(backgroundRect);
-      //   this.canvas.sendToBack(backgroundRect);
-      //   this.canvas.renderAll();
-      // }
-      // else {
       this.canvas.setBackgroundImage(null, this.canvas.renderAll.bind(this.canvas));
       this.canvas.backgroundColor = grad;
       this.canvas.renderAll();
-      // }
     }
     else if (this.gradientMode == 'radial') {
       grad = new fabric.Gradient({
@@ -10839,96 +10886,9 @@ export class AppComponent implements OnInit {
         coords: this.radialCoords,
         colorStops: array
       });
-
-      // if(this.receiveData.data['parent_type'] === "transparent") {
-
-      //   const objects = this.canvas.getObjects();
-      //   for (let i = objects.length - 1; i >= 0; i--) {
-      //     if (objects[i].clipPath && objects[i].type === 'rect') {
-      //       this.canvas.remove(objects[i]);
-      //     }
-      //   }
-
-      //   this.canvas.setBackgroundImage(null, this.canvas.renderAll.bind(this.canvas));
-      //   this.canvas.backgroundColor = '';
-
-      //   var backgroundRect = new fabric.Rect({
-      //     width: this.loadCanvasWidth,
-      //     height: this.loadCanvasHeight,
-      //     fill: grad, // The new background color
-      //     originX: 'center',
-      //     originY: 'center',
-      //     top: this.loadCanvasHeight / 2,
-      //     left: this.loadCanvasWidth / 2,
-      //     selectable: false,
-      //     evented: false
-      //   });
-
-      //   if(this.receiveData.data['type'] === "transparent3") {
-
-      //     var triangleClipPath = new fabric.Triangle({
-      //       width: 400,
-      //       height: 400,
-      //       angle: 180,
-      //       fill: 'transparent',
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 325,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true
-      //     });
-      //     backgroundRect.clipPath = triangleClipPath;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent2") {
-
-      //     var squareClipPath  = new fabric.Rect({
-      //       width: 300, 
-      //       height: 300,
-      //       selectable: false,
-      //       angle: 45,
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 250,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true,
-      //       fill: 'transparent'
-      //     });
-      //     backgroundRect.clipPath = squareClipPath ;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent1") {
-      //     var circleClipPath = new fabric.Circle({
-      //       radius: 175,//Math.min(this.loadCanvasWidth, this.loadCanvasHeight) / 2, 
-      //       originX: 'center',
-      //       originY: 'center',
-      //       top: 250,
-      //       left: this.loadCanvasWidth / 2,
-      //       absolutePositioned: true
-      //     });
-      //     backgroundRect.clipPath = circleClipPath;
-      //   }
-      //   else if(this.receiveData.data['type'] === "transparent4") {
-
-      //     const starPath = 'M 250 0 L 375 500 L 0 183.33 L 500 183.33 L 125 500 Z';
-      //     const starClipPath = new fabric.Path(starPath, {
-      //       left: 0,
-      //       top: 0,
-      //       fill: 'transparent',
-      //       strokeWidth: 0, 
-      //       originX: 'center',
-      //       originY: 'center'
-      //     });
-      //     backgroundRect.clipPath = starClipPath;
-      //   }
-
-      //   this.canvas.add(backgroundRect);
-      //   this.canvas.sendToBack(backgroundRect);
-      //   this.canvas.renderAll();
-      // }
-      // else {
       this.canvas.setBackgroundImage(null, this.canvas.renderAll.bind(this.canvas));
       this.canvas.backgroundColor = grad;
       this.canvas.renderAll();
-      // }
     }
   }
   
@@ -11260,76 +11220,220 @@ export class AppComponent implements OnInit {
 
     this.stock_photo_list = [
       {
-        "id": 8799651,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/dahlia-flower-nature-bloom-flora-8799651\/",
+        "id": 8807702,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/forest-trees-forest-path-green-8807702\/",
         "type": "illustration",
-        "tags": "dahlia, flower, floral background",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/03\/25\/dahlia-8799651_150.jpg",
-        "previewWidth": 100,
+        "tags": "forest, trees, forest path",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/02\/10\/forest-8807702_150.jpg",
+        "previewWidth": 112,
         "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gb0f9c034114f073279669d581e3182fec81c214a9777336a54d4e4d0bf5e8cfb9128a9a7b8accfd3b4c79163b35f65ed_640.jpg",
-        "webformatWidth": 427,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g8786622e9d51b4ce2e82af909ff67cf0ac1410e3488fb306463ad648c79911556e6704ecf02f48ee5fdb8885b2617152_640.jpg",
+        "webformatWidth": 480,
         "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g9e8b1c1bb021bf10998fdb0d080b6db92b6937e122981e0a72111d5c766a8639f7ae1fbb4440b9c7bf365fe70b43dcaaffadef4cd38a625b0206c33cb837494d_1280.jpg",
-        "imageWidth": 3344,
-        "imageHeight": 5016,
-        "imageSize": 2561235,
-        "views": 24,
-        "downloads": 18,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g3744f8d0e3109852a4b5dacf812857e429417e7d72145e7ccf12969f320cb67d2f91c27f231af70d3d9264a85941960bfe7d0b4d890bb89da3d642f92d207d20_1280.jpg",
+        "imageWidth": 3750,
+        "imageHeight": 5000,
+        "imageSize": 3025842,
+        "views": 1,
+        "downloads": 0,
         "collections": 0,
-        "likes": 49,
-        "comments": 0,
-        "user_id": 7673058,
-        "user": "Ray_Shrewsberry",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+        "likes": 30,
+        "comments": 2,
+        "user_id": 23759469,
+        "user": "Terranaut",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
       },
       {
-        "id": 8801239,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-telephone-set-retro-8801239\/",
+        "id": 8807226,
+        "pageURL": "https:\/\/pixabay.com\/vectors\/ai-generated-mushroom-cloud-skull-8807226\/",
+        "type": "vector\/svg",
+        "tags": "ai generated, mushroom cloud, skull",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/19\/31\/ai-generated-8807226_150.png",
+        "previewWidth": 104,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g7b27bd6719c6e8f6d7b4a288c15079ce119798940b4349506fa4a566b1d32e37b7ebdc8ecac22506d29779d260f081d2_640.png",
+        "webformatWidth": 445,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/ged694265f3a43b1e1c56b4cb337492a4020b79daf1134eac0797a0db5db993c802058727804d40ac2852e89471a80b72a9ddf65b90faf6e96e1fe9892954ff38_1280.png",
+        "imageWidth": 1336,
+        "imageHeight": 1920,
+        "imageSize": 1463303,
+        "views": 0,
+        "downloads": 0,
+        "collections": 1,
+        "likes": 34,
+        "comments": 3,
+        "user_id": 1086657,
+        "user": "GDJ",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2015\/12\/02\/23-35-18-266_250x250.png"
+      },
+      {
+        "id": 8807961,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/clown-mime-pantomime-man-masculine-8807961\/",
         "type": "illustration",
-        "tags": "ai generated, telephone set, retro",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/21\/45\/ai-generated-8801239_150.jpg",
+        "tags": "clown, mime, pantomime",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/06\/25\/clown-8807961_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gd5cc59f2e4eb0a6f5ee6723e265c167849d375c33bd5c3e7d48d82df7e963db885f74b4ff105dec9b3f730deedf8b976_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/ga83fc455aac0212c38923af15e340e4c21041188fa45d7b69276acecbd29a65c6cdb81fd03da4674b88d9e59fb2a5a9ff031c46fa05dbe66716c7d9c0390a924_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1471194,
+        "views": 0,
+        "downloads": 0,
+        "collections": 6,
+        "likes": 29,
+        "comments": 2,
+        "user_id": 9301,
+        "user": "geralt",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/08\/25\/06-52-36-900_250x250.jpg"
+      },
+      {
+        "id": 8805675,
+        "pageURL": "https:\/\/pixabay.com\/photos\/sonnenr%C3%B6schen-helianthemum-8805675\/",
+        "type": "photo",
+        "tags": "sonnenr\u00f6schen, helianthemum, rosa bl\u00fcten",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/07\/28\/sonnenroschen-8805675_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gef9fdd6df83306408d3f9c60c0871c72e0e42d43beb9d47d6c6affda66e4209faa650f28431ae2315bf0e6fa3039920d_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gbe36d1919d152d10dcfafe97402d2eaac273ad503d48e82aaa4107630a038764d64f056f394ac7764937a8aca2d4061eacb621436ca824f20ab10ce81aa10d9d_1280.jpg",
+        "imageWidth": 6240,
+        "imageHeight": 4160,
+        "imageSize": 2637528,
+        "views": 106,
+        "downloads": 93,
+        "collections": 6,
+        "likes": 35,
+        "comments": 9,
+        "user_id": 10084616,
+        "user": "Nennieinszweidrei",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/12\/04\/11-13-16-116_250x250.png"
+      },
+      {
+        "id": 2970215,
+        "pageURL": "https:\/\/pixabay.com\/photos\/blank-card-copy-space-decorate-2970215\/",
+        "type": "photo",
+        "tags": "blank, card, copy space",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2017\/11\/22\/10\/52\/blank-2970215_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g82067b2155478eefb8c1b672f85cf93984c47e36bffdcd48f13574540460f49239749dfd26942cf69c5c4d02c9febd91_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gc6037d16f41c9a84b66ac11476a046c06d81581b430091c1ac6cfa313f3713466a3aa2f57840995332217453259c87ad3d38dc960a5c6309a82fed91783d9413_1280.jpg",
+        "imageWidth": 6000,
+        "imageHeight": 4004,
+        "imageSize": 3142336,
+        "views": 32601,
+        "downloads": 23219,
+        "collections": 231,
+        "likes": 126,
+        "comments": 6,
+        "user_id": 4283981,
+        "user": "rawpixel",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/14\/08-35-52-464_250x250.jpg"
+      },
+      {
+        "id": 8804674,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-dolphin-sea-animal-8804674\/",
+        "type": "illustration",
+        "tags": "ai generated, dolphin, sea",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/16\/57\/ai-generated-8804674_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/ge4d8ab4554124ea3f663ad60c6b3816d6935fa6cdcf6be338db8fd0ac3e4035c7f27a844d03beab36f4fe43b68b1ffe4_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g5f814cbfbd0b897d95c74354c58e5674a66628fb8a498092ebbc92a7da1ebe8882a3b142e2ba53e4696ef54a45021fcd3e15e71c3e77b3e61ad17123f8cd5dd5_1280.png",
+        "imageWidth": 3274,
+        "imageHeight": 4096,
+        "imageSize": 11614824,
+        "views": 48,
+        "downloads": 35,
+        "collections": 1,
+        "likes": 33,
+        "comments": 1,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 8807376,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/dolphin-sea-animal-ocean-mammal-8807376\/",
+        "type": "illustration",
+        "tags": "dolphin, sea, animal",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/22\/06\/dolphin-8807376_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g8124906dbc091b12212f1c8fc35694eaf50a1f3a85697d1c63fa8e12a4cd8438558f398886962a991ad04e23ff3a24ee_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g55ef59025a8a398c7f6fdd295e51e417a806e5c089afa7439dfb9e60d4712a3c210fc88220ec20c1199ff8c16d9726ad4bdca13c7989c4756d293ffb9f366de5_1280.png",
+        "imageWidth": 3274,
+        "imageHeight": 4096,
+        "imageSize": 9733414,
+        "views": 0,
+        "downloads": 0,
+        "collections": 1,
+        "likes": 27,
+        "comments": 2,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 8809517,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/man-internet-computer-technology-8809517\/",
+        "type": "illustration",
+        "tags": "man, internet, computer",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/20\/01\/man-8809517_150.png",
+        "previewWidth": 150,
+        "previewHeight": 98,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g2b8adda3e42c5a1b0bdb282552b251742b283a62d9676e6f15708b1ac6f910c49c78922bb38d418d3d1aec5037565253_640.png",
+        "webformatWidth": 640,
+        "webformatHeight": 418,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g21ed3318631e43b0561a8effa4b38ac87a65033c6dc2d3789208ced9a4fbe6f46babc40ccead158d801404edefe9994076adce9ec764fde31cf0bd0bdde53b96_1280.png",
+        "imageWidth": 3399,
+        "imageHeight": 2222,
+        "imageSize": 169471,
+        "views": 0,
+        "downloads": 0,
+        "collections": 8,
+        "likes": 26,
+        "comments": 2,
+        "user_id": 17475707,
+        "user": "flutie8211",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
+      },
+      {
+        "id": 8807714,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/blackbird-spring-songbird-chirp-8807714\/",
+        "type": "illustration",
+        "tags": "blackbird, spring, songbird",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/02\/17\/blackbird-8807714_150.jpg",
         "previewWidth": 150,
         "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gabf421897f6c7dded0b99d0bb84ac75072941094de0d3ff52f73a0662d50a335f2bfd71c733e91fae7c38bd207fe5146_640.jpg",
+        "webformatURL": "https:\/\/pixabay.com\/get\/gd4439fb7cd3ed1b53cc23f0e6efd3dd5bf3dda10067f2a8db0dd60c355c481530938fdb98511fe69384a9e0aaae169ab_640.jpg",
         "webformatWidth": 640,
         "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g9c408e4073f79c8d100968ca20aaff027b1ae797e7d6739ea374709010a7f1ed0ea5ecba2455d45835c012ee49e3c450e4062dd81981691e84811426427137cb_1280.jpg",
-        "imageWidth": 3200,
-        "imageHeight": 3200,
-        "imageSize": 2353637,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g4fddbc5d34a10cafc2332fec8bf456b8caa23e67b4ee5a091e35dee7cfc08e5affd6545902acf94fdfae14025a2c62b7a7d2dff039771e931b5d45737b3d383a_1280.jpg",
+        "imageWidth": 5000,
+        "imageHeight": 5000,
+        "imageSize": 3069958,
         "views": 0,
         "downloads": 0,
-        "collections": 1,
+        "collections": 0,
         "likes": 29,
-        "comments": 5,
-        "user_id": 32364022,
-        "user": "beasternchen",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/16-15-30-223_250x250.jpg"
-      },
-      {
-        "id": 8804821,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/rose-flower-bloom-nature-petals-8804821\/",
-        "type": "illustration",
-        "tags": "rose, flower, bloom",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/18\/17\/rose-8804821_150.jpg",
-        "previewWidth": 100,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g13a222e255f74e6e37194216e391df275e35e397b85af75186144ff5bd8a73efbe2d0f51ec0026f55e98d15568359968_640.jpg",
-        "webformatWidth": 427,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/ge3f60d224ea54247fd53e64d1bdb8d810fa6d2a88a3cf25468231ffe6e1308874bab646bfc4895c16fbd651d3b610dc5b538ad961bd7fc5e1b030a40fef3071c_1280.jpg",
-        "imageWidth": 3344,
-        "imageHeight": 5016,
-        "imageSize": 1895368,
-        "views": 0,
-        "downloads": 0,
-        "collections": 1,
-        "likes": 29,
-        "comments": 0,
-        "user_id": 7673058,
-        "user": "Ray_Shrewsberry",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+        "comments": 1,
+        "user_id": 23759469,
+        "user": "Terranaut",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
       },
       {
         "id": 8804293,
@@ -11339,381 +11443,21 @@ export class AppComponent implements OnInit {
         "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/14\/08\/maltese-8804293_150.jpg",
         "previewWidth": 100,
         "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g57fdb2da18f2650ae3cfd1381b5e0b56069a179267721dc98c0bad79efc0a9c370805802bae37267ac647dfe11465c59_640.jpg",
+        "webformatURL": "https:\/\/pixabay.com\/get\/g337a784e4e490116bbff69da56c237eef8565c736a2b46797916c2689073076e23a5584fb57c17ecc922b9958986540f_640.jpg",
         "webformatWidth": 427,
         "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gf5d81e917755aa2e1db2ab1dd01b407e8a0b3f8a29fa4a06f987564506cad272936b214f6b9b4927bb4be9fdd4f75fc33c7ab46ec5217b53adb0fcb30360cf1c_1280.jpg",
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g149e1a14e894f0ad22e78705a9e4b4fa80f288bc6adf73d781784028bc5bac60ae3a0c71009a98391c0aacf3bdbfb28c6ac0c768caccadb6454598bcb7cff421_1280.jpg",
         "imageWidth": 3344,
         "imageHeight": 5016,
         "imageSize": 2154515,
-        "views": 0,
-        "downloads": 0,
+        "views": 160,
+        "downloads": 144,
         "collections": 1,
-        "likes": 29,
+        "likes": 52,
         "comments": 0,
         "user_id": 7673058,
         "user": "Ray_Shrewsberry",
         "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
-      },
-      {
-        "id": 8793796,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/flower-hibiscus-botany-petals-8793796\/",
-        "type": "illustration",
-        "tags": "flower, floral background, hibiscus",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/28\/12\/55\/flower-8793796_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 100,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gc3c8c7478964de5b1e89c6d16d133809924057d90f0f5daff0ddabbe16d43c33449d96c6a56484e75ef0613ff683486a_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 427,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g0a95592f1a6edb8f438c06009055702b99bb80059b79a1208ea9d9cceb73344b1c215e59a84deb4089a13aed07f1eb2ffb14819f73a50ae46c6224454bb4f88c_1280.jpg",
-        "imageWidth": 5016,
-        "imageHeight": 3344,
-        "imageSize": 2269387,
-        "views": 453,
-        "downloads": 373,
-        "collections": 5,
-        "likes": 69,
-        "comments": 0,
-        "user_id": 7673058,
-        "user": "Ray_Shrewsberry",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
-      },
-      {
-        "id": 8800023,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-question-mark-balloon-8800023\/",
-        "type": "illustration",
-        "tags": "ai generated, question mark, balloon",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/07\/54\/ai-generated-8800023_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 85,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g41ba43fff8bd150ab9b2e63fa23e65b04a337758b699cf4826050a7232bfbc8ff7c9a22bc6157cdc8fd1b1b07794e36e_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 362,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g9eceb1bb88c56049020bc66fbbfb4cfc56c345321e04691ac09b361521f590ae7b16ae3b58aab0c5bc07d325af7bc5829dfdfe83c64df24a9f7d3afce24d8d34_1280.jpg",
-        "imageWidth": 4084,
-        "imageHeight": 2310,
-        "imageSize": 1313517,
-        "views": 13,
-        "downloads": 8,
-        "collections": 5,
-        "likes": 41,
-        "comments": 4,
-        "user_id": 9301,
-        "user": "geralt",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/08\/25\/06-52-36-900_250x250.jpg"
-      },
-      {
-        "id": 8798623,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/flower-daisy-t-botany-ar-nature-8798623\/",
-        "type": "illustration",
-        "tags": "flower, daisy, t",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/14\/20\/flower-8798623_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 100,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g9968e685b486189f59f5d6bec143b8aa87a9cac0f40be5b5d47dc080cea00b71a2518c3847d39be753c726f8a8faddfb_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 427,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g6f6298aa5d27a8dd2b9f3d99d1b6ba72f12310202eaa7034bfe1f460a404a73670370424322ef2a14c95e76efa4dad09899258f47d73ace71d88e793b1b5b224_1280.jpg",
-        "imageWidth": 5016,
-        "imageHeight": 3344,
-        "imageSize": 3391332,
-        "views": 36,
-        "downloads": 29,
-        "collections": 1,
-        "likes": 50,
-        "comments": 0,
-        "user_id": 7673058,
-        "user": "Ray_Shrewsberry",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
-      },
-      {
-        "id": 8799899,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/apple-tree-apple-man-apple-fruit-8799899\/",
-        "type": "illustration",
-        "tags": "apple tree, apple man, apple",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/06\/44\/apple-tree-8799899_150.jpg",
-        "previewWidth": 85,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g3f9a20163ebe39b18637ec1a1835543168f61139bc21dd2706618bd6ca3243d065b8a34acced4266ae43a58b8924dc48_640.jpg",
-        "webformatWidth": 362,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g6bd3878428d44a2b8696db2bb81e845f22412bf9a9a077685e7f576167fe64da55114ef2da0392bcadfbd3b18f3dddc4b31b20e74df65212d5d6bb21e28de495_1280.jpg",
-        "imageWidth": 2310,
-        "imageHeight": 4084,
-        "imageSize": 1986015,
-        "views": 21,
-        "downloads": 10,
-        "collections": 1,
-        "likes": 48,
-        "comments": 0,
-        "user_id": 10327513,
-        "user": "NickyPe",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-      },
-      {
-        "id": 8795675,
-        "pageURL": "https:\/\/pixabay.com\/photos\/dahlia-flower-asteraceae-pink-8795675\/",
-        "type": "photo",
-        "tags": "dahlia, flower, asteraceae",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/29\/08\/23\/dahlia-8795675_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 100,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gd0a48f8e8854b7d19d1fcc3a48b7761f503a0807ffb1e8349d583d7d13777a6ccf51ddd5d3447914f2a545862c74fbf3_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 427,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gcf2f104216592da993cd3c93f81cd6e26bc3231f5027322f327c0f289ee29e0e95b62a07ad24d17486efc4518a744722e56946f8bad7a924648afca968479720_1280.jpg",
-        "imageWidth": 4240,
-        "imageHeight": 2832,
-        "imageSize": 2875145,
-        "views": 49,
-        "downloads": 40,
-        "collections": 1,
-        "likes": 47,
-        "comments": 16,
-        "user_id": 9363663,
-        "user": "Nowaja",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2020\/09\/15\/15-16-12-52_250x250.jpg"
-      },
-      {
-        "id": 8792775,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-roses-blue-8792775\/",
-        "type": "illustration",
-        "tags": "ai generated, woman, roses",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/28\/05\/30\/ai-generated-8792775_150.jpg",
-        "previewWidth": 85,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g795adacc141cb06f3d3b0d4d25ee67428bb6c85a304030cd0ac36cf4d15093a138f7e7d9d73d07a7bc3491f451480a2a_640.jpg",
-        "webformatWidth": 362,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gacd9355e0eb458956b6e500b58d03e2c64bdbcb26d190f5fdbb3b53143bb39bc03a70fa7f51f8b1519116c81c93f7832e8878badd54e707b8d9b0b5cb5b8596c_1280.jpg",
-        "imageWidth": 2310,
-        "imageHeight": 4084,
-        "imageSize": 2186274,
-        "views": 292,
-        "downloads": 225,
-        "collections": 7,
-        "likes": 67,
-        "comments": 0,
-        "user_id": 10327513,
-        "user": "NickyPe",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-      },
-      {
-        "id": 8799301,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/moon-night-sky-stars-evening-8799301\/",
-        "type": "illustration",
-        "tags": "moon, nature, night",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/21\/01\/moon-8799301_150.png",
-        "previewWidth": 150,
-        "previewHeight": 100,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g0d88b1c288a06d50aa45f4e107eefcff2845d503e69a68c40d24d5c068edfc2031bc80e8c2297648051a1a1b974acf33_640.png",
-        "webformatWidth": 640,
-        "webformatHeight": 427,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g5759efe153b95041388603552f4a004dc3bdf01979856d0528ac6efed4e80bf7fa9dac88420db6ec6cbfebe240ff04010f9575a8d2079006884b0f315d24e37f_1280.png",
-        "imageWidth": 3652,
-        "imageHeight": 2435,
-        "imageSize": 111631,
-        "views": 34,
-        "downloads": 24,
-        "collections": 8,
-        "likes": 40,
-        "comments": 16,
-        "user_id": 17475707,
-        "user": "flutie8211",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
-      },
-      {
-        "id": 8802788,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/kitten-lion-mane-fun-cute-8802788\/",
-        "type": "illustration",
-        "tags": "kitten, lion, mane",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/01\/18\/01\/kitten-8802788_150.png",
-        "previewWidth": 120,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gd7b50548050bbcd6ec2fd90d725bc2c52bfd5b6362baee2d6a1f4e158aee838f67a3453ecd1553d9748190187ff680fd_640.png",
-        "webformatWidth": 512,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g96e1b30fbf7a61a4538100d6688aeee3f5f7eb8ef5bf211f30792aa25342efd51cee9693d5d36dc9da5e0de6dc87b024d4033608491af74e9e6d185d784e9e5c_1280.png",
-        "imageWidth": 3275,
-        "imageHeight": 4096,
-        "imageSize": 12650173,
-        "views": 0,
-        "downloads": 0,
-        "collections": 0,
-        "likes": 21,
-        "comments": 1,
-        "user_id": 686414,
-        "user": "Alexas_Fotos",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
-      },
-      {
-        "id": 8801204,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-drink-glass-ice-cubes-8801204\/",
-        "type": "illustration",
-        "tags": "ai generated, drink, glass",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/20\/39\/ai-generated-8801204_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g744324ed1a6deaba3bc168bac8e78efd68b87d0ce0c642251428b195425316da284bfdbbe08383fc4594064f50ab849a_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g927bb85f1ffa7810a7a9cc5850702695f5212995212b2ec5698c5675b95e84a4ba6529fe5a142a1436a10947bdddac163b45224b2da88d879bb6cfd54d6c83c9_1280.jpg",
-        "imageWidth": 3200,
-        "imageHeight": 3200,
-        "imageSize": 2484134,
-        "views": 0,
-        "downloads": 0,
-        "collections": 0,
-        "likes": 29,
-        "comments": 3,
-        "user_id": 32364022,
-        "user": "beasternchen",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/16-15-30-223_250x250.jpg"
-      },
-      {
-        "id": 8802530,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/frog-nature-animal-amphibian-8802530\/",
-        "type": "illustration",
-        "tags": "frog, nature, animal",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/01\/15\/01\/frog-8802530_150.png",
-        "previewWidth": 150,
-        "previewHeight": 84,
-        "webformatURL": "https:\/\/pixabay.com\/get\/gc6eabb6b2733d2a94cf391a5603fac08380b5c33ea67e44752e976f3dcea8e4a0b550fe2f5f9ef5ce7f0249d7426f824_640.png",
-        "webformatWidth": 640,
-        "webformatHeight": 360,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gce041ba88bd30b60a3db805af6433aa56ee81d7d24ad4710b4db9255c4baefcd9222ae3a64767ff4622d791bd838d2749bce91cddd07995c9d995aad25de0acd_1280.png",
-        "imageWidth": 4096,
-        "imageHeight": 2304,
-        "imageSize": 7077306,
-        "views": 0,
-        "downloads": 0,
-        "collections": 0,
-        "likes": 21,
-        "comments": 0,
-        "user_id": 686414,
-        "user": "Alexas_Fotos",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
-      },
-      {
-        "id": 8802526,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-model-fashion-8802526\/",
-        "type": "illustration",
-        "tags": "ai generated, woman, model",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/01\/14\/59\/ai-generated-8802526_150.png",
-        "previewWidth": 150,
-        "previewHeight": 67,
-        "webformatURL": "https:\/\/pixabay.com\/get\/ged1c441d3ae7081cef65764041b6b46da33bb85a3c7866b069a44ff5415376eb8741b5b3611cea1b13acd30a511d9f0a_640.png",
-        "webformatWidth": 640,
-        "webformatHeight": 284,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gc7a63a09cc6b5834b2dfad1f51f5e25e6c320e1e93aa51f01c2285adb7c932fe66f12d7aba71d7deb5de7bd177e2d338ed8af94e2b50e1880a1d1084fefd2069_1280.png",
-        "imageWidth": 3631,
-        "imageHeight": 1609,
-        "imageSize": 2936117,
-        "views": 0,
-        "downloads": 0,
-        "collections": 2,
-        "likes": 27,
-        "comments": 1,
-        "user_id": 686414,
-        "user": "Alexas_Fotos",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
-      },
-      {
-        "id": 8799299,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/galaxy-planet-space-stars-universe-8799299\/",
-        "type": "illustration",
-        "tags": "galaxy, planet, night sky",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/20\/58\/galaxy-8799299_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 84,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g79afc06fc1fea1173a504b66fdc60587bb5b694d8b3a377a973b898f7e5989b8bba0c0a37b7943af9674d1796d8aec44_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 360,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g176a488dfba432f83771917cc8cc3237ac6fbf88f6be464a159ea6da7530b7bad5b8f5d49fabdf79bf5bbc6339dab7c4e2a500513c16b0f8776ee7f30985cb43_1280.jpg",
-        "imageWidth": 4001,
-        "imageHeight": 2251,
-        "imageSize": 1025755,
-        "views": 24,
-        "downloads": 13,
-        "collections": 9,
-        "likes": 40,
-        "comments": 12,
-        "user_id": 17475707,
-        "user": "flutie8211",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/05\/21\/19-38-51-804_250x250.jpg"
-      },
-      {
-        "id": 8792779,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-woman-spider-web-8792779\/",
-        "type": "illustration",
-        "tags": "ai generated, woman, spider web",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/28\/05\/35\/ai-generated-8792779_150.jpg",
-        "previewWidth": 85,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g64d235f57d708c218b2a076b682ce2b91202106717dc32263e3bb1def78b6903e6b1a741c6051d78dd11d1cd97ffd015_640.jpg",
-        "webformatWidth": 362,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g64ed429afe691ff731b3ef22ec4a03f5b208b99cd6c92772b191e39eb8036c6ce9a9daf7f785fa1caa59060f189c3cc18beddac8b186deb468e277a8bd4978c0_1280.jpg",
-        "imageWidth": 2310,
-        "imageHeight": 4084,
-        "imageSize": 2185012,
-        "views": 155,
-        "downloads": 125,
-        "collections": 4,
-        "likes": 66,
-        "comments": 0,
-        "user_id": 10327513,
-        "user": "NickyPe",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
-      },
-      {
-        "id": 8789372,
-        "pageURL": "https:\/\/pixabay.com\/photos\/tiger-music-notes-paper-moon-stars-8789372\/",
-        "type": "photo",
-        "tags": "tiger, nature, music notes",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/26\/19\/51\/tiger-8789372_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 113,
-        "webformatURL": "https:\/\/pixabay.com\/get\/ge355c04e17a88a4eb5fd1f93b4ba7f7f489479adb5525c2e7c04217f4e05a703913f1f4c8bf74ee4299284f3d2c008d9_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 482,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/ge6c3bcd029779f3058c497c3d4a61b25eeefbe64f1015b38aed99ba333959808bfb5aea2831218d9f2662c3b97e63e9b19185143a47f9d1ecfa6ad1db3f7e033_1280.jpg",
-        "imageWidth": 3650,
-        "imageHeight": 2748,
-        "imageSize": 1289710,
-        "views": 1496,
-        "downloads": 1357,
-        "collections": 3,
-        "likes": 67,
-        "comments": 34,
-        "user_id": 9214707,
-        "user": "Mollyroselee",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/16\/20-11-29-225_250x250.jpg"
-      },
-      {
-        "id": 8798516,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/bird-tree-blossoms-spring-plumage-8798516\/",
-        "type": "illustration",
-        "tags": "bird, tree, blossoms",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/13\/26\/bird-8798516_150.png",
-        "previewWidth": 120,
-        "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g7aa0a21262fef679942ba603a6fc9b8067b9dc3111723db0633178b6c9fe3c59cf4fa1501e3a6569aaa000e2ab8db5bb_640.png",
-        "webformatWidth": 512,
-        "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g32983eb74f4e141560bf330d6a139a9eeb7c8f410b67c56a1ef8f57b5662eb5f2b26a74f2b70a05d278d1f797aaac717da46983767981f110f027c7e1111635e_1280.png",
-        "imageWidth": 3274,
-        "imageHeight": 4096,
-        "imageSize": 12745404,
-        "views": 13,
-        "downloads": 6,
-        "collections": 3,
-        "likes": 34,
-        "comments": 1,
-        "user_id": 686414,
-        "user": "Alexas_Fotos",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
       },
       {
         "id": 8804651,
@@ -11723,89 +11467,281 @@ export class AppComponent implements OnInit {
         "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/16\/52\/animal-8804651_150.jpg",
         "previewWidth": 150,
         "previewHeight": 85,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g4e9b3a10c63254af3e16f0e3933fed55ef3754ede652544f5055881cb8f26ab4675cac72b5bc960997a2c00badd42837_640.jpg",
+        "webformatURL": "https:\/\/pixabay.com\/get\/g07b40dbe2f647dfd38ea90a6a9f55353dfb82b999288fffa1e2080bccb24aa1fa80bf37675b8bfa2dcbfea0fb3518250_640.jpg",
         "webformatWidth": 640,
         "webformatHeight": 362,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gb699abe05148ca26e4d000241c9e2a8577326cfdd7b46e70662b90d1569a9fe2573f4373491dfb6632bcd64b5b9c2ff80c6efc3c65e66cde5728e1117ca52b48_1280.jpg",
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g0f22726c1e7bc8ba884801f746613a67d61e3a0fb38e2f5ba53e7badf6c7cb8395ca3964cc778f7ce997938149ec19f4d195f2bf0226467303b8b7d4f4017038_1280.jpg",
         "imageWidth": 4084,
         "imageHeight": 2310,
         "imageSize": 1293252,
-        "views": 0,
-        "downloads": 0,
-        "collections": 4,
-        "likes": 24,
-        "comments": 6,
+        "views": 203,
+        "downloads": 144,
+        "collections": 5,
+        "likes": 48,
+        "comments": 9,
         "user_id": 9301,
         "user": "geralt",
         "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/08\/25\/06-52-36-900_250x250.jpg"
       },
       {
-        "id": 8803359,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/dolphin-nature-sea-animal-ocean-8803359\/",
-        "type": "illustration",
-        "tags": "dolphin, nature, sea",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/01\/42\/dolphin-8803359_150.png",
+        "id": 2953719,
+        "pageURL": "https:\/\/pixabay.com\/photos\/christmas-holiday-yuletide-cookies-2953719\/",
+        "type": "photo",
+        "tags": "christmas, holiday, yuletide",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2017\/11\/16\/08\/35\/christmas-2953719_150.jpg",
         "previewWidth": 150,
-        "previewHeight": 84,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g81e4256edf0d2c58eb0ded8c81882d432cbb72c02ae3dbb05dea4f6e3cb15e1fd6e79cd7f930ce50ed81346bbffe5148_640.png",
+        "previewHeight": 100,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g97923a0d54e39dd35a403355b7ff9f3039e7e135843c39b455336533d4c9f1f654ce0be38d33fa7870402fb4df7a0f97_640.jpg",
         "webformatWidth": 640,
-        "webformatHeight": 360,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g7d6bd23d2797277d59223ad0e3e0507af4768b9d424315974a17f3dcead922f84c35ae5fc45ff154451f7a75747c1f0c676712396edbffe788cd3cb83a364387_1280.png",
-        "imageWidth": 4096,
-        "imageHeight": 2304,
-        "imageSize": 7060944,
+        "webformatHeight": 427,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g6014ea6e173051660892428ca7cefeffcc39b53a28c6b7a012a6497d63678147ba5f852c78baa367c068128ea64f673a298fb05f87e808c1ef101e0f8d9395d9_1280.jpg",
+        "imageWidth": 4000,
+        "imageHeight": 2670,
+        "imageSize": 3038554,
+        "views": 56449,
+        "downloads": 39207,
+        "collections": 181,
+        "likes": 158,
+        "comments": 6,
+        "user_id": 4283981,
+        "user": "rawpixel",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/14\/08-35-52-464_250x250.jpg"
+      },
+      {
+        "id": 8802563,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-horse-animal-equine-8802563\/",
+        "type": "illustration",
+        "tags": "ai generated, horse, animal",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/01\/15\/22\/ai-generated-8802563_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g8fdd44e6b9ced7adafc61721ac0d43d504d145dd3306d12df86461e103627ffd9ce9e1691c9466fd9c821f12b62b6dbe_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/ge492a57419a14cfaff504d1f981143799b77e12022fbfbe627b2946cc793537b057873eebe36b45b7a13f277ea01194e5c252e7e0786e66dab8667c9e22729eb_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 3050714,
+        "views": 231,
+        "downloads": 180,
+        "collections": 2,
+        "likes": 56,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8804821,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/rose-flower-bloom-nature-petals-8804821\/",
+        "type": "illustration",
+        "tags": "rose, flower, bloom",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/02\/18\/17\/rose-8804821_150.jpg",
+        "previewWidth": 100,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g5ed90c7c7a4d1af114f0f025dadba5771ee90cdae0946ec1ace50ccc3ce3167271947688f8d13230ae0acdb61a784d8f_640.jpg",
+        "webformatWidth": 427,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g22ff2d01522adba6509b6007dadf9320b817670633d59abc78028be1617dcd142812ed7dfe459a77951da896972043a36f97d1a2f18de798701a3c7fd5d7f03b_1280.jpg",
+        "imageWidth": 3344,
+        "imageHeight": 5016,
+        "imageSize": 1895368,
+        "views": 224,
+        "downloads": 189,
+        "collections": 2,
+        "likes": 50,
+        "comments": 0,
+        "user_id": 7673058,
+        "user": "Ray_Shrewsberry",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/29\/03-05-16-838_250x250.jpg"
+      },
+      {
+        "id": 8805989,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/squirrel-family-friendship-love-8805989\/",
+        "type": "illustration",
+        "tags": "squirrel, family, friendship",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/10\/13\/squirrel-8805989_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g769041327a2e02c7203b24a05d248cde6ba1baa530e6bbd7bbc12a164c24c564a9d086a340affdf01891eb008d34b3ce_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/geecba99f8eb12070e93a15192be4877aa63f9e24407ccf6ed2007367c0e8b7ce20ee1cc57da733c05b5d5b0dca74cbeaa6ced54acc77dc37e867692d4e60bf70_1280.jpg",
+        "imageWidth": 5000,
+        "imageHeight": 5000,
+        "imageSize": 4460423,
         "views": 0,
         "downloads": 0,
         "collections": 0,
-        "likes": 20,
+        "likes": 29,
+        "comments": 3,
+        "user_id": 23759469,
+        "user": "Terranaut",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
+      },
+      {
+        "id": 8805970,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/amsel-vogelk%C3%BCken-fr%C3%BChling-k%C3%BCken-8805970\/",
+        "type": "illustration",
+        "tags": "amsel, vogelk\u00fcken, fr\u00fchling",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/10\/02\/amsel-8805970_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/ga75fca53bdbe5c9967d616605d706d955fc5a4dcb299346f82dd0c807e402cad7b84c40beb08f6e8579f2e910796130f_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gaca56d6670a0445ba56ee628b420dd04fbce1ad4aa514275da1e8006662f50afd489bda34cb8d0291b83ea39d11b328d8518dcbe0efc8276ab1e43e4e2eca7cd_1280.jpg",
+        "imageWidth": 3800,
+        "imageHeight": 3800,
+        "imageSize": 2020684,
+        "views": 0,
+        "downloads": 0,
+        "collections": 0,
+        "likes": 27,
+        "comments": 3,
+        "user_id": 23759469,
+        "user": "Terranaut",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2022\/01\/11\/10-07-36-558_250x250.jpg"
+      },
+      {
+        "id": 8802894,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/shoe-womens-shoe-paragraph-8802894\/",
+        "type": "illustration",
+        "tags": "shoe, women's shoe, paragraph",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/01\/18\/18\/shoe-8802894_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g112ea4024ff23f22cbafe86ea687bc9403c3c6d9212d58f1c26597692a30f2e650e070ab164a2ffc4d4be18d2f7cd8b9_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gc4b5e634ef8876a8d05677e8608caa658caf0406057753a9754a2b0509aa386c114615e73c6fb41acacfc1aef634634604f34132c24002d82cfdef52dd9aa578_1280.png",
+        "imageWidth": 3274,
+        "imageHeight": 4096,
+        "imageSize": 6589009,
+        "views": 65,
+        "downloads": 47,
+        "collections": 3,
+        "likes": 30,
+        "comments": 1,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 2884058,
+        "pageURL": "https:\/\/pixabay.com\/photos\/cup-restaurant-drinks-business-2884058\/",
+        "type": "photo",
+        "tags": "cup, restaurant, drinks",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2017\/10\/24\/10\/37\/cup-2884058_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 102,
+        "webformatURL": "https:\/\/pixabay.com\/get\/ga6d7b43d53d78ce30e2ce575d369cf52811f593852114b74084c96be707fc2564e0a6db10be3f5ca0c9eced6b1d208e6_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 438,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gcf71e9fc27d898ee1dcce0afcc547ff5bba1b23b46e83f39095317751f3553c805c796b51e1a150418f90c01d4ed9e12cff344422eb9d91aa9be6acd1d2a4fac_1280.jpg",
+        "imageWidth": 5600,
+        "imageHeight": 3837,
+        "imageSize": 4442975,
+        "views": 40705,
+        "downloads": 19657,
+        "collections": 188,
+        "likes": 133,
+        "comments": 11,
+        "user_id": 4283981,
+        "user": "rawpixel",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/03\/14\/08-35-52-464_250x250.jpg"
+      },
+      {
+        "id": 8798292,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/bird-ornithology-swan-species-8798292\/",
+        "type": "illustration",
+        "tags": "bird, ornithology, swan",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/10\/36\/bird-8798292_150.jpg",
+        "previewWidth": 150,
+        "previewHeight": 85,
+        "webformatURL": "https:\/\/pixabay.com\/get\/g4697692815fabd7432feb506f88e141f04e02f3c42914f7ebcddff33a5e83be8aa30a32b90aeecd4b948ebb0f58f3e9c_640.jpg",
+        "webformatWidth": 640,
+        "webformatHeight": 362,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gb82d82a314fd7d89555edd119141990c361cd7da262f6cddd66509ae568ab5a04981c4073974d5df36c648ce8b559ebb25a3d1ef781050fa9a0c5ff6c9c33c30_1280.jpg",
+        "imageWidth": 4084,
+        "imageHeight": 2310,
+        "imageSize": 1730040,
+        "views": 1676,
+        "downloads": 1286,
+        "collections": 8,
+        "likes": 84,
+        "comments": 0,
+        "user_id": 10327513,
+        "user": "NickyPe",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/02\/05\/16-05-14-742_250x250.jpg"
+      },
+      {
+        "id": 8808960,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/camel-nature-desert-animal-sand-8808960\/",
+        "type": "illustration",
+        "tags": "camel, nature, desert",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/14\/47\/camel-8808960_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/ga10311c622abee771ce3d0ce01c0859d7b04f6ff90ede391d46da14b79e278865ea5a5137068ed87d5d562dc1a827296_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/g2638f241fa65c79bc227241733430283350c3f191f0201bf739f4a48f395debbd1f390838a97832ae97ea01b50e638987586870277a4403f6e7bfef81dbac0c2_1280.png",
+        "imageWidth": 3274,
+        "imageHeight": 4096,
+        "imageSize": 12167710,
+        "views": 0,
+        "downloads": 0,
+        "collections": 0,
+        "likes": 28,
+        "comments": 1,
+        "user_id": 686414,
+        "user": "Alexas_Fotos",
+        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
+      },
+      {
+        "id": 8807375,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/bird-blossoms-spring-petals-nature-8807375\/",
+        "type": "illustration",
+        "tags": "bird, blossoms, spring",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/03\/22\/06\/bird-8807375_150.png",
+        "previewWidth": 120,
+        "previewHeight": 150,
+        "webformatURL": "https:\/\/pixabay.com\/get\/gf797949bba99eba67a2405bbc45f58310fb40474013f2c822717e173759b1e1238a2f81032119c3e4fc4b81118953891_640.png",
+        "webformatWidth": 512,
+        "webformatHeight": 640,
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gaffc64dd043570263a9460de4d066346595dcb0909030749d23326cc00d5ca703fbfcbae43e973639b2ec48ba1b5a9de5fe6659d13f81ed3f12f5ffd8d6a6ea6_1280.png",
+        "imageWidth": 3274,
+        "imageHeight": 4096,
+        "imageSize": 11810277,
+        "views": 0,
+        "downloads": 0,
+        "collections": 1,
+        "likes": 25,
         "comments": 0,
         "user_id": 686414,
         "user": "Alexas_Fotos",
         "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2024\/04\/18\/09-33-47-584_250x250.png"
       },
       {
-        "id": 8800996,
-        "pageURL": "https:\/\/pixabay.com\/photos\/apple-blossom-ladybug-beetle-8800996\/",
-        "type": "photo",
-        "tags": "apple blossom, ladybug, beetle",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/31\/17\/28\/apple-blossom-8800996_150.jpg",
-        "previewWidth": 150,
-        "previewHeight": 93,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g1919c8ffa825e6ee2eb0817af486ecc58b341c4f060c8a826d5c403337301b08c8bb7213aaeb8e4384f26fd7785a686c_640.jpg",
-        "webformatWidth": 640,
-        "webformatHeight": 396,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/gb37ef987aa53cd4779efa3fd613db8ccd8d22301468f99ffcffdaf5e6e53c47841f51bc3b4b73a8d101e1365af7896e6c1c57d73e1aeeab1cb3bcd8f7856dfa4_1280.jpg",
-        "imageWidth": 5736,
-        "imageHeight": 3550,
-        "imageSize": 3194620,
-        "views": 0,
-        "downloads": 0,
-        "collections": 1,
-        "likes": 23,
-        "comments": 3,
-        "user_id": 9820894,
-        "user": "neelam279",
-        "userImageURL": "https:\/\/cdn.pixabay.com\/user\/2023\/01\/17\/14-53-00-230_250x250.jpg"
-      },
-      {
-        "id": 8798517,
-        "pageURL": "https:\/\/pixabay.com\/illustrations\/ai-generated-bird-tree-blossoms-8798517\/",
+        "id": 8809164,
+        "pageURL": "https:\/\/pixabay.com\/illustrations\/woman-beauty-pretty-desert-sand-8809164\/",
         "type": "illustration",
-        "tags": "ai generated, bird, tree",
-        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/05\/30\/13\/26\/ai-generated-8798517_150.png",
+        "tags": "woman, beauty, pretty",
+        "previewURL": "https:\/\/cdn.pixabay.com\/photo\/2024\/06\/04\/16\/34\/woman-8809164_150.png",
         "previewWidth": 120,
         "previewHeight": 150,
-        "webformatURL": "https:\/\/pixabay.com\/get\/g738359fb0435af8ee964994379645550b068020e4c0ccaf60d50c67c956de9abc5d8293bfd869ac5e62fba68b1720bb3_640.png",
+        "webformatURL": "https:\/\/pixabay.com\/get\/g696cde4f71ca52cd99f4d8683a64823db07c1a3a490b27de764ba5b06aae0b21e067d1381c61a46e59a07a32bf1d7294_640.png",
         "webformatWidth": 512,
         "webformatHeight": 640,
-        "largeImageURL": "https:\/\/pixabay.com\/get\/g2772b697ccd99d83a51cc218f04df67f9cc73b7840527e317d447ca972a69df197fc8649370223b78dafd2fea00fa25f91874966c94dffb9f9b076eba8b478f4_1280.png",
+        "largeImageURL": "https:\/\/pixabay.com\/get\/gacba71bd09b3818ebf5cfdd6f37e54bd841b49f70545d91f39d0386e0503a78a86d2860cdfe9aa5b48194e73c26ef4e60fc2df1adafdd21aa2e38f066a59e2be_1280.png",
         "imageWidth": 3274,
         "imageHeight": 4096,
-        "imageSize": 11825049,
-        "views": 15,
-        "downloads": 6,
-        "collections": 1,
-        "likes": 34,
+        "imageSize": 11851340,
+        "views": 0,
+        "downloads": 0,
+        "collections": 2,
+        "likes": 30,
         "comments": 1,
         "user_id": 686414,
         "user": "Alexas_Fotos",
@@ -12034,5 +11970,198 @@ export class AppComponent implements OnInit {
     }
   }
   generateQrCode(active_qr_data) {
+  }
+
+  /********** Undo Redo functions ***********/
+  undo() {
+    // this.timeoutStop();
+
+    // let that = this;
+    // that.utils.hideLoader();
+    // if (that._config.undoFinishedStatus) {
+    //   this.utils.showLoader();
+    //   this.is_object_added_new = false;
+    //   if (that._config.currentStateIndex == -1) {
+    //     that._config.undoStatus = false;
+    //     that.utils.hideLoader();
+    //   }
+    //   else {
+    //     if (that._config.canvasState.length >= 1) {
+    //       that._config.undoFinishedStatus = 0;
+    //       if (that._config.currentStateIndex != 0) {
+    //         this.hideToolTipMenu();
+    //         that._config.undoStatus = true;
+    //         let currentInx = JSON.parse(that._config.canvasState[that._config.currentStateIndex - 1]);
+    //         if (that.ORIGINAL_CANVAS && that.ORIGINAL_CANVAS.overlayImage) {
+    //           currentInx.overlayImage = that.ORIGINAL_CANVAS.overlayImage;
+    //         }
+
+    //         that._config.canvasState[that._config.currentStateIndex - 1] = JSON.stringify(currentInx);
+    //         that.canvas.loadFromJSON(that._config.canvasState[that._config.currentStateIndex - 1], function () {
+    //           var jsonData = JSON.parse(that._config.canvasState[that._config.currentStateIndex - 1]);
+    //           if (that.login_response.user_detail.role_id != 2) {
+    //             that.canvas.overlayImage = ''
+    //           }
+    //           that.canvas.renderAll();
+    //           let groupObject = that.canvas._objects.find(x => x._objects);
+    //           if (groupObject) {
+    //             that.ungroupAndAdd(groupObject);
+    //           }
+    //           that._config.undoStatus = false;
+    //           that._config.currentStateIndex -= 1;
+    //           that._config.disableUndo = false;
+    //           if (that._config.currentStateIndex !== that._config.canvasState.length - 1) {
+    //             that._config.disableRedo = false;
+    //           }
+    //           that._config.undoFinishedStatus = 1;
+    //           if (that._config.currentStateIndex == 0) {
+    //             that._config.disableUndo = true;
+    //           }
+    //           // mayur's code
+    //           if (that.canvas.backgroundImage && that.canvas.backgroundImage.src) {
+    //             that.props.canvasImage = that.canvas.backgroundImage.src;
+    //           }
+    //           if (that.canvas.backgroundImage && that.canvas.backgroundImage.stockphotodetail) {
+    //             that.backgroundStockPhoto = that.canvas.backgroundImage.stockphotodetail
+    //           }
+    //           if (that.canvas && that.canvas.backgroundImage && that.canvas.backgroundImage.scaleMode) {
+    //             that.props.scaleMode = that.canvas.backgroundImage.scaleMode;
+    //           }
+    //           if (that.canvas && that.canvas.backgroundImage) {
+
+    //             that.isBgImg = true;
+    //           }
+    //           else {
+    //             that.isBgImg = false;
+    //           }
+    //           /* Step :
+    //               1. user create new card
+    //               2. add one image and make it transparent => so that isModified = true right
+    //               3. now if user save card then transparent image is saved over server. and isModified = false;
+    //               4. now if user go back in history then save card at that time, once transparent image is saved in server and again save then iameg not save in server.
+    //               5. to detect that in back history state , is transparent image saved in server once, below variable is used.
+    //               6. if isSavedInHistory is true, then if user save card in server, transpasrent image not upload in server.
+    //           */
+    //           that.isSavedInHistory = false;  // this is for manage save state of transparent image in server only once.
+    //           // mayur's code finish here
+    //           that.lockFrameImage();
+    //           that.checkAndRemoveBlankText();
+    //           that.renderStackObjects();
+    //           that.reRenderTextProperty();
+    //           that.editSlide();
+    //           that.utils.hideLoader();
+    //           that.is_object_added_new = true;
+    //         });
+    //       }
+    //       else if (that._config.currentStateIndex == 0) {
+    //         // that.canvas.clear();
+    //         // that.isZoom = false;
+    //         // that.zoomLevel = 100;
+    //         that._config.undoFinishedStatus = 1;
+    //         that._config.disableUndo = true;
+    //         that._config.disableRedo = false;
+    //         that._config.currentStateIndex -= 1;
+    //         that.checkAndRemoveBlankText();
+    //         that.renderStackObjects();
+    //         that.lockFrameImage();
+    //         that.editSlide();
+    //         that.utils.hideLoader();
+    //         that.is_object_added_new = true;
+    //       }
+    //       else {
+    //         that.utils.hideLoader();
+    //         that.is_object_added_new = true;
+    //       }
+    //     }
+    //     else {
+    //       that.utils.hideLoader();
+    //       that.is_object_added_new = true;
+    //     }
+    //     // this.editSlide();
+    //   }
+    // }
+  }
+  redo() {
+    // this.timeoutStop();
+    // let that = this;
+    // that.utils.hideLoader();
+    // if (that._config.redoFinishedStatus) {
+    //   this.is_object_added_new = false;
+    //   this.utils.showLoader();
+    //   if ((that._config.currentStateIndex == that._config.canvasState.length - 1) && that._config.currentStateIndex != -1) {
+    //     that._config.disableRedo = true;
+    //     that.utils.hideLoader();
+    //     that.is_object_added_new = true;
+    //   } else {
+    //     if (that._config.canvasState.length > that._config.currentStateIndex && that._config.canvasState.length != 0) {
+    //       this.hideToolTipMenu();
+    //       that._config.redoFinishedStatus = 0;
+    //       that._config.redoStatus = true;
+    //       let currentInx = JSON.parse(that._config.canvasState[that._config.currentStateIndex + 1]);
+    //       if (that.ORIGINAL_CANVAS && that.ORIGINAL_CANVAS.overlayImage) {
+    //         currentInx.overlayImage = that.ORIGINAL_CANVAS.overlayImage;
+    //       }
+    //       that._config.canvasState[that._config.currentStateIndex + 1] = JSON.stringify(currentInx);
+    //       that.canvas.loadFromJSON(that._config.canvasState[that._config.currentStateIndex + 1], function () {
+    //         var jsonData = JSON.parse(that._config.canvasState[that._config.currentStateIndex + 1]);
+    //         if (that.login_response.user_detail.role_id != 2) {
+    //           that.canvas.overlayImage = ''
+    //         }
+    //         that.canvas.renderAll();
+    //         let groupObject = that.canvas._objects.find(x => x._objects);
+    //         if (groupObject) {
+    //           that.ungroupAndAdd(groupObject);
+    //         }
+    //         that._config.redoStatus = false;
+    //         that._config.currentStateIndex += 1;
+    //         if (that._config.currentStateIndex != -1) {
+    //           that._config.disableUndo = false;
+    //         }
+    //         that._config.redoFinishedStatus = 1;
+    //         if ((that._config.currentStateIndex == that._config.canvasState.length - 1) && that._config.currentStateIndex != -1) {
+    //           that._config.disableRedo = true;
+    //         }
+    //         if (that.canvas.backgroundImage && that.canvas.backgroundImage.src) {
+    //           that.props.canvasImage = that.canvas.backgroundImage.src;
+    //         }
+    //         if (that.canvas.backgroundImage && that.canvas.backgroundImage.stockphotodetail) {
+    //           that.backgroundStockPhoto = that.canvas.backgroundImage.stockphotodetail
+    //         }
+    //         if (that.canvas && that.canvas.backgroundImage && that.canvas.backgroundImage.scaleMode) {
+    //           that.props.scaleMode = that.canvas.backgroundImage.scaleMode;
+    //         }
+    //         if (that.canvas && that.canvas.backgroundImage) {
+
+    //           that.isBgImg = true;
+    //         }
+    //         else {
+    //           that.isBgImg = false;
+    //         }
+    //         /* Step :
+    //                 1. user create new card
+    //                 2. add one image and make it transparent => so that isModified = true right
+    //                 3. now if user save card then transparent image is saved over server. and isModified = false;
+    //                 4. now if user go back in history then save card at that time, once transparent image is saved in server and again save then iameg not save in server.
+    //                 5. to detect that in back history state , is transparent image saved in server once, below variable is used.
+    //                 6. if isSavedInHistory is true, then if user save card in server, transpasrent image not upload in server.
+    //             */
+    //         that.isSavedInHistory = false;  // this is for manage save state of transparent image in server only once.
+    //         that.checkAndRemoveBlankText();
+    //         that.renderStackObjects();
+    //         that.lockFrameImage();
+    //         that.reRenderTextProperty();
+    //         that.editSlide();
+    //         that.utils.hideLoader();
+    //         that.is_object_added_new = true;
+    //       });
+    //     }
+    //     else {
+    //       that.utils.hideLoader();
+    //       that.hideToolTipMenu();
+    //       that.is_object_added_new = true;
+    //     }
+    //     // this.editSlide();
+    //   }
+    // }
   }
 }

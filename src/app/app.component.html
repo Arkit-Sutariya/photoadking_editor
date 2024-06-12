@@ -30,14 +30,14 @@
             <div class="d-inline-block" style="margin-left: 20px;">
                   <div class="btn-group" role="group">
                         <div>
-                              <button type="button" style="padding: 0px 8px;border-right: 0px !important; border: 0 !important;background: transparent;height: 35px;" class="btn sub-hd-btn undo-redo-hover" id="undo_btn">
+                              <button type="button" style="padding: 0px 8px;border-right: 0px !important; border: 0 !important;background: transparent;height: 35px;" (click)="undo()" class="btn sub-hd-btn undo-redo-hover" id="undo_btn">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                           <path style="outline: 0;" d="M6.30037 14.7098C6.48663 14.8945 6.73803 14.9987 7.00037 14.9998C7.13268 14.9992 7.26356 14.9724 7.38544 14.9209C7.50731 14.8694 7.61775 14.7943 7.71037 14.6998C7.89662 14.5124 8.00116 14.259 8.00116 13.9948C8.00116 13.7306 7.89662 13.4771 7.71037 13.2898L4.36037 9.99978H11.0004C13.1221 9.99978 15.1569 10.8426 16.6572 12.3429C18.1575 13.8432 19.0004 15.8781 19.0004 17.9998V19.9998C19.0004 20.265 19.1057 20.5194 19.2933 20.7069C19.4808 20.8944 19.7352 20.9998 20.0004 20.9998C20.2656 20.9998 20.5199 20.8944 20.7075 20.7069C20.895 20.5194 21.0004 20.265 21.0004 19.9998V17.9998C21.0004 15.3476 19.9468 12.8041 18.0714 10.9287C16.1961 9.05335 13.6525 7.99978 11.0004 7.99978H4.38037L7.70037 4.70978C7.86565 4.51966 7.95308 4.27416 7.94518 4.02237C7.93728 3.77057 7.83464 3.53103 7.65778 3.35164C7.48091 3.17224 7.24285 3.06622 6.99119 3.05475C6.73953 3.04328 6.49282 3.12722 6.30037 3.28978L1.23037 8.28978C1.13664 8.38275 1.06225 8.49335 1.01148 8.61521C0.960709 8.73707 0.93457 8.86777 0.93457 8.99978C0.93457 9.1318 0.960709 9.2625 1.01148 9.38436C1.06225 9.50622 1.13664 9.61682 1.23037 9.70978L6.30037 14.7098Z" fill="white"/>
                                     </svg>            
                               </button>
                         </div>
                         <div>
-                              <button type="button" style="padding: 0px 8px;background: transparent;border: 0 !important;height: 35px;" class="btn sub-hd-btn undo-redo-hover" id="redo_btn"> 
+                              <button type="button" style="padding: 0px 8px;background: transparent;border: 0 !important;height: 35px;" (click)="redo()" class="btn sub-hd-btn undo-redo-hover" id="redo_btn"> 
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                           <path style="outline: 0;" d="M15.6342 14.7098C15.4479 14.8945 15.1965 14.9987 14.9342 14.9998C14.8019 14.9992 14.671 14.9724 14.5491 14.9209C14.4273 14.8694 14.3168 14.7943 14.2242 14.6998C14.038 14.5124 13.9334 14.259 13.9334 13.9948C13.9334 13.7306 14.038 13.4771 14.2242 13.2898L17.5742 9.99978H10.9342C8.81247 9.99978 6.77764 10.8426 5.27734 12.3429C3.77705 13.8432 2.9342 15.8781 2.9342 17.9998V19.9998C2.9342 20.265 2.82884 20.5194 2.64131 20.7069C2.45377 20.8944 2.19942 20.9998 1.9342 20.9998C1.66898 20.9998 1.41463 20.8944 1.22709 20.7069C1.03956 20.5194 0.9342 20.265 0.9342 19.9998V17.9998C0.9342 15.3476 1.98777 12.8041 3.86313 10.9287C5.7385 9.05335 8.28203 7.99978 10.9342 7.99978H17.5542L14.2342 4.70978C14.0689 4.51966 13.9815 4.27416 13.9894 4.02237C13.9973 3.77057 14.0999 3.53103 14.2768 3.35164C14.4537 3.17224 14.6917 3.06622 14.9434 3.05475C15.195 3.04328 15.4418 3.12722 15.6342 3.28978L20.7042 8.28978C20.7979 8.38275 20.8723 8.49335 20.9231 8.61521C20.9739 8.73707 21 8.86777 21 8.99978C21 9.1318 20.9739 9.2625 20.9231 9.38436C20.8723 9.50622 20.7979 9.61682 20.7042 9.70978L15.6342 14.7098Z" fill="white"/>
                                     </svg>            
@@ -173,7 +173,7 @@
                                     <div class="left-sidebar-wpr">
                                           <!-- <img [src]="tab.tabIcon" class="left-sidebar-icon" /> -->
                                           <div [innerHTML]="tab.sanitizedIconSvg" class="left-sidebar-icon"></div>
-                                          <p class="left-sidebar-txt" [ngClass]="(tab.tabId === 2) ? 'active' : ''">{{tab.tabName}}</p>
+                                          <p class="left-sidebar-txt" [ngClass]="(tab.tabId === activeTabID) ? 'active' : ''">{{tab.tabName}}</p>
                                     </div>
                               </li>
                         </button>
@@ -203,7 +203,7 @@
                               <div class="margin-bottom sub-tab-container" *ngIf="activeTabID === 2">
                                     <div class="sub-tab-content" id="elmnt_list_cntainr">
                                           <ul class="sub-tab smooth-slop-tab">
-                                                <li class="sub-tab-item" id="vd_shapes" (click)="activateStickerSubTab('shapes')"
+                                                <li class="sub-tab-item" id="vd_shapes" (click)="activateStickerSubTab('shapes');activeBasicShape();"
                                                       [ngClass]="{'active-sub-menu blue-active': shape}">Shapes</li>
                                                 <li class="sub-tab-item" id="vd_stkr" (click)="activateStickerSubTab('stickers')"
                                                       [ngClass]="{'active-sub-menu blue-active': stickers}">Stickers</li>
@@ -241,10 +241,10 @@
                                           </button>
                                           <div class="sub-tab-content pb-2" id="stickertb_cntainr" #stickerTab>
                                                 <ul class="sub-tab">
-                                                      <li [ngClass]="isBasicShapes ? 'active-sub-menu new-active' : ''" *ngIf="shape" (click)="isBasicShapes = true" class="sub-tab-li" id="bsic_shape">Basic
+                                                      <li [ngClass]="isBasicShapes ? 'active-sub-menu new-active' : ''" *ngIf="shape" (click)="isBasicShapes = true;activeBasicShape()" class="sub-tab-li" id="bsic_shape">Basic
                                                       </li>
                                                       <li *ngFor="let catalog_details of stickerCatalog_List;let i= index" id="{{'ctlog'+i}}"
-                                                            (click)="stickerCatalogChanged(catalog_details);"
+                                                            (click)="this.isShapeStickerActive  = true;stickerCatalogChanged(catalog_details);"
                                                             [ngClass]="stkr_catalog_id == catalog_details.catalog_id && !isBasicShapes ? 'active-sub-menu new-active' : ''"  class="sub-tab-li">
                                                             {{catalog_details.name}}</li>
                                                 </ul>
@@ -275,14 +275,13 @@
                                     </button>
                               </div>
                         </div>
-
                         <div class='item-container sticker-item-container three-col margin-bottom' id="basic_shap_cntainr" *ngIf="isBasicShapes && activeTabID === 2">
                               <div class="item" *ngFor="let shape of basicShapesList;let i=index">
                                     <img id="{{'bsc_shape'+i}}" [src]="shape.thumbnail" (click)="addBasicShape(shape)" alt="" draggable="true" (dragend)="addBasicShape(shape)">
                               </div>
                         </div>
                         <div id="basic_shap_cntainr1" class='item-container sticker-item-container three-col margin-bottom'
-                              *ngIf="(isSvgEle || isSvgSticker) && activeTabID === 2 && !isBasicShapes">
+                              *ngIf="activeTabID === 2 && !isBasicShapes">
                               <div class="item sticker-item" *ngFor="let sticker_details of stickerContent_List.content_list; let i = index">
                                     <img *ngIf="sticker_details.content_type == 1" [src]="sticker_details.thumbnail_img"
                                           (click)="selectSticker(sticker_details, 0,shape?'shapeSticker':stickers?'svgSticker':buttons?'iconSticker':'')"
@@ -290,9 +289,9 @@
                                           (dragend)="selectSticker(sticker_details, 0,shape?'shapeSticker':stickers?'svgSticker':buttons?'iconSticker':'')"
                                           id="{{'stcr'+i}}">
                                     <img *ngIf="sticker_details.content_type == 8" [src]="sticker_details.svg_image"
-                                          (click)="selectSticker(sticker_details, 1,'shapeSticker')"
+                                          (click)="selectSticker(sticker_details, 1,shape?'shapeSticker':stickers?'svgSticker':buttons?'iconSticker':'')"
                                           draggable="true"
-                                          (dragend)="selectSticker(sticker_details, 1,'shapeSticker')"
+                                          (dragend)="selectSticker(sticker_details, 1,shape?'shapeSticker':stickers?'svgSticker':buttons?'iconSticker':'')"
                                           id="{{'svg_stcr'+i}}">
                               </div>
                         </div>
@@ -748,7 +747,7 @@
                         </div>
                   </div>
             </div>
-            <div class="active-tab-content" *ngIf="activeTab.tabId==8 && active_tool == 'default'">
+            <div class="active-tab-content" *ngIf="activeTabID==8 && active_tool == 'default'">
                   <p class="tool-option-text">Tools</p>
                   <div class="tool-options-item item-container sticker-item-container three-col">
                         <div class="item tool-qrcode" (click)="hideToolTab('qrcode')">
@@ -767,7 +766,7 @@
                         </div>
                   </div>
             </div>
-            <div class="active-tab-content" *ngIf="activeTab.tabId==8 && active_tool == 'qrcode'">
+            <div class="active-tab-content" *ngIf="activeTabID==8 && active_tool == 'qrcode'">
                   <p class="tool-option-text ml-1">
                         <span (click)="hideToolTab('default')" class="tool-back-icon">
                               <svg _ngcontent-c2="" viewBox="0 0 1024.000000 1024.000000" xmlns="http://www.w3.org/2000/svg">
@@ -1001,10 +1000,10 @@
                         <mat-accordion>
                               <mat-expansion-panel *ngIf="selected">
                                     <mat-expansion-panel-header>
-                                          <mat-panel-title *ngIf="(isSvgEle || isRect || isCircle || isLine) && !isSvgSticker">
+                                          <mat-panel-title *ngIf="(isSvgEle || isRect || isCircle || isLine || isSvgIcon) && !isSvgSticker">
                                                 Element Setting
                                           </mat-panel-title>
-                                          <mat-panel-title *ngIf="isSvgSticker && (!isSvgEle || !isRect || !isCircle || !isLine)">
+                                          <mat-panel-title *ngIf="isSvgSticker && (!isSvgEle || !isRect || !isCircle || !isLine || !isSvgIcon)">
                                                 Image Setting
                                           </mat-panel-title>
                                     </mat-expansion-panel-header>
@@ -1254,7 +1253,7 @@
                                           </tr>
                                     </table>
                                     <!-- Object color for rect and circle -->
-                                    <table class="w-100pr mb-10" *ngIf="isRect || isCircle && !isSvgEle">
+                                    <table class="w-100pr mb-10" *ngIf="isRect || isCircle && (!isSvgEle || !isSvgIcon)">
                                           <tr class="d-flex flex-column">
                                                 <td class="w-58 new-colors-text">
                                                       <span>Color :</span>
@@ -1287,7 +1286,7 @@
                                           </tr>
                                     </table>
                                     <!-- SVG Elment color -->
-                                    <table class="w-100pr mb-10" *ngIf="selected && isSvgEle && uniqueArray.length > 0">
+                                    <table class="w-100pr mb-10" *ngIf="selected && (isSvgEle || isSvgIcon) && !this.isSvgSticker && uniqueArray.length > 0">
                                           <tr>
                                                 <td class="w-58 new-colors-text">
                                                 <span>Color :</span>
@@ -1303,7 +1302,7 @@
                                           </tr>
                                     </table>
                                     <!-- Border color for basic shapes -->
-                                    <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker">
+                                    <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker && !isSvgIcon">
                                           <tr class="d-flex flex-column">
                                                 <td class="w-97">
                                     
@@ -1355,7 +1354,7 @@
                                           </tr>
                                     </table>
                                     <!-- Border size -->
-                                    <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker">
+                                    <table class="w-100pr mb-10" *ngIf="!isSvgEle && !isSvgSticker && !isSvgIcon">
                                           <tr>
                                                 <td class="wc-81"><span class="d-block wc-81">Border Size :</span></td>
                                                 <td>
@@ -1405,7 +1404,7 @@
                                           </tr>
                                     </table>
                                     <!-- Border Radius -->
-                                    <table class="w-100pr" *ngIf="isRect && !isSvgEle">
+                                    <table class="w-100pr" *ngIf="isRect && (!isSvgEle || !isSvgIcon)">
                                           <tr>
                                                 <td class="wc-50"><span class="d-block wc-50">Border Radius :</span></td>
                                                 <td>
@@ -1455,7 +1454,7 @@
                                           </tr>
                                     </table>
                                     <!-- Crop and Eraser -->
-                                    <table class="w-100pr mb-10" *ngIf="selected && isCroping && !isSvgEle && !isRect && !isCircle && !isLine">
+                                    <table class="w-100pr mb-10" *ngIf="selected && this.isSvgSticker">
                                           <tr>
                                                 <td class="w-50 pr-1">
                                                       <button id="cropbtn" focusable="false" (click)="openCroper()" class="cust-icon-button"
@@ -1501,7 +1500,7 @@
                                           </tr>
                                     </table>
                                     <!-- Background remover -->
-                                    <div *ngIf="selected && isCroping && !isSvgEle && !isRect && !isCircle && !isLine" class="" style="background: #0F1934;height: 60px;margin-bottom: 10px;border-radius: 4px;cursor: pointer;" (click)="openBgRemover()">
+                                    <div *ngIf="selected && this.isSvgSticker" class="" style="background: #0F1934;height: 60px;margin-bottom: 10px;border-radius: 4px;cursor: pointer;" (click)="openBgRemover()">
                                           <div class="eraser-control-wrapper">
                                                 <div class="d-flex" style="padding: 6px;">
                                                       <div class="w-40 position-relative">
@@ -1548,9 +1547,9 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel *ngIf="(isRect || isCircle) && !isSvgEle && !isSvgSticker && selected">
+                              <mat-expansion-panel *ngIf="(isRect || isCircle) && !isSvgEle && !isSvgSticker && selected && !isSvgIcon">
                                     <mat-expansion-panel-header>
-                                          <mat-panel-title *ngIf="(isRect || isCircle) && !isSvgEle">
+                                          <mat-panel-title *ngIf="(isRect || isCircle) && (!isSvgEle || !isSvgIcon)">
                                                 Shadow
                                           </mat-panel-title>
                                     </mat-expansion-panel-header>
@@ -2227,7 +2226,7 @@
                                     </div>
                               </mat-expansion-panel>
 
-                              <mat-expansion-panel class="custom-panel" *ngIf="isBgImg && custom_background_tab_index == activeTab.tabId">
+                              <mat-expansion-panel class="custom-panel" *ngIf="isBgImg && custom_background_tab_index == activeTabID">
                                     <mat-expansion-panel-header class="custom-expansion-header" name="color_panel">
                                           <mat-panel-title>
                                                 Setting
@@ -2863,7 +2862,7 @@
                               Replace
                         </div>
                   </div>
-                  <div (click)="applyCrop()" class="rmenu-item" *ngIf="selected && !isCircle && !isRect && !isLine && !isSvgEle">
+                  <div (click)="applyCrop()" class="rmenu-item" *ngIf="selected && this.isSvgSticker">
                         <div>
                               <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M496 352h-80V141.25l91.31-91.31c6.25-6.25 6.25-16.38 0-22.63L484.69 4.69c-6.25-6.25-16.38-6.25-22.63 0L370.75 96H192v64h114.75L160 306.75V16c0-8.84-7.16-16-16-16h-32c-8.84 0-16 7.16-16 16v80H16c-8.84 0-16 7.16-16 16v32c0 8.84 7.16 16 16 16h80v224c0 17.67 14.33 32 32 32h192v-64H205.25L352 205.25V496c0 8.84 7.16 16 16 16h32c8.84 0 16-7.16 16-16v-80h80c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16z"
@@ -2873,7 +2872,8 @@
                         </div>
                         <div> Crop </div>
                   </div>
-                  <div (click)="openBgRemover()" class="rmenu-item ng-star-inserted" *ngIf="selected && !isCircle && !isRect && !isLine && !isSvgEle" style="display: flex;align-items: baseline;">
+                  <!-- selected && (!isCircle && !isRect && !isLine && !isSvgEle && !isSvgIcon) &&  -->
+                  <div (click)="openBgRemover()" class="rmenu-item ng-star-inserted" *ngIf="selected && this.isSvgSticker" style="display: flex;align-items: baseline;">
                         <div>
                               <svg fill="none" height="16" viewBox="0 0 22 16" width="22" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M19.9856 3.18721C19.9856 3.18721 18.7542 2.12692 17.7161 2.71825C16.9169 3.1778 11.8396 5.72541 9.5744 6.86016L6.36699 5.02625C6.71529 4.40925 6.77348 3.69554 6.58607 3.0075C6.34902 2.13805 5.72174 1.31394 4.79581 0.784226C3.13134 -0.169952 1.13057 0.192892 0.332137 1.59464C-0.0238614 2.21335 -0.0820534 2.9322 0.104503 3.62537C0.34155 4.49482 0.968826 5.31978 1.89476 5.85206C2.30382 6.08312 2.72999 6.2363 3.15359 6.31503V6.31589C3.15702 6.31674 3.16044 6.31674 3.16386 6.31846C3.19724 6.32359 3.23575 6.33129 3.27254 6.33557C5.91343 6.72837 7.26383 7.47374 7.91935 7.99918C7.26383 8.52633 5.91343 9.26999 3.27254 9.66364C3.23575 9.66792 3.19724 9.67477 3.16386 9.6799C3.16044 9.68161 3.15702 9.68161 3.15359 9.68332C2.73085 9.76205 2.30467 9.91524 1.89476 10.1471C0.968826 10.6794 0.342406 11.5035 0.104503 12.3738C-0.0829092 13.0653 -0.0238614 13.7841 0.332137 14.4063C1.13142 15.8055 3.13134 16.17 4.79666 15.2158C5.7226 14.6844 6.34902 13.8603 6.58692 12.9891C6.77433 12.302 6.71529 11.59 6.36785 10.9721L9.57525 9.13906C11.8396 10.2729 16.9177 12.8231 17.717 13.2801C18.755 13.8714 19.9865 12.812 19.9865 12.812L11.5675 7.99918L19.9856 3.18721ZM5.00033 4.26291C4.63578 4.89789 3.57121 5.00143 2.67522 4.48883C2.14893 4.18931 1.75271 3.7118 1.6175 3.21545C1.55845 2.99381 1.51994 2.66948 1.6928 2.37253C2.05565 1.7384 3.12022 1.63486 4.0162 2.1466C4.55106 2.4504 4.9353 2.91508 5.07222 3.41998C5.13383 3.63906 5.16892 3.9651 5.00033 4.26291ZM5.07222 12.5775C4.9353 13.0833 4.55106 13.5471 4.0162 13.8518C3.12022 14.3652 2.05565 14.2608 1.6928 13.625C1.52079 13.3272 1.5593 13.0037 1.6175 12.7846C1.75271 12.2866 2.14893 11.809 2.67522 11.5078C3.57121 10.9961 4.63578 11.0996 5.00033 11.7354C5.16892 12.035 5.13383 12.3584 5.07222 12.5775Z"
